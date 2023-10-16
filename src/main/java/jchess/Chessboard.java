@@ -23,7 +23,6 @@ package jchess;
 import java.awt.*;
 import java.awt.Graphics;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;

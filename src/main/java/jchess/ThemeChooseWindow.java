@@ -29,7 +29,6 @@ import javax.swing.event.ListSelectionEvent;
 import java.io.File;
 import java.util.Properties;
 import java.io.FileOutputStream;
-import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class ThemeChooseWindow extends JDialog implements ActionListener, ListSelectionListener
 {

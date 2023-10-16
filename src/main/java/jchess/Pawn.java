@@ -21,7 +21,6 @@
 package jchess;
 
 import java.util.ArrayList;
-import java.awt.Graphics;
 import java.awt.Image;
 
 /**

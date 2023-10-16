@@ -23,13 +23,8 @@ package jchess;
 import java.awt.*;
 import java.net.*;
 import java.io.*;
-import java.io.InputStreamReader;
-import javax.swing.*;
-import javax.swing.JPanel;
-import java.io.IOException;
 import java.util.Properties;
 import java.io.FileOutputStream;
-import java.util.logging.Logger;
 
 /** Class representing the game interface which is seen by a player and
  * where are lockated available for player opptions, current games and where

@@ -22,7 +22,6 @@ package jchess;
 
 import java.awt.*;
 import java.awt.image.*;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /** Class to representing the full game time

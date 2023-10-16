@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jchess.Player.playerTypes;
 
 /**
  * Class responsible for server references: For running the server,
@@ -300,16 +299,16 @@ public class Server implements Runnable
             player1Set.gameMode = Settings.gameModes.newGame;
             player1Set.playerWhite.setName(clientPlayer1.nick);
             player1Set.playerBlack.setName(clientPlayer2.nick);
-            player1Set.playerWhite.setType(playerTypes.localUser);
-            player1Set.playerBlack.setType(playerTypes.networkUser);
+            player1Set.playerWhite.setType(Player.playerTypes.localUser);
+            player1Set.playerBlack.setType(Player.playerTypes.networkUser);
             player1Set.gameType = Settings.gameTypes.network;
             player1Set.upsideDown = true;
 
             player2Set.gameMode = Settings.gameModes.newGame;
             player2Set.playerWhite.setName(clientPlayer1.nick);
             player2Set.playerBlack.setName(clientPlayer2.nick);
-            player2Set.playerWhite.setType(playerTypes.networkUser);
-            player2Set.playerBlack.setType(playerTypes.localUser);
+            player2Set.playerWhite.setType(Player.playerTypes.networkUser);
+            player2Set.playerBlack.setType(Player.playerTypes.localUser);
             player2Set.gameType = Settings.gameTypes.network;
             player2Set.upsideDown = false;
 
@@ -320,8 +319,8 @@ public class Server implements Runnable
                 observerSettings.gameMode = Settings.gameModes.newGame;
                 observerSettings.playerWhite.setName(clientPlayer1.nick);
                 observerSettings.playerBlack.setName(clientPlayer2.nick);
-                observerSettings.playerWhite.setType(playerTypes.networkUser);
-                observerSettings.playerBlack.setType(playerTypes.networkUser);
+                observerSettings.playerWhite.setType(Player.playerTypes.networkUser);
+                observerSettings.playerBlack.setType(Player.playerTypes.networkUser);
                 observerSettings.gameType = Settings.gameTypes.network;
                 observerSettings.upsideDown = true;
             }
