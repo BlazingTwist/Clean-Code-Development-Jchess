@@ -63,7 +63,6 @@ public class Bishop extends Piece
         {
             image = imageWhite;
         }
-        orgImage = image;
     }
 
     /**
@@ -75,9 +74,9 @@ public class Bishop extends Piece
     {
         ArrayList list = new ArrayList();
 
-        for (int h = this.square.pozX - 1, i = this.square.pozY + 1; !isout(h, i); --h, ++i) //left-up
+        for (int h = this.square.pozX - 1, i = this.square.pozY + 1; !isOutOfBounds(h, i); --h, ++i) //left-up
         {
-            if (this.checkPiece(h, i)) //if on this sqhuare isn't piece
+            if (this.canMoveTo(h, i)) //if on this sqhuare isn't piece
             {
                 if (this.player.color == Player.colors.white) //white
                 {
@@ -105,9 +104,9 @@ public class Bishop extends Piece
             }
         }
 
-        for (int h = this.square.pozX - 1, i = this.square.pozY - 1; !isout(h, i); --h, --i) //left-down
+        for (int h = this.square.pozX - 1, i = this.square.pozY - 1; !isOutOfBounds(h, i); --h, --i) //left-down
         {
-            if (this.checkPiece(h, i)) //if on this sqhuare isn't piece
+            if (this.canMoveTo(h, i)) //if on this sqhuare isn't piece
             {
                 if (this.player.color == Player.colors.white) //white
                 {
@@ -135,9 +134,9 @@ public class Bishop extends Piece
             }
         }
 
-        for (int h = this.square.pozX + 1, i = this.square.pozY + 1; !isout(h, i); ++h, ++i) //right-up
+        for (int h = this.square.pozX + 1, i = this.square.pozY + 1; !isOutOfBounds(h, i); ++h, ++i) //right-up
         {
-            if (this.checkPiece(h, i)) //if on this sqhuare isn't piece
+            if (this.canMoveTo(h, i)) //if on this sqhuare isn't piece
             {
                 if (this.player.color == Player.colors.white) //white
                 {
@@ -165,9 +164,9 @@ public class Bishop extends Piece
             }
         }
 
-        for (int h = this.square.pozX + 1, i = this.square.pozY - 1; !isout(h, i); ++h, --i) //right-down
+        for (int h = this.square.pozX + 1, i = this.square.pozY - 1; !isOutOfBounds(h, i); ++h, --i) //right-down
         {
-            if (this.checkPiece(h, i)) //if on this sqhuare isn't piece
+            if (this.canMoveTo(h, i)) //if on this sqhuare isn't piece
             {
                 if (this.player.color == Player.colors.white) //white
                 {

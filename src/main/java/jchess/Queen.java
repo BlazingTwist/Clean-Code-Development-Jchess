@@ -62,7 +62,6 @@ public class Queen extends Piece
         {
             image = imageWhite;
         }
-        orgImage = image;
     }
 
     /**
@@ -78,7 +77,7 @@ public class Queen extends Piece
         for (int i = this.square.pozY + 1; i <= 7; ++i)
         {//up
 
-            if (this.checkPiece(this.square.pozX, i))
+            if (this.canMoveTo(this.square.pozX, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -112,7 +111,7 @@ public class Queen extends Piece
         for (int i = this.square.pozY - 1; i >= 0; --i)
         {//down
 
-            if (this.checkPiece(this.square.pozX, i))
+            if (this.canMoveTo(this.square.pozX, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -147,7 +146,7 @@ public class Queen extends Piece
         for (int i = this.square.pozX - 1; i >= 0; --i)
         {//left
 
-            if (this.checkPiece(i, this.square.pozY))
+            if (this.canMoveTo(i, this.square.pozY))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -182,7 +181,7 @@ public class Queen extends Piece
         for (int i = this.square.pozX + 1; i <= 7; ++i)
         {//right
 
-            if (this.checkPiece(i, this.square.pozY))
+            if (this.canMoveTo(i, this.square.pozY))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -215,10 +214,10 @@ public class Queen extends Piece
         }
 
         // ------------- as Bishop ------------------
-        for (int h = this.square.pozX - 1, i = this.square.pozY + 1; !isout(h, i); --h, ++i)
+        for (int h = this.square.pozX - 1, i = this.square.pozY + 1; !isOutOfBounds(h, i); --h, ++i)
         {//left-up
 
-            if (this.checkPiece(h, i))
+            if (this.canMoveTo(h, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -249,10 +248,10 @@ public class Queen extends Piece
             }
         }
 
-        for (int h = this.square.pozX - 1, i = this.square.pozY - 1; !isout(h, i); --h, --i)
+        for (int h = this.square.pozX - 1, i = this.square.pozY - 1; !isOutOfBounds(h, i); --h, --i)
         {//left-down
 
-            if (this.checkPiece(h, i))
+            if (this.canMoveTo(h, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -284,10 +283,10 @@ public class Queen extends Piece
             }
         }
 
-        for (int h = this.square.pozX + 1, i = this.square.pozY + 1; !isout(h, i); ++h, ++i)
+        for (int h = this.square.pozX + 1, i = this.square.pozY + 1; !isOutOfBounds(h, i); ++h, ++i)
         {//right-up
 
-            if (this.checkPiece(h, i))
+            if (this.canMoveTo(h, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -319,10 +318,10 @@ public class Queen extends Piece
             }
         }
 
-        for (int h = this.square.pozX + 1, i = this.square.pozY - 1; !isout(h, i); ++h, --i)
+        for (int h = this.square.pozX + 1, i = this.square.pozY - 1; !isOutOfBounds(h, i); ++h, --i)
         {//right-down
 
-            if (this.checkPiece(h, i))
+            if (this.canMoveTo(h, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)

@@ -88,7 +88,6 @@ public class Pawn extends Piece
         {
             image = imageWhite;
         }
-        orgImage = image;
     }
 
     /**
@@ -109,7 +108,7 @@ public class Pawn extends Piece
             first = this.square.pozY + 1;//if yes, change value
             second = this.square.pozY + 2;//if yes, change value
         }
-        if (this.isout(first, first))
+        if (this.isOutOfBounds(first, first))
         {//out of bounds protection
             return list;//return empty list
         }
@@ -159,7 +158,7 @@ public class Pawn extends Piece
                 }
             }
         }
-        if (!this.isout(this.square.pozX - 1, this.square.pozY)) //out of bounds protection
+        if (!this.isOutOfBounds(this.square.pozX - 1, this.square.pozY)) //out of bounds protection
         {
             //capture
             sq = chessboard.squares[this.square.pozX - 1][first];
@@ -216,7 +215,7 @@ public class Pawn extends Piece
                 }
             }
         }
-        if (!this.isout(this.square.pozX + 1, this.square.pozY))
+        if (!this.isOutOfBounds(this.square.pozX + 1, this.square.pozY))
         {//out of bounds protection
 
             //capture

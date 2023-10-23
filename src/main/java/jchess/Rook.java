@@ -66,7 +66,6 @@ public class Rook extends Piece
         {
             image = imageWhite;
         }
-        orgImage = image;
     }
 
     /**
@@ -81,7 +80,7 @@ public class Rook extends Piece
         for (int i = this.square.pozY + 1; i <= 7; ++i)
         {//up
 
-            if (this.checkPiece(this.square.pozX, i))
+            if (this.canMoveTo(this.square.pozX, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -116,7 +115,7 @@ public class Rook extends Piece
         for (int i = this.square.pozY - 1; i >= 0; --i)
         {//down
 
-            if (this.checkPiece(this.square.pozX, i))
+            if (this.canMoveTo(this.square.pozX, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -150,7 +149,7 @@ public class Rook extends Piece
         for (int i = this.square.pozX - 1; i >= 0; --i)
         {//left
 
-            if (this.checkPiece(i, this.square.pozY))
+            if (this.canMoveTo(i, this.square.pozY))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -184,7 +183,7 @@ public class Rook extends Piece
         for (int i = this.square.pozX + 1; i <= 7; ++i)
         {//right
 
-            if (this.checkPiece(i, this.square.pozY))
+            if (this.canMoveTo(i, this.square.pozY))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)

@@ -52,7 +52,6 @@ public class Knight extends Piece
         {
             image = imageWhite;
         }
-        orgImage = image;
     }
 
     /**
@@ -83,7 +82,7 @@ public class Knight extends Piece
         newX = this.square.pozX - 2;
         newY = this.square.pozY + 1;
 
-        if (!isout(newX, newY) && checkPiece(newX, newY))
+        if (!isOutOfBounds(newX, newY) && canMoveTo(newX, newY))
         {
             if (this.player.color == Player.colors.white) //white
             {
@@ -105,7 +104,7 @@ public class Knight extends Piece
         newX = this.square.pozX - 1;
         newY = this.square.pozY + 2;
 
-        if (!isout(newX, newY) && checkPiece(newX, newY))
+        if (!isOutOfBounds(newX, newY) && canMoveTo(newX, newY))
         {
             if (this.player.color == Player.colors.white) //white
             {
@@ -127,7 +126,7 @@ public class Knight extends Piece
         newX = this.square.pozX + 1;
         newY = this.square.pozY + 2;
 
-        if (!isout(newX, newY) && checkPiece(newX, newY))
+        if (!isOutOfBounds(newX, newY) && canMoveTo(newX, newY))
         {
             if (this.player.color == Player.colors.white) //white
             {
@@ -149,7 +148,7 @@ public class Knight extends Piece
         newX = this.square.pozX + 2;
         newY = this.square.pozY + 1;
 
-        if (!isout(newX, newY) && checkPiece(newX, newY))
+        if (!isOutOfBounds(newX, newY) && canMoveTo(newX, newY))
         {
             if (this.player.color == Player.colors.white) //white
             {
@@ -171,7 +170,7 @@ public class Knight extends Piece
         newX = this.square.pozX + 2;
         newY = this.square.pozY - 1;
 
-        if (!isout(newX, newY) && checkPiece(newX, newY))
+        if (!isOutOfBounds(newX, newY) && canMoveTo(newX, newY))
         {
             if (this.player.color == Player.colors.white) //white
             {
@@ -193,7 +192,7 @@ public class Knight extends Piece
         newX = this.square.pozX + 1;
         newY = this.square.pozY - 2;
 
-        if (!isout(newX, newY) && checkPiece(newX, newY))
+        if (!isOutOfBounds(newX, newY) && canMoveTo(newX, newY))
         {
             if (this.player.color == Player.colors.white) //white
             {
@@ -215,7 +214,7 @@ public class Knight extends Piece
         newX = this.square.pozX - 1;
         newY = this.square.pozY - 2;
 
-        if (!isout(newX, newY) && checkPiece(newX, newY))
+        if (!isOutOfBounds(newX, newY) && canMoveTo(newX, newY))
         {
             if (this.player.color == Player.colors.white) //white
             {
@@ -237,7 +236,7 @@ public class Knight extends Piece
         newX = this.square.pozX - 2;
         newY = this.square.pozY - 1;
 
-        if (!isout(newX, newY) && checkPiece(newX, newY))
+        if (!isOutOfBounds(newX, newY) && canMoveTo(newX, newY))
         {
             if (this.player.color == Player.colors.white) //white
             {
