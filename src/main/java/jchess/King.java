@@ -61,7 +61,7 @@ public class King extends Piece
     @Override
     void setImage()
     {
-        if (this.player.color == this.player.color.black)
+        if (this.player.color == Player.colors.black)
         {
             image = imageBlack;
         }
@@ -73,12 +73,12 @@ public class King extends Piece
 
     /**
      * Annotation to superclass Piece changing pawns location
-     * @return  ArrayList with new possition of piece
+     * @return ArrayList with new position of piece
      */
     @Override
-    public ArrayList allMoves()
+    public ArrayList<Square> allMoves()
     {
-        ArrayList list = new ArrayList();
+        ArrayList<Square> list = new ArrayList<>();
         Square sq;
         Square sq1;
         for (int i = this.square.pozX - 1; i <= this.square.pozX + 1; i++)

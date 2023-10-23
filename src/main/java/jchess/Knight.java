@@ -44,7 +44,7 @@ public class Knight extends Piece
     @Override
     void setImage()
     {
-        if (this.player.color == this.player.color.black)
+        if (this.player.color == Player.colors.black)
         {
             image = imageBlack;
         }
@@ -55,13 +55,13 @@ public class Knight extends Piece
     }
 
     /**
-     *  Annotation to superclass Piece changing pawns location
-     * @return  ArrayList with new possition of pawn
+     * Annotation to superclass Piece changing pawns location
+     * @return ArrayList with new possition of pawn
      */
     @Override
-    public ArrayList allMoves()
+    public ArrayList<Square> allMoves()
     {
-        ArrayList list = new ArrayList();
+        ArrayList<Square> list = new ArrayList<>();
 
         // knight all moves
         //  _______________ Y:

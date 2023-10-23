@@ -92,13 +92,13 @@ public class Pawn extends Piece
 
     /**
      * Annotation to superclass Piece changing pawns location
-     * @return  ArrayList with new possition of piece
+     * @return ArrayList with new possition of piece
      */
     @Override
-    public ArrayList allMoves()
+    public ArrayList<Square> allMoves()
     {
         //System.out.println(this.player.goDown);//4test
-        ArrayList list = new ArrayList();
+        ArrayList<Square> list = new ArrayList<>();
         Square sq;
         Square sq1;
         int first = this.square.pozY - 1;//number where to move
