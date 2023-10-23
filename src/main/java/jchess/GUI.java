@@ -48,7 +48,7 @@ public class GUI
      * @returns  : image or null if cannot load
      * */
 
-    static Image loadImage(String name)
+    public static Image loadImage(String name)
     {
         if (configFile == null)
         {

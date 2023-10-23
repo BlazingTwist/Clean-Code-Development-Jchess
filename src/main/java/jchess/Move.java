@@ -19,6 +19,7 @@
 package jchess;
 
 import jchess.Moves.castling;
+import jchess.piece.Piece;
 
 class Move
 {

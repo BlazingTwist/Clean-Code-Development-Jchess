@@ -19,7 +19,13 @@
  * Damian Marciniak
  */
 
-package jchess;
+package jchess.piece;
+
+import jchess.Chessboard;
+import jchess.GUI;
+import jchess.Player;
+import jchess.Square;
+import jchess.piece.Piece;
 
 import java.util.ArrayList;
 import java.awt.Image;
@@ -42,12 +48,12 @@ import java.awt.Image;
 public class Rook extends Piece
 {
 
-    boolean wasMotion = false;
+    public boolean wasMotion = false;
     protected static final Image imageWhite = GUI.loadImage("Rook-W.png");
     protected static final Image imageBlack = GUI.loadImage("Rook-B.png");
     public static short value = 5;
 
-    Rook(Chessboard chessboard, Player player)
+    public Rook(Chessboard chessboard, Player player)
     {
         super(chessboard, player);//call initializer of super type: Piece
         //this.setImages("Rook-W.png", "Rook-B.png");

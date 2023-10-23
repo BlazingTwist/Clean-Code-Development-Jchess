@@ -18,8 +18,12 @@
  * Mateusz Sławomir Lach ( matlak, msl )
  * Damian Marciniak
  */
-package jchess;
+package jchess.piece;
 
+
+import jchess.Chessboard;
+import jchess.Player;
+import jchess.Square;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -34,10 +38,10 @@ import java.util.ArrayList;
  */
 public abstract class Piece {
 
-    Chessboard chessboard; // <-- this relations isn't in class diagram, but it's necessary :/
+    public Chessboard chessboard; // <-- this relations isn't in class diagram, but it's necessary :/
     public Square square;
     public Player player;
-    String name;
+    public String name;
     protected String symbol;
     protected static Image imageBlack;// = null;
     protected static Image imageWhite;// = null;
@@ -59,7 +63,7 @@ public abstract class Piece {
      * @graph : where to draw
      */
 
-    final void draw(Graphics g) {
+    public final void draw(Graphics g) {
         if (image == null) {
             System.err.println("Image of piece '" + this.name + "' is null");
             return;
@@ -69,7 +73,7 @@ public abstract class Piece {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             Point topLeft = this.chessboard.getTopLeftPoint();
-            int edgeLength = this.chessboard.get_square_height();
+            int edgeLength = this.chessboard.get_square_length();
             int x = (this.square.pozX * edgeLength) + topLeft.x;
             int y = (this.square.pozY * edgeLength) + topLeft.y;
 
