@@ -19,7 +19,13 @@
  * Damian Marciniak
  */
 
-package jchess;
+package jchess.piece;
+
+import jchess.Chessboard;
+import jchess.GUI;
+import jchess.Player;
+import jchess.Square;
+import jchess.piece.Piece;
 
 import java.util.ArrayList;
 import java.awt.Image;
@@ -42,12 +48,12 @@ import java.awt.Image;
 public class Rook extends Piece
 {
 
-    boolean wasMotion = false;
+    public boolean wasMotion = false;
     protected static final Image imageWhite = GUI.loadImage("Rook-W.png");
     protected static final Image imageBlack = GUI.loadImage("Rook-B.png");
     public static short value = 5;
 
-    Rook(Chessboard chessboard, Player player)
+    public Rook(Chessboard chessboard, Player player)
     {
         super(chessboard, player);//call initializer of super type: Piece
         //this.setImages("Rook-W.png", "Rook-B.png");
@@ -66,22 +72,21 @@ public class Rook extends Piece
         {
             image = imageWhite;
         }
-        orgImage = image;
     }
 
     /**
-     *  Annotation to superclass Piece changing pawns location
-     * @return  ArrayList with new possition of piece
+     * Annotation to superclass Piece changing pawns location
+     * @return ArrayList with new possition of piece
      */
     @Override
-    public ArrayList allMoves()
+    public ArrayList<Square> allMoves()
     {
-        ArrayList list = new ArrayList();
+        ArrayList<Square> list = new ArrayList<>();
 
         for (int i = this.square.pozY + 1; i <= 7; ++i)
         {//up
 
-            if (this.checkPiece(this.square.pozX, i))
+            if (this.canMoveTo(this.square.pozX, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -116,7 +121,7 @@ public class Rook extends Piece
         for (int i = this.square.pozY - 1; i >= 0; --i)
         {//down
 
-            if (this.checkPiece(this.square.pozX, i))
+            if (this.canMoveTo(this.square.pozX, i))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -150,7 +155,7 @@ public class Rook extends Piece
         for (int i = this.square.pozX - 1; i >= 0; --i)
         {//left
 
-            if (this.checkPiece(i, this.square.pozY))
+            if (this.canMoveTo(i, this.square.pozY))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)
@@ -184,7 +189,7 @@ public class Rook extends Piece
         for (int i = this.square.pozX + 1; i <= 7; ++i)
         {//right
 
-            if (this.checkPiece(i, this.square.pozY))
+            if (this.canMoveTo(i, this.square.pozY))
             {//if on this sqhuare isn't piece
 
                 if (this.player.color == Player.colors.white)

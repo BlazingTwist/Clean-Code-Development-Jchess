@@ -18,7 +18,7 @@
  * Mateusz Sławomir Lach ( matlak, msl )
  * Damian Marciniak
  */
-package jchess;
+package jchess.piece;
 
 /**
  * Class to represent a chess pawn king. King is the most important
@@ -37,6 +37,8 @@ package jchess;
         |_|_|_|_|_|_|_|_|0
         0 1 2 3 4 5 6 7
  */
+import jchess.*;
+
 import java.util.ArrayList;
 import java.awt.Image;
 
@@ -49,7 +51,7 @@ public class King extends Piece
     private static final Image imageWhite = GUI.loadImage("King-W.png");
     private static final Image imageBlack = GUI.loadImage("King-B.png");
 
-    King(Chessboard chessboard, Player player)
+    public King(Chessboard chessboard, Player player)
     {
         super(chessboard, player);
         //this.setImages("King-W.png", "King-B.png");
@@ -61,7 +63,7 @@ public class King extends Piece
     @Override
     void setImage()
     {
-        if (this.player.color == this.player.color.black)
+        if (this.player.color == Player.colors.black)
         {
             image = imageBlack;
         }
@@ -69,31 +71,30 @@ public class King extends Piece
         {
             image = imageWhite;
         }
-        orgImage = image;
     }
 
     /**
      * Annotation to superclass Piece changing pawns location
-     * @return  ArrayList with new possition of piece
+     * @return ArrayList with new position of piece
      */
     @Override
-    public ArrayList allMoves()
+    public ArrayList<Square> allMoves()
     {
-        ArrayList list = new ArrayList();
+        ArrayList<Square> list = new ArrayList<>();
         Square sq;
         Square sq1;
         for (int i = this.square.pozX - 1; i <= this.square.pozX + 1; i++)
         {
             for (int y = this.square.pozY - 1; y <= this.square.pozY + 1; y++)
             {
-                if (!this.isout(i, y))
+                if (!this.isOutOfBounds(i, y))
                 {//out of bounds protection
                     sq = this.chessboard.squares[i][y];
                     if (this.square == sq)
                     {//if we're checking square on which is King
                         continue;
                     }
-                    if (this.checkPiece(i, y))
+                    if (this.canMoveTo(i, y))
                     {//if square is empty
                         if (isSafe(sq))
                         {
@@ -309,7 +310,7 @@ public class King extends Piece
         }
 
         // Bishop & Queen
-        for (int h = s.pozX - 1, i = s.pozY + 1; !isout(h, i); --h, ++i) //left-up
+        for (int h = s.pozX - 1, i = s.pozY + 1; !isOutOfBounds(h, i); --h, ++i) //left-up
         {
             if (this.chessboard.squares[h][i].piece == null || this.chessboard.squares[h][i].piece == this) //if on this sqhuare isn't piece
             {
@@ -333,7 +334,7 @@ public class King extends Piece
             }
         }
 
-        for (int h = s.pozX - 1, i = s.pozY - 1; !isout(h, i); --h, --i) //left-down
+        for (int h = s.pozX - 1, i = s.pozY - 1; !isOutOfBounds(h, i); --h, --i) //left-down
         {
             if (this.chessboard.squares[h][i].piece == null || this.chessboard.squares[h][i].piece == this) //if on this sqhuare isn't piece
             {
@@ -357,7 +358,7 @@ public class King extends Piece
             }
         }
 
-        for (int h = s.pozX + 1, i = s.pozY + 1; !isout(h, i); ++h, ++i) //right-up
+        for (int h = s.pozX + 1, i = s.pozY + 1; !isOutOfBounds(h, i); ++h, ++i) //right-up
         {
             if (this.chessboard.squares[h][i].piece == null || this.chessboard.squares[h][i].piece == this) //if on this sqhuare isn't piece
             {
@@ -381,7 +382,7 @@ public class King extends Piece
             }
         }
 
-        for (int h = s.pozX + 1, i = s.pozY - 1; !isout(h, i); ++h, --i) //right-down
+        for (int h = s.pozX + 1, i = s.pozY - 1; !isOutOfBounds(h, i); ++h, --i) //right-down
         {
             if (this.chessboard.squares[h][i].piece == null || this.chessboard.squares[h][i].piece == this) //if on this sqhuare isn't piece
             {
@@ -412,7 +413,7 @@ public class King extends Piece
         newX = s.pozX - 2;
         newY = s.pozY + 1;
 
-        if (!isout(newX, newY))
+        if (!isOutOfBounds(newX, newY))
         {
             if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
             {
@@ -430,7 +431,7 @@ public class King extends Piece
         newX = s.pozX - 1;
         newY = s.pozY + 2;
 
-        if (!isout(newX, newY))
+        if (!isOutOfBounds(newX, newY))
         {
             if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
             {
@@ -448,7 +449,7 @@ public class King extends Piece
         newX = s.pozX + 1;
         newY = s.pozY + 2;
 
-        if (!isout(newX, newY))
+        if (!isOutOfBounds(newX, newY))
         {
             if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
             {
@@ -466,7 +467,7 @@ public class King extends Piece
         newX = s.pozX + 2;
         newY = s.pozY + 1;
 
-        if (!isout(newX, newY))
+        if (!isOutOfBounds(newX, newY))
         {
             if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
             {
@@ -484,7 +485,7 @@ public class King extends Piece
         newX = s.pozX + 2;
         newY = s.pozY - 1;
 
-        if (!isout(newX, newY))
+        if (!isOutOfBounds(newX, newY))
         {
             if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
             {
@@ -502,7 +503,7 @@ public class King extends Piece
         newX = s.pozX + 1;
         newY = s.pozY - 2;
 
-        if (!isout(newX, newY))
+        if (!isOutOfBounds(newX, newY))
         {
             if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
             {
@@ -520,7 +521,7 @@ public class King extends Piece
         newX = s.pozX - 1;
         newY = s.pozY - 2;
 
-        if (!isout(newX, newY))
+        if (!isOutOfBounds(newX, newY))
         {
             if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
             {
@@ -538,7 +539,7 @@ public class King extends Piece
         newX = s.pozX - 2;
         newY = s.pozY - 1;
 
-        if (!isout(newX, newY))
+        if (!isOutOfBounds(newX, newY))
         {
             if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
             {
@@ -576,7 +577,7 @@ public class King extends Piece
         {//System.out.println("go down");
             newX = s.pozX - 1;
             newY = s.pozY + 1;
-            if (!isout(newX, newY))
+            if (!isOutOfBounds(newX, newY))
             {
                 if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
                 {
@@ -590,7 +591,7 @@ public class King extends Piece
                 }
             }
             newX = s.pozX + 1;
-            if (!isout(newX, newY))
+            if (!isOutOfBounds(newX, newY))
             {
                 if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
                 {
@@ -608,7 +609,7 @@ public class King extends Piece
         {//System.out.println("go up");
             newX = s.pozX - 1;
             newY = s.pozY - 1;
-            if (!isout(newX, newY))
+            if (!isOutOfBounds(newX, newY))
             {
                 if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
                 {
@@ -622,7 +623,7 @@ public class King extends Piece
                 }
             }
             newX = s.pozX + 1;
-            if (!isout(newX, newY))
+            if (!isOutOfBounds(newX, newY))
             {
                 if (this.chessboard.squares[newX][newY].piece == null) //if on this sqhuare isn't piece
                 {

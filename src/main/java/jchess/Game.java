@@ -20,6 +20,8 @@
  */
 package jchess;
 
+import jchess.piece.King;
+
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;

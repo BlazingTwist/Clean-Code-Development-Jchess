@@ -18,7 +18,13 @@
  * Mateusz Sławomir Lach ( matlak, msl )
  * Damian Marciniak
  */
-package jchess;
+package jchess.piece;
+
+import jchess.Chessboard;
+import jchess.GUI;
+import jchess.Player;
+import jchess.Square;
+import jchess.piece.Piece;
 
 import java.util.ArrayList;
 import java.awt.Image;
@@ -69,7 +75,7 @@ public class Pawn extends Piece
     protected static final Image imageBlack = GUI.loadImage("Pawn-B.png");
     public static short value = 1;
 
-    Pawn(Chessboard chessboard, Player player)
+    public Pawn(Chessboard chessboard, Player player)
     {
         super(chessboard, player);
         //this.setImages("Pawn-W.png", "Pawn-B.png");
@@ -88,18 +94,17 @@ public class Pawn extends Piece
         {
             image = imageWhite;
         }
-        orgImage = image;
     }
 
     /**
      * Annotation to superclass Piece changing pawns location
-     * @return  ArrayList with new possition of piece
+     * @return ArrayList with new possition of piece
      */
     @Override
-    public ArrayList allMoves()
+    public ArrayList<Square> allMoves()
     {
         //System.out.println(this.player.goDown);//4test
-        ArrayList list = new ArrayList();
+        ArrayList<Square> list = new ArrayList<>();
         Square sq;
         Square sq1;
         int first = this.square.pozY - 1;//number where to move
@@ -109,7 +114,7 @@ public class Pawn extends Piece
             first = this.square.pozY + 1;//if yes, change value
             second = this.square.pozY + 2;//if yes, change value
         }
-        if (this.isout(first, first))
+        if (this.isOutOfBounds(first, first))
         {//out of bounds protection
             return list;//return empty list
         }
@@ -159,7 +164,7 @@ public class Pawn extends Piece
                 }
             }
         }
-        if (!this.isout(this.square.pozX - 1, this.square.pozY)) //out of bounds protection
+        if (!this.isOutOfBounds(this.square.pozX - 1, this.square.pozY)) //out of bounds protection
         {
             //capture
             sq = chessboard.squares[this.square.pozX - 1][first];
@@ -216,7 +221,7 @@ public class Pawn extends Piece
                 }
             }
         }
-        if (!this.isout(this.square.pozX + 1, this.square.pozY))
+        if (!this.isOutOfBounds(this.square.pozX + 1, this.square.pozY))
         {//out of bounds protection
 
             //capture

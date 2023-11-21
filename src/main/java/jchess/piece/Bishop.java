@@ -18,8 +18,12 @@
  * Mateusz Sławomir Lach ( matlak, msl )
  * Damian Marciniak
  */
-package jchess;
+package jchess.piece;
 
+import jchess.Chessboard;
+import jchess.GUI;
+import jchess.Player;
+import jchess.Square;
 import java.util.ArrayList;
 import java.awt.Image;
 
@@ -44,7 +48,7 @@ public class Bishop extends Piece
     protected static final Image imageWhite = GUI.loadImage("Bishop-W.png");
     protected static final Image imageBlack = GUI.loadImage("Bishop-B.png");
 
-    Bishop(Chessboard chessboard, Player player)
+    public Bishop(Chessboard chessboard, Player player)
     {
         super(chessboard, player);      //call initializer of super type: Piece
         //this.setImages("Bishop-W.png", "Bishop-B.png");
@@ -55,7 +59,7 @@ public class Bishop extends Piece
     @Override
     void setImage()
     {
-        if (this.player.color == this.player.color.black)
+        if (this.player.color == Player.colors.black)
         {
             image = imageBlack;
         }
@@ -63,21 +67,20 @@ public class Bishop extends Piece
         {
             image = imageWhite;
         }
-        orgImage = image;
     }
 
     /**
      * Annotation to superclass Piece changing pawns location
-     * @return  ArrayList with new possition of piece
+     * @return ArrayList with new possition of piece
      */
     @Override
-    public ArrayList allMoves()
+    public ArrayList<Square> allMoves()
     {
-        ArrayList list = new ArrayList();
+        ArrayList<Square> list = new ArrayList<>();
 
-        for (int h = this.square.pozX - 1, i = this.square.pozY + 1; !isout(h, i); --h, ++i) //left-up
+        for (int h = this.square.pozX - 1, i = this.square.pozY + 1; !isOutOfBounds(h, i); --h, ++i) //left-up
         {
-            if (this.checkPiece(h, i)) //if on this sqhuare isn't piece
+            if (this.canMoveTo(h, i)) //if on this sqhuare isn't piece
             {
                 if (this.player.color == Player.colors.white) //white
                 {
@@ -105,9 +108,9 @@ public class Bishop extends Piece
             }
         }
 
-        for (int h = this.square.pozX - 1, i = this.square.pozY - 1; !isout(h, i); --h, --i) //left-down
+        for (int h = this.square.pozX - 1, i = this.square.pozY - 1; !isOutOfBounds(h, i); --h, --i) //left-down
         {
-            if (this.checkPiece(h, i)) //if on this sqhuare isn't piece
+            if (this.canMoveTo(h, i)) //if on this sqhuare isn't piece
             {
                 if (this.player.color == Player.colors.white) //white
                 {
@@ -135,9 +138,9 @@ public class Bishop extends Piece
             }
         }
 
-        for (int h = this.square.pozX + 1, i = this.square.pozY + 1; !isout(h, i); ++h, ++i) //right-up
+        for (int h = this.square.pozX + 1, i = this.square.pozY + 1; !isOutOfBounds(h, i); ++h, ++i) //right-up
         {
-            if (this.checkPiece(h, i)) //if on this sqhuare isn't piece
+            if (this.canMoveTo(h, i)) //if on this sqhuare isn't piece
             {
                 if (this.player.color == Player.colors.white) //white
                 {
@@ -165,9 +168,9 @@ public class Bishop extends Piece
             }
         }
 
-        for (int h = this.square.pozX + 1, i = this.square.pozY - 1; !isout(h, i); ++h, --i) //right-down
+        for (int h = this.square.pozX + 1, i = this.square.pozY - 1; !isOutOfBounds(h, i); ++h, --i) //right-down
         {
-            if (this.checkPiece(h, i)) //if on this sqhuare isn't piece
+            if (this.canMoveTo(h, i)) //if on this sqhuare isn't piece
             {
                 if (this.player.color == Player.colors.white) //white
                 {
