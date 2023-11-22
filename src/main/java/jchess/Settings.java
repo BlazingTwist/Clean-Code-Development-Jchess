@@ -20,6 +20,9 @@
  */
 package jchess;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
@@ -29,6 +32,7 @@ import java.util.ResourceBundle;
  */
 public class Settings implements Serializable
 {
+    private static final Logger logger = LoggerFactory.getLogger(Settings.class);
 
     private static ResourceBundle loc = null;
     public int timeForGame;
@@ -88,7 +92,7 @@ public class Settings implements Serializable
         {
             result = key;
         }
-        System.out.println(Settings.loc.getLocale().toString());
+        logger.info("locale: '{}'", Settings.loc.getLocale());
         return result;
     }
 }

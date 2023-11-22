@@ -24,10 +24,9 @@ import jchess.Chessboard;
 import jchess.GUI;
 import jchess.Player;
 import jchess.Square;
-import jchess.piece.Piece;
 
-import java.util.ArrayList;
 import java.awt.Image;
+import java.util.ArrayList;
 
 /**
  * Class to represent a pawn piece
@@ -103,7 +102,6 @@ public class Pawn extends Piece
     @Override
     public ArrayList<Square> allMoves()
     {
-        //System.out.println(this.player.goDown);//4test
         ArrayList<Square> list = new ArrayList<>();
         Square sq;
         Square sq1;

@@ -21,15 +21,18 @@
 package jchess;
 
 import jchess.piece.Piece;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Stack;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import java.util.Stack;
 
 /** Class representing the players moves, it's also checking
  * that the moves taken by player are correct.
@@ -39,6 +42,7 @@ import javax.swing.JOptionPane;
  */
 public class Moves extends AbstractTableModel
 {
+    private static final Logger logger = LoggerFactory.getLogger(Moves.class);
 
     private ArrayList<String> move = new ArrayList<String>();
     private int columnsNum = 3;
@@ -377,7 +381,7 @@ public class Moves extends AbstractTableModel
                     break; // R like Rook
             }
             sign = move.charAt(from);
-            System.out.println(sign);
+            logger.info("isMovCorrect - sign: '{}'", sign);
             if (sign < 97 || sign > 104) //if lower than 'a' or higher than 'h'
             {
                 return false;
@@ -460,14 +464,13 @@ public class Moves extends AbstractTableModel
         {
             from = moves.indexOf(" ", from);
             to = moves.indexOf(" ", from + 1);
-            //System.out.println(from+">"+to);
             try
             {
                 tempArray.add(moves.substring(from + 1, to).trim());
             }
             catch (java.lang.StringIndexOutOfBoundsException exc)
             {
-                System.out.println("error parsing file to load: " + exc);
+                logger.error("error parsing file to load", exc);
                 break;
             }
             if (n % 2 == 0)

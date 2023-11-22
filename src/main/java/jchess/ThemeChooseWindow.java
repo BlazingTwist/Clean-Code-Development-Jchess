@@ -20,18 +20,30 @@
  */
 package jchess;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.event.ListSelectionListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Properties;
 import java.io.FileOutputStream;
+import java.util.Properties;
 
 public class ThemeChooseWindow extends JDialog implements ActionListener, ListSelectionListener
 {
+    private static final Logger logger = LoggerFactory.getLogger(ThemeChooseWindow.class);
 
     JList themesList;
     ImageIcon themePreview;
@@ -47,7 +59,7 @@ public class ThemeChooseWindow extends JDialog implements ActionListener, ListSe
 
         File dir = new File(GUI.getJarPath() + File.separator + "theme"+File.separator);
 
-        System.out.println("Theme path: "+dir.getPath());
+        logger.info("Theme path: '{}'", dir.getAbsolutePath());
 
         File[] files = dir.listFiles();
         if (files != null && dir.exists())
@@ -81,7 +93,7 @@ public class ThemeChooseWindow extends JDialog implements ActionListener, ListSe
             }
             catch (java.lang.NullPointerException exc)
             {
-                System.out.println("Cannot find preview image: " + exc);
+                logger.error("Cannot find preview image", exc);
                 this.themePreview = new ImageIcon(JChessApp.class.getResource("theme/noPreview.png"));
                 return;
             }
@@ -109,9 +121,9 @@ public class ThemeChooseWindow extends JDialog implements ActionListener, ListSe
     {
         String element = this.themesList.getModel().getElementAt(this.themesList.getSelectedIndex()).toString();
         String path = GUI.getJarPath() + File.separator + "theme/";
-        //String path  = JChessApp.class.getResource("theme/").getPath().toString();
-        System.out.println(path + element + "/images/Preview.png");
-        this.themePreview = new ImageIcon(path + element + "/images/Preview.png");
+        String previewPath = path + element + "/images/Preview.png";
+        logger.info("themePreview path: '{}'", previewPath);
+        this.themePreview = new ImageIcon(previewPath);
         this.themePreviewButton.setIcon(this.themePreview);
     }
 
@@ -143,7 +155,7 @@ public class ThemeChooseWindow extends JDialog implements ActionListener, ListSe
                 this.setVisible(false);
 
             }
-            System.out.print(prp.getProperty("THEME"));
+            logger.info("Theme property: '{}'", prp.getProperty("THEME"));
         }
     }
 }

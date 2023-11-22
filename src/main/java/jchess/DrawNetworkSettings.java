@@ -19,13 +19,10 @@
  */
 package jchess;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
+import jchess.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -36,7 +33,11 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import jchess.server.Server;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.regex.Pattern;
 
 /**
  * Class responible for drawing Network Settings, when player want to start
@@ -45,6 +46,7 @@ import jchess.server.Server;
  */
 public class DrawNetworkSettings extends JPanel implements ActionListener
 {
+    private static final Logger logger = LoggerFactory.getLogger(DrawNetworkSettings.class);
 
     private JDialog parent;
     private GridBagLayout gbl;
@@ -234,7 +236,7 @@ public class DrawNetworkSettings extends JPanel implements ActionListener
                 }
                 catch (InterruptedException ex)
                 {
-                    Logger.getLogger(DrawNetworkSettings.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error("", ex);
                 }
             }
             Client client;
@@ -243,9 +245,9 @@ public class DrawNetworkSettings extends JPanel implements ActionListener
                 client = new Client(clientOptions.textServIP.getText(), Server.port);//create client
                 boolean isJoining = client.join(Integer.parseInt(textGameID.getText()), !clientOptions.checkOnlyWatch.isSelected(), textNick.getText(), MD5.encrypt(textPassword.getText()));//join and wait for all players
 
-                if (isJoining) //Client connection: succesful
+                if (isJoining) //Client connection: successful
                 {
-                    System.out.println("Client connection: succesful");
+                    logger.info("Client connection: successful");
                     //create new game and draw chessboard
                     Game newGUI = JChessApp.jcv.addNewTab("Network game, table: " + textGameID.getText()/*client.sett.playerWhite.getName()+" vs "+client.sett.playerBlack.getName()*/);
                     client.game = newGUI;
@@ -265,7 +267,7 @@ public class DrawNetworkSettings extends JPanel implements ActionListener
             }
             catch (Error err)
             {
-                System.out.println("Client connection: failure");
+                logger.info("Client connection: failure");
                 JOptionPane.showMessageDialog(this, err);
             }
         }

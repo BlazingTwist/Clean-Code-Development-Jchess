@@ -13,6 +13,8 @@ import jchess.game.common.piece.PieceIdentifier;
 import jchess.game.common.piece.PieceRenderSystem;
 import jchess.game.common.tile.TileComponent;
 import jchess.game.common.tile.TileRenderSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JFrame;
 import java.awt.Container;
@@ -25,6 +27,7 @@ import java.io.File;
 import java.net.URISyntaxException;
 
 public class Hex3PlayerGame {
+    private static final Logger logger = LoggerFactory.getLogger(Hex3PlayerGame.class);
     public static void main(String[] args) throws URISyntaxException {
         String themePath = "/jchess/theme/v2/default";
         Theme theme1 = new Theme(new File(Hex3PlayerGame.class.getResource(themePath).toURI()));
@@ -258,7 +261,7 @@ public class Hex3PlayerGame {
     private void placePiece(int x, int y, int playerColor, PieceMoveRules.PieceType pieceType, Image icon) {
         Entity tile = getTile(x, y);
         if (tile == null) {
-            System.err.println("cannot place piece on tile (" + x + ", " + y + "). No tile found.");
+            logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
             return;
         }
 
