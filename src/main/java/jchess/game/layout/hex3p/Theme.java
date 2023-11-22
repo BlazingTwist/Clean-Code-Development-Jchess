@@ -1,11 +1,15 @@
 package jchess.game.layout.hex3p;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
 
 public class Theme {
+    private static final Logger logger = LoggerFactory.getLogger(Theme.class);
     public final Image preview;
     public final BoardTheme board;
     public final PieceTheme piece;
@@ -23,7 +27,7 @@ public class Theme {
         try {
             return ImageIO.read(imageFile);
         } catch (IOException e) {
-            System.err.println("failed to read image '" + imageFile.getAbsolutePath() + "'");
+            logger.error("failed to read image '{}'", imageFile.getAbsolutePath());
             e.printStackTrace();
             return null;
         }

@@ -21,20 +21,23 @@
 package jchess;
 
 import jchess.piece.King;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
 import java.io.BufferedReader;
-import java.io.FileWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.Calendar;
-import java.awt.event.ComponentListener;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /** Class responsible for the starts of new games, loading games,
  * saving it, and for ending it.
@@ -43,6 +46,7 @@ import java.util.logging.Logger;
  */
 public class Game extends JPanel implements MouseListener, ComponentListener
 {
+    private static final Logger logger = LoggerFactory.getLogger(Game.class);
 
     public Settings settings;
     public boolean blockedChessboard;
@@ -99,7 +103,7 @@ public class Game extends JPanel implements MouseListener, ComponentListener
         }
         catch (java.io.IOException exc)
         {
-            System.err.println("error creating fileWriter: " + exc);
+            logger.error("error creating fileWriter", exc);
             JOptionPane.showMessageDialog(this, Settings.lang("error_writing_to_file")+": " + exc);
             return;
         }
@@ -117,7 +121,7 @@ public class Game extends JPanel implements MouseListener, ComponentListener
         }
         catch (java.io.IOException exc)
         {
-            System.out.println("error writing to file: " + exc);
+            logger.error("error writing to file", exc);
             JOptionPane.showMessageDialog(this, Settings.lang("error_writing_to_file")+": " + exc);
             return;
         }
@@ -150,11 +154,11 @@ public class Game extends JPanel implements MouseListener, ComponentListener
         }
         catch (java.io.IOException exc)
         {
-            System.out.println("Something wrong reading file: " + exc);
+            logger.error("Something wrong reading file", exc);
             return;
         }
         BufferedReader br = new BufferedReader(fileR);
-        String tempStr = new String();
+        String tempStr;
         String blackName, whiteName;
         try
         {
@@ -166,7 +170,7 @@ public class Game extends JPanel implements MouseListener, ComponentListener
         }
         catch (ReadGameError err)
         {
-            System.out.println("Error reading file: " + err);
+            logger.error("Error reading file", err);
             return;
         }
         Game newGUI = JChessApp.jcv.addNewTab(whiteName + " vs. " + blackName);
@@ -194,7 +198,7 @@ public class Game extends JPanel implements MouseListener, ComponentListener
      */
     static public String getLineWithVar(BufferedReader br, String srcStr) throws ReadGameError
     {
-        String str = new String();
+        String str = "";
         while (true)
         {
             try
@@ -203,7 +207,7 @@ public class Game extends JPanel implements MouseListener, ComponentListener
             }
             catch (java.io.IOException exc)
             {
-                System.out.println("Something wrong reading file: " + exc);
+                logger.error("Something wrong reading file", exc);
             }
             if (str == null)
             {
@@ -223,7 +227,6 @@ public class Game extends JPanel implements MouseListener, ComponentListener
      */
     static public String getValue(String line) throws ReadGameError
     {
-        //System.out.println("getValue called with: "+line);
         int from = line.indexOf("\"");
         int to = line.lastIndexOf("\"");
         int size = line.length() - 1;
@@ -238,7 +241,7 @@ public class Game extends JPanel implements MouseListener, ComponentListener
         }
         catch (java.lang.StringIndexOutOfBoundsException exc)
         {
-            System.out.println("error getting value: " + exc);
+            logger.error("error getting value", exc);
             return "none";
         }
         return result;
@@ -250,8 +253,6 @@ public class Game extends JPanel implements MouseListener, ComponentListener
     public void newGame()
     {
         chessboard.setPieces("", settings.playerWhite, settings.playerBlack);
-
-        //System.out.println("new game, game type: "+settings.gameType.name());
 
         activePlayer = settings.playerWhite;
         if (activePlayer.playerType != Player.playerTypes.localUser)
@@ -275,11 +276,11 @@ public class Game extends JPanel implements MouseListener, ComponentListener
     /** Method to end game
      *  @param message what to show player(s) at end of the game (for example "draw", "black wins" etc.)
      */
-    public void endGame(String massage)
+    public void endGame(String message)
     {
         this.blockedChessboard = true;
-        System.out.println(massage);
-        JOptionPane.showMessageDialog(null, massage);
+        logger.info(message);
+        JOptionPane.showMessageDialog(null, message);
     }
 
     /** Method to swich active players after move
@@ -312,17 +313,13 @@ public class Game extends JPanel implements MouseListener, ComponentListener
     {
         switchActive();
 
-        System.out.println("next move, active player: " + activePlayer.name + ", color: " + activePlayer.color.name() + ", type: " + activePlayer.playerType.name());
-        if (activePlayer.playerType == Player.playerTypes.localUser)
-        {
+        logger.info("next move, active player: '{}', color: {}, type: {}",
+                activePlayer.name, activePlayer.color.name(), activePlayer.playerType.name());
+        if (activePlayer.playerType == Player.playerTypes.localUser) {
             this.blockedChessboard = false;
-        }
-        else if (activePlayer.playerType == Player.playerTypes.networkUser)
-        {
+        } else if (activePlayer.playerType == Player.playerTypes.networkUser) {
             this.blockedChessboard = true;
-        }
-        else if (activePlayer.playerType == Player.playerTypes.computer)
-        {
+        } else if (activePlayer.playerType == Player.playerTypes.computer) {
         }
     }
 
@@ -337,13 +334,13 @@ public class Game extends JPanel implements MouseListener, ComponentListener
         try 
         {
             chessboard.select(chessboard.squares[beginX][beginY]);
-            if (chessboard.activeSquare.piece.allMoves().indexOf(chessboard.squares[endX][endY]) != -1) //move
+            if (chessboard.activeSquare.piece.allMoves().contains(chessboard.squares[endX][endY])) //move
             {
                 chessboard.move(chessboard.squares[beginX][beginY], chessboard.squares[endX][endY]);
             }
             else
             {
-                System.out.println("Bad move");
+                logger.warn("Bad move");
                 return false;
             }
             chessboard.unselect();
@@ -352,21 +349,9 @@ public class Game extends JPanel implements MouseListener, ComponentListener
             return true;
             
         } 
-        catch(StringIndexOutOfBoundsException exc) 
+        catch(StringIndexOutOfBoundsException | ArrayIndexOutOfBoundsException | NullPointerException exc)
         {
             return false;
-        }    
-        catch(ArrayIndexOutOfBoundsException exc) 
-        {
-            return false;
-        }
-        catch(NullPointerException exc)
-        {
-            return false;
-        }
-        finally
-        {
-            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, "ERROR");
         }
     }
 
@@ -539,14 +524,14 @@ public class Game extends JPanel implements MouseListener, ComponentListener
                 } 
                 catch(NullPointerException exc)
                 {
-                    System.err.println(exc.getMessage());
+                    logger.error("", exc);
                     chessboard.repaint();
                     return;
                 }
             }
             else if (blockedChessboard)
             {
-                System.out.println("Chessboard is blocked");
+                logger.warn("Chessboard is blocked");
             }
         }
         //chessboard.repaint();

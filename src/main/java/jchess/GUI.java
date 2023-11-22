@@ -20,11 +20,16 @@
  */
 package jchess;
 
-import java.awt.*;
-import java.net.*;
-import java.io.*;
-import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URL;
+import java.util.Properties;
 
 /** Class representing the game interface which is seen by a player and
  * where are lockated available for player opptions, current games and where
@@ -32,6 +37,7 @@ import java.io.FileOutputStream;
  */
 public class GUI
 {
+    private static final Logger logger = LoggerFactory.getLogger(GUI.class);
 
     public Game game;
     static final public Properties configFile = GUI.getConfigFile();
@@ -60,14 +66,14 @@ public class GUI
         try
         {
             String imageLink = "theme/" + configFile.getProperty("THEME", "default") + "/images/" + name;
-            System.out.println(configFile.getProperty("THEME"));
+            logger.info("config property 'theme' = '{}'", configFile.getProperty("THEME"));
             url = JChessApp.class.getResource(imageLink);
             img = tk.getImage(url);
 
         }
         catch (Exception e)
         {
-            System.out.println("some error loading image!");
+            logger.error("some error loading image!", e);
             e.printStackTrace();
         }
         return img;
@@ -103,7 +109,7 @@ public class GUI
         }
         catch (java.io.IOException exc)
         {
-            System.out.println("some error loading image! what goes: " + exc);
+            logger.error("some error loading image!", exc);
             exc.printStackTrace();
         }
         if (!outFile.exists())

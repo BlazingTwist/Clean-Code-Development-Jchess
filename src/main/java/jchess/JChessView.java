@@ -16,18 +16,23 @@
 package jchess;
 
 import org.jdesktop.application.Action;
+import org.jdesktop.application.FrameView;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
-import org.jdesktop.application.FrameView;
 import org.jdesktop.application.TaskMonitor;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.Icon;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.*;
-import java.awt.event.*;
+import javax.swing.JOptionPane;
+import javax.swing.Timer;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 
 
@@ -36,6 +41,7 @@ import java.io.File;
  */
 public class JChessView extends FrameView implements ActionListener, ComponentListener
 {
+    private static final Logger logger = LoggerFactory.getLogger(JChessView.class);
     static GUI gui = null;
     GUI activeGUI;//in future it will be reference to active tab
 
@@ -77,7 +83,7 @@ public class JChessView extends FrameView implements ActionListener, ComponentLi
                         }
                         catch (java.io.IOException exc)
                         {
-                            System.out.println("error creating file: " + exc);
+                            logger.error("error creating file", exc);
                         }
                     }
                     else if (selFile.exists())
@@ -92,7 +98,7 @@ public class JChessView extends FrameView implements ActionListener, ComponentLi
                     {
                         tempGUI.saveGame(selFile);
                     }
-                    System.out.println(fc.getSelectedFile().isFile());
+                    logger.info("selected file isFile?: {}", fc.getSelectedFile().isFile());
                     break;
                 }
                 else if (retVal == JFileChooser.CANCEL_OPTION)
@@ -128,7 +134,7 @@ public class JChessView extends FrameView implements ActionListener, ComponentLi
                     JChessApp.getApplication().getMainFrame(), 
                     exc.getMessage()
                 );
-                System.out.println("Something wrong creating window - perhaps themeList is null");                
+                logger.error("Something wrong creating window - perhaps themeList is null", exc);
             }
         }
     }
@@ -569,7 +575,7 @@ public class JChessView extends FrameView implements ActionListener, ComponentLi
     public  JDialog  newGameFrame;
 
     public void componentResized(ComponentEvent e) {
-        System.out.println("jchessView resized!!;");
+        logger.error("jchessView resized!!;");
         throw new UnsupportedOperationException("Not supported yet.");
     }
     

@@ -20,15 +20,23 @@
  */
 package jchess;
 
-import java.awt.*;
-import java.awt.image.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 
 /** Class to representing the full game time
  * @param game The current game
  */
 public class GameClock extends JPanel implements Runnable
 {
+    private static final Logger logger = LoggerFactory.getLogger(GameClock.class);
 
     public Clock clock1;
     public Clock clock2;
@@ -82,13 +90,9 @@ public class GameClock extends JPanel implements Runnable
         {//block this thread
             this.thread.wait();
         }
-        catch (java.lang.InterruptedException exc)
+        catch (InterruptedException | IllegalMonitorStateException exc)
         {
-            System.out.println("Error blocking thread: " + exc);
-        }
-        catch (java.lang.IllegalMonitorStateException exc1)
-        {
-            System.out.println("Error blocking thread: " + exc1);
+            logger.error("Error blocking thread", exc);
         }
     }
 
@@ -125,7 +129,6 @@ public class GameClock extends JPanel implements Runnable
     @Override
     public void paint(Graphics g)
     {
-        //System.out.println("rysuje zegary");
         super.paint(g);
         white_clock = this.clock1.prepareString();
         black_clock = this.clock2.prepareString();
@@ -232,7 +235,7 @@ public class GameClock extends JPanel implements Runnable
                     }
                     catch (InterruptedException e)
                     {
-                        System.out.println("Some error in gameClock thread: " + e);
+                        logger.error("Some error in gameClock thread", e);
                     }
                     //if(this.game.blockedChessboard)
                     //  this.game.blockedChessboard = false;
@@ -260,7 +263,7 @@ public class GameClock extends JPanel implements Runnable
         }
         else
         {//if called in wrong moment
-            System.out.println("Time over called when player got time 2 play");
+            logger.warn("Time over called when player got time 2 play");
         }
         this.game.endGame("Time is over! " + color + " player win the game.");
         this.stop();

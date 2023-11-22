@@ -19,19 +19,39 @@
  */
 package jchess;
 
-import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.TextListener;
-import java.awt.event.TextEvent;
-import java.awt.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.TextEvent;
+import java.awt.event.TextListener;
 
 /**
  * Class responsible for drawing the fold with local game settings
  */
 public class DrawLocalSettings extends JPanel implements ActionListener, TextListener
 {
+    private static final Logger logger = LoggerFactory.getLogger(DrawLocalSettings.class);
 
     JDialog parent;//needet to close newGame window
     JComboBox color;//to choose color of player
@@ -63,8 +83,8 @@ public class DrawLocalSettings extends JPanel implements ActionListener, TextLis
     };
 
     ;
-        
-        
+
+
     /** Method witch is checking correction of edit tables
      * @param e Object where is saving this what contents edit tables
     */
@@ -92,7 +112,7 @@ public class DrawLocalSettings extends JPanel implements ActionListener, TextLis
                 }
                 catch (BadLocationException exc)
                 {
-                    System.out.println("Something wrong in editables: \n" + exc);
+                    logger.error("Something wrong in editables", exc);
                 }
             }
         }
@@ -104,7 +124,7 @@ public class DrawLocalSettings extends JPanel implements ActionListener, TextLis
      */
     public void actionPerformed(ActionEvent e)
     {
-        Object target = e.getSource(); 
+        Object target = e.getSource();
         if (target == this.oponentComp) //toggle enabled of controls depends of oponent (if computer)
         {
             this.computerLevel.setEnabled(true);//enable level of computer abilities
@@ -160,7 +180,7 @@ public class DrawLocalSettings extends JPanel implements ActionListener, TextLis
                 pl2.setType(Player.playerTypes.computer);
             }
             if (this.upsideDown.isSelected()) //if upsideDown is checked
-            { 
+            {
                 sett.upsideDown = true;
             }
             else
@@ -170,17 +190,22 @@ public class DrawLocalSettings extends JPanel implements ActionListener, TextLis
             if (this.timeGame.isSelected()) //if timeGame is checked
             {
                 String value = this.times[this.time4Game.getSelectedIndex()];//set time for game
-                Integer val = new Integer(value);
+                int val = Integer.parseInt(value);
                 sett.timeLimitSet = true;
-                sett.timeForGame = (int) val * 60;//set time for game and mult it to seconds
+                sett.timeForGame = val * 60;//set time for game and mult it to seconds
                 newGUI.gameClock.setTimes(sett.timeForGame, sett.timeForGame);
                 newGUI.gameClock.start();
             }
-            System.out.println(this.time4Game.getActionCommand());
+            logger.info("actionCommand: '{}'", this.time4Game.getActionCommand());
             //this.time4Game.getComponent(this.time4Game.getSelectedIndex());
-            System.out.println("****************\nStarting new game: " + pl1.name + " vs. " + pl2.name
-                    + "\ntime 4 game: " + sett.timeForGame + "\ntime limit set: " + sett.timeLimitSet
-                    + "\nwhite on top?: " + sett.upsideDown + "\n****************");//4test
+            logger.info("""
+                            ****************
+                                Starting new game: '{}' vs. '{}'
+                                time 4 game: {}
+                                time limit set: {}
+                                white on top?: {}
+                            ****************""",
+                    pl1.name, pl2.name, sett.timeForGame, sett.timeLimitSet, sett.upsideDown);
             newGUI.newGame();//start new Game
             this.parent.setVisible(false);//hide parent
             newGUI.chessboard.repaint();
@@ -292,14 +317,14 @@ public class DrawLocalSettings extends JPanel implements ActionListener, TextLis
      */
     public String trimString(JTextField txt, int length)
     {
-        String result = new String();
+        String result = "";
         try
         {
             result = txt.getText(0, length);
         }
         catch (BadLocationException exc)
         {
-            System.out.println("Something wrong in editables: \n" + exc);
+            logger.error("Something wrong in editables", exc);
         }
         return result;
     }

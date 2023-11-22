@@ -24,6 +24,8 @@ package jchess.piece;
 import jchess.Chessboard;
 import jchess.Player;
 import jchess.Square;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -37,6 +39,7 @@ import java.util.ArrayList;
  * Class to represent a piece (any kind) - this class should be extended to represent pawn, bishop etc.
  */
 public abstract class Piece {
+    private static final Logger logger = LoggerFactory.getLogger(Piece.class);
 
     public Chessboard chessboard; // <-- this relations isn't in class diagram, but it's necessary :/
     public Square square;
@@ -65,7 +68,7 @@ public abstract class Piece {
 
     public final void draw(Graphics g) {
         if (image == null) {
-            System.err.println("Image of piece '" + this.name + "' is null");
+            logger.error("Image of piece '{}' is null", name);
             return;
         }
 
@@ -86,7 +89,7 @@ public abstract class Piece {
             g2d.drawImage(resizedSprite, x, y, null);
 
         } catch (java.lang.NullPointerException exc) {
-            System.err.println("Something wrong when painting piece: " + exc.getMessage());
+            logger.error("Something wrong when painting piece", exc);
         }
     }
 
