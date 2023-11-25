@@ -8,7 +8,32 @@
         <title>AmazingChess</title>
     </head>
     <body class="text-playbold">
-        Our amazing chess game
+        <nav class="bg-gray-800 p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="text-white text-lg font-semibold">Amazing Chess Game</div>
+                <div class="flex space-x-4">
+                    <a href="#" id="playButton" class="text-white hover:text-gray-300">Play</a>
+                    <a href="#" class="text-white hover:text-gray-300">Options</a>
+                </div>
+            </div>
+        </nav>
+
+        <script src="scripts/play.js"></script>
+
+        <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+            <div class="flex items-center justify-center h-screen">
+              <div class="bg-white p-8 rounded-md">
+                <h1 class="text-2xl font-semibold">Start a new game ♟️</h1>
+                <div>
+                    <label class="pr-2" for="numberOfPlayers">Number of Players:</label>
+                    <input type="number" id="numberOfPlayers" min="2" max="3" class="border p-2 mb-2" />
+                </div>
+                    <p id="errorMessage" class="text-red-500 mb-4 hidden">Invalid number of players. Please enter a number between 2 and 3.</p>
+                
+                <button id="startGameButton" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded">Start Game</button>
+              </div>
+            </div>
+          </div>
     </body>
 </html>
 
