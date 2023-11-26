@@ -69,7 +69,7 @@ export function NewGameModal() {
         console.log("Time Game Amount:", timeGameAmount);
 
         // Add further logic here, such as sending data to a server
-        router.push("/");
+        router.push("/?game=true");
     };
 
     return (
