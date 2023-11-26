@@ -9,6 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
 
 import { useState, ChangeEvent } from "react";
+import { useGameContext } from "@/app/context/game_context";
+import { parse } from "path";
 
 export function NewGameModal() {
     const router = useRouter();
@@ -16,6 +18,8 @@ export function NewGameModal() {
     const [isWhiteOnTop, setWhiteOnTop] = useState(false);
     const [isTimeGame, setTimeGame] = useState(false);
     const [timeGameAmount, setTimeGameAmount] = useState("0");
+
+    const { setGameOptions, setPlayerState } = useGameContext();
 
     const renderNameInputs = () => {
         const inputs: JSX.Element[] = [];
@@ -62,11 +66,35 @@ export function NewGameModal() {
             (_, i) => (document.getElementById(`player-${i + 1}`) as HTMLInputElement).value
         );
 
+        const playerColors = new Map<string, string>();
+        const playerTimes = new Map<string, Date>();
+        const playerHistory = new Map<string, Array<string>>();
+
+        playerNames.forEach((playerName, index) => {
+            const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
+            playerColors.set(playerName, index == 0 ? "black" : index == 1 ? "white" : "destructive");
+            playerTimes.set(playerName, playerTime);
+            playerHistory.set(playerName, ["irgendein zug"]);
+        });
+
         // Use the inputted information as needed
         console.log("Number of Players:", numberOfPlayers);
         console.log("Player Names:", playerNames);
         console.log("Is Time Game:", isTimeGame);
         console.log("Time Game Amount:", timeGameAmount);
+
+        setGameOptions({
+            playerNames,
+            isWhiteOnTop,
+            isTimeGame,
+            timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
+        });
+
+        setPlayerState({
+            playerColor: playerColors,
+            playerTime: playerTimes,
+            playerHistory: playerHistory,
+        });
 
         // Add further logic here, such as sending data to a server
         router.push("/?game=true");
