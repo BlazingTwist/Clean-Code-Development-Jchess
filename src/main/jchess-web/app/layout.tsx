@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Play } from "next/font/google";
+import { Hotkeys } from "@/components/Hotkeys";
 import "./globals.css";
 
 const playFont = Play({ weight: "400", style: "normal", subsets: ["latin"] });
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
+            <Hotkeys />
             <body className={playFont.className}>{children}</body>
         </html>
     );

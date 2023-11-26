@@ -21,7 +21,7 @@ export default function Nav() {
                     <MenubarContent>
                         <MenubarItem>
                             <Link href="/?newGame=true">
-                                New Game <MenubarShortcut>⌘+N | Ctrl+N</MenubarShortcut>
+                                New Game <MenubarShortcut>⌥+N | Altl+N</MenubarShortcut>
                             </Link>
                         </MenubarItem>
                         <MenubarSeparator />
