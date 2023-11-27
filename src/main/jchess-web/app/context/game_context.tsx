@@ -9,9 +9,10 @@ type GameOptions = {
 };
 
 type PlayerState = {
-    playerColor: Map<string, string>;
-    playerTime: Map<string, Date>;
-    playerHistory: Map<string, Array<string>>;
+    // each map is accessed by player id
+    playerColor: Map<number, string>;
+    playerTime: Map<number, Date>;
+    playerHistory: Map<number, Array<string>>;
 };
 
 interface ContextProps {
@@ -27,9 +28,9 @@ const GameContext = createContext<ContextProps>({
     chessboardState: Array<Array<string>>(),
     setChessboardState: () => {},
     playerState: {
-        playerColor: new Map<string, string>(),
-        playerTime: new Map<string, Date>(),
-        playerHistory: new Map<string, Array<string>>(),
+        playerColor: new Map<number, string>(),
+        playerTime: new Map<number, Date>(),
+        playerHistory: new Map<number, Array<string>>(),
     },
     setPlayerState: () => {},
     gameOptions: {
@@ -50,9 +51,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         timeGameAmountInSeconds: 0,
     });
     const [playerState, setPlayerState] = useState<PlayerState>({
-        playerColor: new Map<string, string>(),
-        playerTime: new Map<string, Date>(),
-        playerHistory: new Map<string, Array<string>>(),
+        playerColor: new Map<number, string>(),
+        playerTime: new Map<number, Date>(),
+        playerHistory: new Map<number, Array<string>>(),
     });
 
     return (

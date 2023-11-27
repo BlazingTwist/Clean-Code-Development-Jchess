@@ -8,9 +8,8 @@ import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
 
-import { useState, ChangeEvent } from "react";
+import { useState } from "react";
 import { useGameContext } from "@/app/context/game_context";
-import { parse } from "path";
 
 export function NewGameModal() {
     const router = useRouter();
@@ -66,15 +65,15 @@ export function NewGameModal() {
             (_, i) => (document.getElementById(`player-${i + 1}`) as HTMLInputElement).value
         );
 
-        const playerColors = new Map<string, string>();
-        const playerTimes = new Map<string, Date>();
-        const playerHistory = new Map<string, Array<string>>();
+        const playerColors = new Map<number, string>();
+        const playerTimes = new Map<number, Date>();
+        const playerHistory = new Map<number, Array<string>>();
 
         playerNames.forEach((playerName, index) => {
             const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
-            playerColors.set(playerName, index == 0 ? "black" : index == 1 ? "white" : "destructive");
-            playerTimes.set(playerName, playerTime);
-            playerHistory.set(playerName, ["irgendein zug"]);
+            playerColors.set(index, index == 0 ? "black" : index == 1 ? "white" : "destructive");
+            playerTimes.set(index, playerTime);
+            playerHistory.set(index, ["irgendein zug"]);
         });
 
         // Use the inputted information as needed

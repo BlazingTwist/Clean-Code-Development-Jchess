@@ -24,16 +24,16 @@ export default function GameComponment() {
                         </TableHeader>
                         <TableBody>
                             {gameOptions.playerNames.map((playerName, index) => {
-                                const minutesLeft = playerState.playerTime.get(playerName)?.getUTCMinutes();
-                                const secondsLeft = playerState.playerTime.get(playerName)?.getUTCSeconds();
-                                const hoursLeft = playerState.playerTime.get(playerName)?.getUTCHours();
+                                const minutesLeft = playerState.playerTime.get(index)?.getUTCMinutes();
+                                const secondsLeft = playerState.playerTime.get(index)?.getUTCSeconds();
+                                const hoursLeft = playerState.playerTime.get(index)?.getUTCHours();
                                 return (
                                     <TableRow>
                                         <TableCell>{playerName}</TableCell>
                                         <TableCell>
                                             <div
                                                 className={`w-8 h-8 rounded-md bg-${playerState.playerColor.get(
-                                                    playerName
+                                                    index
                                                 )}  border-primary border-2`}
                                             />
                                         </TableCell>
@@ -53,8 +53,7 @@ export default function GameComponment() {
     };
 
     const renderHistory = () => {
-        const playerOne = gameOptions.playerNames[0];
-        const numMoves = playerState.playerHistory.get(playerOne)?.length;
+        const numMoves = playerState.playerHistory.get(0)?.length;
 
         return (
             <Card className="self-start mt-6">
@@ -74,11 +73,11 @@ export default function GameComponment() {
                             {Array.from({ length: numMoves! }, (_, i) => i).map((_, moveIdx) => {
                                 return (
                                     <TableRow>
-                                        {gameOptions.playerNames.map((playerName, _) => {
+                                        {gameOptions.playerNames.map((_, index) => {
                                             return (
                                                 <TableCell>
                                                     {playerState.playerHistory.size > moveIdx
-                                                        ? playerState.playerHistory.get(playerName)![moveIdx]
+                                                        ? playerState.playerHistory.get(index)![moveIdx]
                                                         : ""}
                                                 </TableCell>
                                             );
