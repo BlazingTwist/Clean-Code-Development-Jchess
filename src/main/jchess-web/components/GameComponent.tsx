@@ -1,8 +1,9 @@
 "use client";
-import DefaultChessboard from "./ui/default_chessboard";
+import DefaultChessboard from "./ui/chessboard/default_chessboard";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useGameContext } from "@/app/context/game_context";
+import HexChessboard from "./ui/chessboard/hex_chessboard";
 
 export default function GameComponment() {
     const { gameOptions, playerState } = useGameContext();
@@ -29,9 +30,10 @@ export default function GameComponment() {
                                 const hoursLeft = playerState.playerTime.get(index)?.getUTCHours();
                                 return (
                                     <TableRow>
-                                        <TableCell>{playerName}</TableCell>
+                                        <TableCell key={index}>{playerName}</TableCell>
                                         <TableCell>
                                             <div
+                                                key={index}
                                                 className={`w-8 h-8 rounded-md bg-${playerState.playerColor.get(
                                                     index
                                                 )}  border-primary border-2`}
@@ -94,7 +96,8 @@ export default function GameComponment() {
     return (
         <div className="grid grid-cols-1 gap-2 p-12 items-center md:grid-cols-2 md:grid-row-2 max-w-[2000px] mx-auto">
             <div className="w-[80vw] h-[80vw] md:w-[45vw] md:h-[45vw] max-w-[60vh] max-h-[60vh] justify-self-center md:row-span-2">
-                <DefaultChessboard />
+                {gameOptions.playerNames.length == 3 && <HexChessboard />}
+                {gameOptions.playerNames.length == 2 && <DefaultChessboard />}
             </div>
             <div>
                 {gameOptions.isTimeGame && renderTimeGame()}
