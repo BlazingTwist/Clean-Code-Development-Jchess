@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, Dispatch, SetStateAction, use, useState } from "react";
+import { createContext, useContext, Dispatch, SetStateAction, useState } from "react";
 
 type GameOptions = {
     playerNames: Array<string>;
@@ -55,6 +55,30 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         playerTime: new Map<number, Date>(),
         playerHistory: new Map<number, Array<string>>(),
     });
+
+    /*
+    // UseEffect to fetch initial state from the server
+    useEffect(() => {
+        const fetchInitialState = async () => {
+            try {
+                const response = await fetch('/api/game-state');
+                const initialState = await response.json();
+
+                // Update the context state with the fetched data
+                setChessboardState(initialState.chessboardState);
+                setGameOptions(initialState.gameOptions);
+                setPlayerState(initialState.playerState);
+            } catch (error) {
+                console.error('Error fetching initial state:', error);
+            }
+        };
+
+        // Check if the game has started before fetching the initial state
+        if (gameStarted) {
+            fetchInitialState();
+        }
+    }, []);
+    */
 
     return (
         <GameContext.Provider
