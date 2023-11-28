@@ -1,7 +1,7 @@
 "use client";
 import DefaultChessboard from "./ui/chessboard/default_chessboard";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useGameContext } from "@/app/context/game_context";
 import HexChessboard from "./ui/chessboard/hex_chessboard";
 
@@ -10,7 +10,7 @@ export default function GameComponment() {
 
     const renderTimeGame = () => {
         return (
-            <Card className="self-start">
+            <Card className="self-start mb-6 max-w-[500px]">
                 <CardHeader>
                     <CardTitle>Time Game</CardTitle>
                 </CardHeader>
@@ -58,7 +58,11 @@ export default function GameComponment() {
         const numMoves = playerState.playerHistory.get(0)?.length;
 
         return (
-            <Card className="self-start mt-6">
+            <Card
+                className={`self-start  max-w-[500px] ${
+                    gameOptions.isTimeGame ? "" : "sm:col-span-2 lg:col-span-1 justify-self-center "
+                }`}
+            >
                 <CardHeader>
                     <CardTitle>History</CardTitle>
                 </CardHeader>
@@ -94,15 +98,14 @@ export default function GameComponment() {
         );
     };
     return (
-        <div className="grid grid-cols-1 gap-2 p-12 items-center md:grid-cols-2 md:grid-row-2 max-w-[2000px] mx-auto">
-            <div className="w-[80vw] h-[80vw] md:w-[45vw] md:h-[45vw] max-w-[60vh] max-h-[60vh] justify-self-center md:row-span-2">
+        <div className="grid grid-cols-1 gap-2 p-12 items-center sm:grid-cols-2 lg:grid-cols-3  sm:grid-row-2 max-w-[2000px] mx-auto">
+            <div className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-full min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2">
                 {gameOptions.playerNames.length == 3 && <HexChessboard />}
                 {gameOptions.playerNames.length == 2 && <DefaultChessboard />}
             </div>
-            <div>
-                {gameOptions.isTimeGame && renderTimeGame()}
-                {renderHistory()}
-            </div>
+
+            {gameOptions.isTimeGame && renderTimeGame()}
+            {renderHistory()}
         </div>
     );
 }

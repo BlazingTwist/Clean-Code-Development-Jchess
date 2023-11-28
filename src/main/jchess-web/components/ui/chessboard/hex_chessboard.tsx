@@ -67,7 +67,14 @@ export default function HexChessboard() {
                 );
             }
             board.push(
-                <div key={y} className="flex flex-row justify-center" style={{ marginTop: `-${spacePercentage}%` }}>
+                <div
+                    key={y}
+                    className="flex flex-row justify-center"
+                    style={{
+                        marginTop: `-${spacePercentage}%`,
+                        transform: `translateY(${spacePercentage * (numTilesVertical - 1)}%)`,
+                    }}
+                >
                     {row}
                 </div>
             );

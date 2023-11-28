@@ -19,7 +19,7 @@ export default function DefaultChessboard() {
                 row.push(
                     <div
                         key={`${i},${j}`}
-                        className={`w-[12.5%] h-full flex justify-center items-center ${
+                        className={`w-[12.5%] h-full flex justify-center items-center aspect-square ${
                             (i + j) % 2 == 0 ? "bg-white" : "bg-black"
                         } `}
                     >

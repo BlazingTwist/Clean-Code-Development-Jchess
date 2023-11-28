@@ -9,7 +9,7 @@ export default function Home({ searchParams }: Props) {
     const isGame = searchParams?.game;
 
     return (
-        <main className="h-screen bg-accent">
+        <main className="min-h-screen bg-accent min-w-[400px] ">
             <Nav />
 
             {!isGame && (
