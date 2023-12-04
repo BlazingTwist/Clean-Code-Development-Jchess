@@ -11,13 +11,16 @@ name: Java CI with Maven
 on:
   push:
     branches: [ "master" ]
-  pull_request_target:
+  pull_request:
     branches: [ "master" ]
 
 jobs:
   build:
     name: Build and Run Tests
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 20
