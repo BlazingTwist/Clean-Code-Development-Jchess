@@ -142,7 +142,7 @@ public class Square2PlayerGame {
             Entity[] tileRow = tiles[y];
             for (int x = 0; x < numTiles; x++) {
                 TileComponent tile = new TileComponent();
-                tile.icon = ((x + y) % 2 == 0) ? theme.board.tileLight : theme.board.tileDark;
+                tile.iconId = ((x + y) % 2 == 0) ? "board.tileLight" : "board.tileDark";
                 tile.position = new Point(x, y);
 
                 tile.neighborsByDirection.put(0, getTile(x, y - 1));
@@ -185,36 +185,36 @@ public class Square2PlayerGame {
     }
 
     public void placeRook(int x, int y, boolean isWhite) {
-        Image icon = isWhite ? theme.piece.rookWhite : theme.piece.rookBlack;
+        String icon = isWhite ? "piece.rookWhite" : "piece.rookBlack";
         placePiece(x, y, isWhite, PieceMoveRules.PieceType.Rook, icon);
     }
 
     public void placeKnight(int x, int y, boolean isWhite) {
-        Image icon = isWhite ? theme.piece.knightWhite : theme.piece.knightBlack;
+        String icon = isWhite ? "piece.knightWhite" : "piece.knightBlack";
         placePiece(x, y, isWhite, PieceMoveRules.PieceType.Knight, icon);
     }
 
     public void placeBishop(int x, int y, boolean isWhite) {
-        Image icon = isWhite ? theme.piece.bishopWhite : theme.piece.bishopBlack;
+        String icon = isWhite ? "piece.bishopWhite" : "piece.bishopBlack";
         placePiece(x, y, isWhite, PieceMoveRules.PieceType.Bishop, icon);
     }
 
     public void placeQueen(int x, int y, boolean isWhite) {
-        Image icon = isWhite ? theme.piece.queenWhite : theme.piece.queenBlack;
+        String icon = isWhite ? "piece.queenWhite" : "piece.queenBlack";
         placePiece(x, y, isWhite, PieceMoveRules.PieceType.Queen, icon);
     }
 
     public void placeKing(int x, int y, boolean isWhite) {
-        Image icon = isWhite ? theme.piece.kingWhite : theme.piece.kingBlack;
+        String icon = isWhite ? "piece.kingWhite" : "piece.kingBlack";
         placePiece(x, y, isWhite, PieceMoveRules.PieceType.King, icon);
     }
 
     public void placePawn(int x, int y, boolean isWhite) {
-        Image icon = isWhite ? theme.piece.pawnWhite : theme.piece.pawnBlack;
+        String icon = isWhite ? "piece.pawnWhite" : "piece.pawnBlack";
         placePiece(x, y, isWhite, PieceMoveRules.PieceType.Pawn, icon);
     }
 
-    private void placePiece(int x, int y, boolean isWhite, PieceMoveRules.PieceType pieceType, Image icon) {
+    private void placePiece(int x, int y, boolean isWhite, PieceMoveRules.PieceType pieceType, String iconId) {
         Entity tile = getTile(x, y);
         if (tile == null) {
             logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
@@ -224,7 +224,7 @@ public class Square2PlayerGame {
         PieceIdentifier pieceIdentifier = new PieceIdentifier(
                 pieceType.getId(),
                 pieceType.getShortName(),
-                icon,
+                iconId,
                 isWhite ? 0 : 1,
                 isWhite ? 0 : 180
         );

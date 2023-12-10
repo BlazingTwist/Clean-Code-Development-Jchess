@@ -18,6 +18,7 @@ public class PieceRenderSystem implements ISystem<Void> {
 
     @Override
     public void update(Entity entity, Void unused) {
-        context.drawTile(entity.piece.identifier.icon(), entity.tile.position);
+        // TODO erja, renderSystem is dead.
+        //context.drawTile(entity.piece.identifier.iconId(), entity.tile.position);
     }
 }

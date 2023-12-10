@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PieceIdentifier",
+  "type": "object",
+  "javaType": "dx.schema.types.PieceIdentifier",
+  "properties": {
+    "pieceTypeId": {
+      "type": "string"
+    },
+    "shortName": {
+      "type": "string"
+    },
+    "iconId": {
+      "type": "string"
+    },
+    "ownerId": {
+      "description": "The numerical ID of the Player that owns this piece.",
+      "type": "integer"
+    },
+    "forwardBasis": {
+      "description": "A number in range [0, 360) indicating the forwards-direction of this piece. (With 0 being 'North')",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "pieceTypeId",
+    "shortName",
+    "iconId",
+    "ownerId",
+    "forwardBasis"
+  ]
+}

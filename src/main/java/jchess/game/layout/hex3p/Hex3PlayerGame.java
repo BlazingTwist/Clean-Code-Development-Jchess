@@ -7,12 +7,9 @@ import jchess.game.common.BoardCanvas;
 import jchess.game.common.BoardClickedListener;
 import jchess.game.common.BoardMouseListener;
 import jchess.game.common.RenderContext;
-import jchess.game.common.marker.MarkerRenderSystem;
 import jchess.game.common.piece.PieceComponent;
 import jchess.game.common.piece.PieceIdentifier;
-import jchess.game.common.piece.PieceRenderSystem;
 import jchess.game.common.tile.TileComponent;
-import jchess.game.common.tile.TileRenderSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +43,7 @@ public class Hex3PlayerGame {
     }
 
     public final Theme theme;
-    private final Hex3pGameState gameState;
+    public final Hex3pGameState gameState;
     public final EntityManager entityManager;
     public final EcsEvent<Void> renderEvent;
     public final EcsEvent<MoveInfo> pieceMoveEvent;
@@ -76,16 +73,17 @@ public class Hex3PlayerGame {
         boardCanvas.setPreferredSize(new Dimension(510, 416));
         boardCanvas.addMouseListener(boardMouseListener);
 
+        // TODO erja, Rendering kommt ins Frontend
         RenderContext renderContext = new RenderContext(entityManager, renderEvent, boardCanvas);
-        renderEvent.registerSystem(new TileRenderSystem(renderContext), 99);
-        renderEvent.registerSystem(new PieceRenderSystem(renderContext), 98);
-        MarkerRenderSystem markerRenderSystem = new MarkerRenderSystem(renderContext);
+        //renderEvent.registerSystem(new TileRenderSystem(renderContext), 99);
+        //renderEvent.registerSystem(new PieceRenderSystem(renderContext), 98);
+        /*MarkerRenderSystem markerRenderSystem = new MarkerRenderSystem(renderContext);
         markerRenderSystem.setMarkerImages(
                 theme.board.hexMarker_noAction,
                 theme.board.hexMarker_yesAction,
                 theme.board.hexMarker_selected
         );
-        renderEvent.registerSystem(markerRenderSystem, 97);
+        renderEvent.registerSystem(markerRenderSystem, 97);*/
 
         // TODO erja, register system for tracking the move history (and etc.) here
         pieceMoveEvent.addPostEventListener(move -> gameState.nextPlayer());
@@ -168,9 +166,9 @@ public class Hex3PlayerGame {
             int x1 = 32 - x0;
             for (int x = x0; x <= x1; x += 2) {
                 TileComponent tile = new TileComponent();
-                tile.icon = (x % 3 == 0) ? theme.board.hexLight
-                        : ((x % 3 == 1) ? theme.board.hexMedium
-                        : theme.board.hexDark);
+                tile.iconId = (x % 3 == 0) ? "board.hexLight"
+                        : ((x % 3 == 1) ? "board.hexMedium"
+                        : "board.hexDark");
                 tile.position = new Point(x, y);
 
                 tile.neighborsByDirection.put(0, getTile(x, y - 2));
@@ -234,31 +232,40 @@ public class Hex3PlayerGame {
         }
     }
 
+    private static String getPlayerColor(int playerId){
+        return switch (playerId) {
+            case 0 -> "light";
+            case 1 -> "medium";
+            case 2 -> "dark";
+            default -> throw new IllegalArgumentException("'playerId' must be 0, 1 or 2, but was '" + playerId + "'");
+        };
+    }
+
     public void placeRook(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Rook, theme.piece.rook.get(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Rook, "piece.rook." + getPlayerColor(playerColor));
     }
 
     public void placeKnight(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Knight, theme.piece.knight.get(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Knight, "piece.knight." + getPlayerColor(playerColor));
     }
 
     public void placeBishop(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Bishop, theme.piece.bishop.get(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Bishop, "piece.bishop." + getPlayerColor(playerColor));
     }
 
     public void placeQueen(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Queen, theme.piece.queen.get(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Queen, "piece.queen." + getPlayerColor(playerColor));
     }
 
     public void placeKing(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.King, theme.piece.king.get(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.King, "piece.king." + getPlayerColor(playerColor));
     }
 
     public void placePawn(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Pawn, theme.piece.pawn.get(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Pawn, "piece.pawn." + getPlayerColor(playerColor));
     }
 
-    private void placePiece(int x, int y, int playerColor, PieceMoveRules.PieceType pieceType, Image icon) {
+    private void placePiece(int x, int y, int playerColor, PieceMoveRules.PieceType pieceType, String iconId) {
         Entity tile = getTile(x, y);
         if (tile == null) {
             logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
@@ -268,7 +275,7 @@ public class Hex3PlayerGame {
         PieceIdentifier pieceId = new PieceIdentifier(
                 pieceType.getId(),
                 pieceType.getShortName(),
-                icon,
+                iconId,
                 playerColor,
                 ((playerColor - 3) * (-120)) % 360 // [0, 240, 120]
         );

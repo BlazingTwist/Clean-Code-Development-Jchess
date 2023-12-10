@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Themes",
+  "type": "object",
+  "javaType": "dx.schema.message.Themes",
+  "properties": {
+    "tileAspectRatio": {
+      "$ref": "../types/Vector2I.schema.json"
+    },
+    "themes": {
+      "type": "array",
+      "items": {
+        "$ref": "../types/Theme.schema.json"
+      }
+    }
+  },
+  "required": ["themes"]
+}

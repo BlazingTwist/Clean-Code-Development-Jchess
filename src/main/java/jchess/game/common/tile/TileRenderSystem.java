@@ -18,6 +18,7 @@ public class TileRenderSystem implements ISystem<Void> {
 
     @Override
     public void update(Entity entity, Void unused) {
-        context.drawTile(entity.tile.icon, entity.tile.position);
+        // TODO erja RenderSystem is dead.
+        //context.drawTile(entity.tile.iconId, entity.tile.position);
     }
 }

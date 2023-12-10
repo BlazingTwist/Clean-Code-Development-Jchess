@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Entity",
+  "type": "object",
+  "javaType": "dx.schema.types.Entity",
+  "properties": {
+    "tile": {
+      "$ref": "TileComponent.schema.json"
+    },
+    "piece": {
+      "$ref": "PieceComponent.schema.json"
+    },
+    "marker": {
+      "$ref": "MarkerComponent.schema.json"
+    }
+  },
+  "required": []
+}

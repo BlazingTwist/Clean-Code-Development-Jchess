@@ -7,10 +7,25 @@ import javax.imageio.ImageIO;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Theme {
     private static final Logger logger = LoggerFactory.getLogger(Theme.class);
-    public final Image preview;
+
+    private static File resourceRootDir;
+
+    static {
+        try {
+            resourceRootDir = new File(Theme.class.getResource("/").toURI());
+        } catch (URISyntaxException e) {
+            logger.error("", e);
+        }
+    }
+
+    public final String preview;
     public final BoardTheme board;
     public final PieceTheme piece;
     public final UiTheme ui;
@@ -22,25 +37,60 @@ public class Theme {
         ui = new UiTheme(new File(themeDirectory, "ui"));
     }
 
-    private static Image loadImage(File directory, String imageName) {
+    private static String loadImage(File directory, String imageName) {
         File imageFile = new File(directory, imageName);
-        try {
+        return imageFile.getAbsolutePath()
+                .replace(resourceRootDir.getAbsolutePath(), "")
+                .replace("\\", "/")
+                .replaceFirst("^/", "");
+
+        /*try {
             return ImageIO.read(imageFile);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("failed to read image '{}'", imageFile.getAbsolutePath());
             e.printStackTrace();
             return null;
+        }*/
+    }
+
+    public Map<String, String> getIconMap() {
+        try {
+            HashMap<String, String> iconMap = new HashMap<>();
+
+            iconMap.put("preview", preview);
+
+            for (Field boardThemeField : BoardTheme.class.getFields()) {
+                String icon = (String) boardThemeField.get(board);
+                iconMap.put("board." + boardThemeField.getName(), icon);
+            }
+
+            for (Field pieceThemeField : PieceTheme.class.getFields()) {
+                PieceTheme.PieceImages images = (PieceTheme.PieceImages) pieceThemeField.get(piece);
+                iconMap.put("piece." + pieceThemeField.getName() + ".light", images.light);
+                iconMap.put("piece." + pieceThemeField.getName() + ".dark", images.dark);
+                iconMap.put("piece." + pieceThemeField.getName() + ".medium", images.medium);
+            }
+
+            for (Field uiThemeField : UiTheme.class.getFields()) {
+                String icon = (String) uiThemeField.get(ui);
+                iconMap.put("ui." + uiThemeField.getName(), icon);
+            }
+
+            return iconMap;
+        } catch (IllegalAccessException e) {
+            logger.error("Failed to create IconMap for theme.", e);
+            throw new RuntimeException(e);
         }
     }
 
     public static class BoardTheme {
-        public final Image hexLight;
-        public final Image hexMedium;
-        public final Image hexDark;
+        public final String hexLight;
+        public final String hexMedium;
+        public final String hexDark;
 
-        public final Image hexMarker_yesAction;
-        public final Image hexMarker_noAction;
-        public final Image hexMarker_selected;
+        public final String hexMarker_yesAction;
+        public final String hexMarker_noAction;
+        public final String hexMarker_selected;
 
         public BoardTheme(File themeDirectory) {
             hexLight = loadImage(themeDirectory, "hex-Light.png");
@@ -71,9 +121,9 @@ public class Theme {
         }
 
         public static class PieceImages {
-            public final Image light;
-            public final Image medium;
-            public final Image dark;
+            public final String light;
+            public final String medium;
+            public final String dark;
 
             public PieceImages(File themeDirectory, String baseName) {
                 light = loadImage(themeDirectory, baseName + "-W.png");
@@ -81,21 +131,20 @@ public class Theme {
                 dark = loadImage(themeDirectory, baseName + "-B.png");
             }
 
-            public Image get(int playerId) {
+            public String get(int playerId) {
                 return switch (playerId) {
                     case 0 -> light;
                     case 1 -> medium;
                     case 2 -> dark;
-                    default ->
-                            throw new IllegalArgumentException("'playerId' must be 0, 1 or 2, but was '" + playerId + "'");
+                    default -> throw new IllegalArgumentException("'playerId' must be 0, 1 or 2, but was '" + playerId + "'");
                 };
             }
         }
     }
 
     public static class UiTheme {
-        public final Image addTabIcon;
-        public final Image clickedAddTabIcon;
+        public final String addTabIcon;
+        public final String clickedAddTabIcon;
 
         public UiTheme(File themeDirectory) {
             addTabIcon = loadImage(themeDirectory, "add-tab-icon.png");
