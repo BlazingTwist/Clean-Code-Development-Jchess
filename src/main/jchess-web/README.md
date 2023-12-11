@@ -4,7 +4,16 @@ And [shadcn](https://ui.shadcn.com/) for some components.
 
 ## Getting Started
 
-First, run the development server:
+First create a `.env.local` file in the root directory of the project.
+You can copy the `.env.example` file and rename it to `.env.local`.
+
+Then you can install the dependencies:
+
+```bash
+bun install
+```
+
+Lastly you can run the development server:
 
 ```bash
 bun dev
