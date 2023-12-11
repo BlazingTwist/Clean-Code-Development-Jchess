@@ -3,6 +3,8 @@ import { Play } from "next/font/google";
 import { Hotkeys } from "@/components/Hotkeys";
 import "./globals.css";
 import { GameProvider } from "./context/game_context";
+import { ThemeProvider } from "./context/theme_context";
+import { GameUpdateProvider } from "./context/game_update_context";
 
 const playFont = Play({ weight: "400", style: "normal", subsets: ["latin"] });
 
@@ -16,7 +18,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="en">
             <Hotkeys />
             <body className={playFont.className}>
-                <GameProvider>{children}</GameProvider>
+                <ThemeProvider>
+                    <GameProvider>
+                        <GameUpdateProvider>{children}</GameUpdateProvider>
+                    </GameProvider>
+                </ThemeProvider>
             </body>
         </html>
     );
