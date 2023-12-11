@@ -6,41 +6,44 @@ interface ContextProps {
     isGame: boolean;
     gameUpdate: GameUpdate | undefined;
     setGameUpdate: Dispatch<SetStateAction<GameUpdate | undefined>>;
+    resetGame: () => void;
 }
 
 const GameUpdateContext = createContext<ContextProps>({
     isGame: false,
     gameUpdate: undefined,
     setGameUpdate: () => {},
+    resetGame: () => {},
 });
 
 export const GameUpdateProvider = ({ children }: { children: React.ReactNode }) => {
-    const [gameUpdate, setGameUpdate] = useState<GameUpdate>();
-    /*
+    const [gameUpdate, setGameUpdate] = useState<GameUpdate | undefined>(() => {
+        // Load the initial state from localStorage
+        const storedGameUpdate = localStorage.getItem("gameUpdate");
+        return storedGameUpdate ? JSON.parse(storedGameUpdate) : undefined;
+    });
+
+    // Save the gameUpdate to localStorage whenever it changes
     useEffect(() => {
-        console.log("Fetching GameUpdate");
-        fetch("http://localhost:8880/api/gameUpdate")
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Error fetching GameUpdate: ${response.status} ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log("GameUpdate:", data);
-                setGameUpdate(data);
-            })
-            .catch((error) => {
-                console.error("Error fetching GameUpdate:", error);
-            });
-        console.log("Fetching GameUpdate Done");
-    }, []);
-    */
+        if (gameUpdate) {
+            localStorage.setItem("gameUpdate", JSON.stringify(gameUpdate));
+        } else {
+            localStorage.removeItem("gameUpdate");
+        }
+    }, [gameUpdate]);
 
     const isGame = gameUpdate !== undefined;
 
+    const resetGame = () => {
+        console.log("resetting game");
+        // Reset the gameUpdate to undefined
+        setGameUpdate(undefined);
+        // Remove the gameUpdate from localStorage
+        localStorage.removeItem("gameUpdate");
+    };
+
     return (
-        <GameUpdateContext.Provider value={{ isGame, gameUpdate, setGameUpdate }}>
+        <GameUpdateContext.Provider value={{ isGame, gameUpdate, setGameUpdate, resetGame }}>
             {children}
         </GameUpdateContext.Provider>
     );

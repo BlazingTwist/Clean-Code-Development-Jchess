@@ -16,11 +16,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
-            <Hotkeys />
             <body className={playFont.className}>
                 <ThemeProvider>
                     <GameProvider>
-                        <GameUpdateProvider>{children}</GameUpdateProvider>
+                        <GameUpdateProvider>
+                            <Hotkeys />
+                            {children}
+                        </GameUpdateProvider>
                     </GameProvider>
                 </ThemeProvider>
             </body>

@@ -9,7 +9,10 @@ import {
     MenubarShortcut,
     MenubarTrigger,
 } from "@/components/ui/menubar";
+import { useGameUpdateContext } from "@/app/context/game_update_context";
 export default function Nav() {
+    const { isGame, resetGame } = useGameUpdateContext();
+
     return (
         <nav className="flex w-full items-center justify-between flex-wrap bg-gradient-to-r bg-primary p-6">
             <div className="flex items-center flex-shrink-0 text-white ">
@@ -19,14 +22,21 @@ export default function Nav() {
                 <MenubarMenu>
                     <MenubarTrigger>Play</MenubarTrigger>
                     <MenubarContent>
-                        <MenubarItem>
-                            <Link href="/?newGame=true">
-                                New Game <MenubarShortcut>⌥+N | Altl+N</MenubarShortcut>
-                            </Link>
-                        </MenubarItem>
+                        {!isGame && <MenubarItem>Load Game</MenubarItem>}
+                        {isGame && <MenubarItem>Save Game</MenubarItem>}
                         <MenubarSeparator />
-                        <MenubarItem>Load Game</MenubarItem>
-                        <MenubarItem>Save Game</MenubarItem>
+                        {!isGame && (
+                            <MenubarItem>
+                                <Link href="/?newGame=true">
+                                    New Game <MenubarShortcut>⌥+N | Altl+N</MenubarShortcut>
+                                </Link>
+                            </MenubarItem>
+                        )}
+                        {isGame && (
+                            <MenubarItem onClick={() => resetGame()}>
+                                Exit Game <MenubarShortcut>ESC</MenubarShortcut>
+                            </MenubarItem>
+                        )}
                     </MenubarContent>
                 </MenubarMenu>
                 <MenubarMenu>
