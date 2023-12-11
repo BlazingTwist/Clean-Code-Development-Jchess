@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useRouter } from "next/navigation";
 
 import { useState } from "react";
-import { useGameContext } from "@/app/context/game_context";
+import { fetchGameUpdate } from "@/utils/gameUpdateFetcher";
+import { useGameUpdateContext } from "@/app/context/game_update_context";
+import { useRouter } from "next/navigation";
 
 export function NewGameModal() {
     const router = useRouter();
@@ -18,7 +19,7 @@ export function NewGameModal() {
     const [isTimeGame, setTimeGame] = useState(false);
     const [timeGameAmount, setTimeGameAmount] = useState("0");
 
-    const { setGameOptions, setPlayerState } = useGameContext();
+    const { setGameUpdate } = useGameUpdateContext();
 
     const renderNameInputs = () => {
         const inputs: JSX.Element[] = [];
@@ -59,45 +60,27 @@ export function NewGameModal() {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Prevents the default form submission behavior
 
+        console.log("post newGame to server");
+
         // Access the inputted player names
         const playerNames = Array.from(
             { length: parseInt(numberOfPlayers) },
             (_, i) => (document.getElementById(`player-${i + 1}`) as HTMLInputElement).value
         );
 
-        const playerColors = new Map<number, string>();
-        const playerTimes = new Map<number, Date>();
-        const playerHistory = new Map<number, Array<string>>();
+        console.log("players are:" + playerNames);
+        console.log("isTimeGame:" + isTimeGame);
+        console.log("timeGameAmount:" + timeGameAmount);
 
-        playerNames.forEach((playerName, index) => {
-            const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
-            playerColors.set(index, index == 0 ? "black" : index == 1 ? "white" : "destructive");
-            playerTimes.set(index, playerTime);
-            playerHistory.set(index, ["irgendein zug"]);
+        fetchGameUpdate().then((gameUpdate) => {
+            setGameUpdate(gameUpdate);
+            router.push("/");
         });
-
-        // Use the inputted information as needed
-        console.log("Number of Players:", numberOfPlayers);
-        console.log("Player Names:", playerNames);
-        console.log("Is Time Game:", isTimeGame);
-        console.log("Time Game Amount:", timeGameAmount);
-
-        setGameOptions({
-            playerNames,
-            isWhiteOnTop,
-            isTimeGame,
-            timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
-        });
-
-        setPlayerState({
-            playerColor: playerColors,
-            playerTime: playerTimes,
-            playerHistory: playerHistory,
-        });
-
-        // Add further logic here, such as sending data to a server
-        router.push("/?game=true");
     };
+
+    // TODO:
+    console.log("fetch possible player number from server");
+    console.log("fetch possible time game amount from server");
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-20">

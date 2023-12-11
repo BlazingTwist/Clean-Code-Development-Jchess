@@ -5,16 +5,17 @@ import { createContext, useContext, Dispatch, SetStateAction, useState, useEffec
 interface ContextProps {
     isGame: boolean;
     gameUpdate: GameUpdate | undefined;
+    setGameUpdate: Dispatch<SetStateAction<GameUpdate | undefined>>;
 }
 
 const GameUpdateContext = createContext<ContextProps>({
     isGame: false,
     gameUpdate: undefined,
+    setGameUpdate: () => {},
 });
 
 export const GameUpdateProvider = ({ children }: { children: React.ReactNode }) => {
     const [gameUpdate, setGameUpdate] = useState<GameUpdate>();
-
     /*
     useEffect(() => {
         console.log("Fetching GameUpdate");
@@ -38,7 +39,11 @@ export const GameUpdateProvider = ({ children }: { children: React.ReactNode }) 
 
     const isGame = gameUpdate !== undefined;
 
-    return <GameUpdateContext.Provider value={{ isGame, gameUpdate }}>{children}</GameUpdateContext.Provider>;
+    return (
+        <GameUpdateContext.Provider value={{ isGame, gameUpdate, setGameUpdate }}>
+            {children}
+        </GameUpdateContext.Provider>
+    );
 };
 
 export const useGameUpdateContext = () => useContext(GameUpdateContext);
