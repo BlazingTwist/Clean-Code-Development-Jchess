@@ -130,19 +130,6 @@
             <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-runner</artifactId>
-            <version>1.10.0</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- testing report -->
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-reporting</artifactId>
-            <version>1.10.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>
