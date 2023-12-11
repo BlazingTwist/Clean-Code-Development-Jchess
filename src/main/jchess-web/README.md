@@ -12,3 +12,13 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Typescript from JSON Schema
+
+This project uses [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) to generate typescript types from JSON Schema.
+
+```bash
+bun install -g json-schema-to-typescript
+cd src/main/resources/dx
+json2ts -i schema/ -o ../../jchess-web/models/ --cwd schema/types
+```
+
