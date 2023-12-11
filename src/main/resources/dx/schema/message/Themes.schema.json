@@ -4,9 +4,6 @@
   "type": "object",
   "javaType": "dx.schema.message.Themes",
   "properties": {
-    "tileAspectRatio": {
-      "$ref": "../types/Vector2I.schema.json"
-    },
     "themes": {
       "type": "array",
       "items": {

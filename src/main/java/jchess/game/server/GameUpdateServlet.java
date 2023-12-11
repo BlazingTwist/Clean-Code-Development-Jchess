@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jchess.ecs.EntityManager;
 import jchess.game.common.IGameState;
 import jchess.game.server.adapter.EntityAdapter;
+import jchess.game.server.util.CorsUtils;
 import jchess.game.server.util.JsonUtils;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class GameUpdateServlet extends HttpServlet {
     // TODO erja, currently implemented as a GET request, but this should be POST-ing to the frontend.
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        CorsUtils.setHeaders(resp);
         resp.setContentType("text/json");
         PrintWriter writer = resp.getWriter();
 

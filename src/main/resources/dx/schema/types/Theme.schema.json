@@ -8,6 +8,12 @@
       "description": "Name of the Theme",
       "type": "string"
     },
+    "tileAspectRatio": {
+      "$ref": "Vector2I.schema.json"
+    },
+    "tileStride": {
+      "$ref": "Vector2I.schema.json"
+    },
     "icons": {
       "type": "array",
       "items": {

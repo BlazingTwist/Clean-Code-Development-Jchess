@@ -1,7 +1,5 @@
 package jchess.game.server;
 
-import example.undertow.UndertowMicroserviceGET;
-import example.undertow.UndertowResourceHosting;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -52,7 +50,7 @@ public class WipExampleServer {
                 .addPrefixPath(resourcePrefix, new ResourceHandler(resourceManager));
 
         Undertow server = Undertow.builder()
-                .addHttpListener(8080, "localhost")
+                .addHttpListener(8880, "localhost")
                 .setHandler(pathHandler)
                 .build();
         server.start();
