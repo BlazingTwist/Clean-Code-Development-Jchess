@@ -10,5 +10,5 @@ First, run the development server:
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000/web](http://localhost:3000/web) with your browser to see the result.
 
