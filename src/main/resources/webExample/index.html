@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Backend Communication Example</title>
+    <script src="Templating.js"></script>
 </head>
 <body style="padding: 0; margin: 0">
     <div style="width: 100vw; height: 100vh;" id="board_canvas">
@@ -129,10 +130,10 @@
                 let offsetY = tileY * theme.tileStride[1] * scaleFactor;
                 let iconPath = theme.icons[tile.iconId];
 
-                let template = document.createElement("div");
-                template.innerHTML = `<img style='top: ${offsetY}px; left: ${offsetX}px; position: absolute; width: ${tileWidth}px; height: ${tileHeight}px;' src="http://localhost:8880/${iconPath}"></img>`
-                let tileDiv = template.firstChild;
-                boardCanvas.appendChild(tileDiv);
+                let tileTemplate = Templating.html(
+                    `<img style='top: ${offsetY}px; left: ${offsetX}px; position: absolute; width: ${tileWidth}px; height: ${tileHeight}px;' src="http://localhost:8880/${iconPath}">`
+                );
+                boardCanvas.appendChild(tileTemplate.element);
             }
 
             for (let piece of pieces) {
@@ -146,10 +147,10 @@
                 console.log(piece.identifier);
                 console.log("iconPath: " + iconPath);
 
-                let template = document.createElement("div");
-                template.innerHTML = `<img style='top: ${offsetY}px; left: ${offsetX}px; position: absolute; width: ${tileWidth}px; height: ${tileHeight}px;' src="http://localhost:8880/${iconPath}"></img>`
-                let pieceDiv = template.firstChild;
-                boardCanvas.appendChild(pieceDiv);
+                let pieceTemplate = Templating.html(
+                    `<img style='top: ${offsetY}px; left: ${offsetX}px; position: absolute; width: ${tileWidth}px; height: ${tileHeight}px;' src="http://localhost:8880/${iconPath}">`
+                )
+                boardCanvas.appendChild(pieceTemplate.element);
             }
         }
 
