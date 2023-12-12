@@ -90,9 +90,6 @@ export default function GameComponment() {
             const offsetWidthFromCanvasRef = canvasRef.current?.offsetWidth || 1;
             const offsetHeightFromCanvasRef = canvasRef.current?.offsetHeight || 1;
             let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
-            if (rawBoardHeight * scaleFactor > offsetHeightFromCanvasRef) {
-                scaleFactor = offsetHeightFromCanvasRef / rawBoardHeight;
-            }
 
             for (const tile of tiles) {
                 let tileX = tile.position[0] - minTilePos[0];
@@ -181,7 +178,7 @@ export default function GameComponment() {
         <div className="grid grid-cols-1 gap-2 p-12 items-center sm:grid-cols-2 lg:grid-cols-3  sm:grid-row-2 max-w-[2000px] mx-auto">
             <div
                 ref={canvasRef}
-                className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-full min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative"
+                className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-[100%] min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative"
             >
                 {board}
             </div>
