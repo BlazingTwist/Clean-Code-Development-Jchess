@@ -1,18 +1,20 @@
 "use client";
-import DefaultChessboard from "./Chessboard/default_chessboard";
 import { useGameContext } from "@/app/context/game_context";
-import HexChessboard from "./Chessboard/hex_chessboard";
 import TimeGameComponent from "./TimeGameComponent";
 import HistoryComponent from "./HistoryComponent";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
 import { useThemeContext } from "@/app/context/theme_context";
 import { Vector2I } from "@/models/message/GameUpdate.schema";
+import { useEffect, useRef } from "react";
 
 export default function GameComponment() {
-    const { gameOptions } = useGameContext();
+    const { gameOptions } = useGameContext(); // old code for client side state, later it probably will be removed
+    const { gameUpdate } = useGameUpdateContext(); // this is the current game state comming from the server
+    const { getCurrentTheme } = useThemeContext(); // this is the current theme selected by the user
 
-    const { gameUpdate } = useGameUpdateContext();
-    const { getCurrentTheme } = useThemeContext();
+    const canvasRef = useRef<HTMLInputElement>(null);
+
+    const showCoordinates = process.env.NEXT_PUBLIC_BOARD_WITH_COORDINATES === "true"; // boolean flag in .env.local file to control if coordinates are shown on the board
 
     const renderBoard = () => {
         const theme = getCurrentTheme();
@@ -67,9 +69,12 @@ export default function GameComponment() {
                 maxTilePos = [maxX, maxY];
             }
 
-            let rawBoardWidth = theme.tileAspectRatio.x + theme.tileStride.y * (maxTilePos[0] - minTilePos[0]);
-            let rawBoardHeight = theme.tileAspectRatio.y + theme.tileStride.y * (maxTilePos[1] - minTilePos[0]);
+            const pieceSizeAdjustment = 0.7; // this is needed so the bounding box of the piece is not overlapping with other pieces
+            const pieceTranslationOffset = 22.5; // this is used to center the piece on the tile and is unique for each pieceSizeAdjustment
+            const translationString = `translate(${pieceTranslationOffset}%,${pieceTranslationOffset}%)`; // css translation string
 
+            let rawBoardWidth = theme.tileAspectRatio.x + theme.tileStride.x * (maxTilePos[0] - minTilePos[0]);
+            let rawBoardHeight = theme.tileAspectRatio.y + theme.tileStride.y * (maxTilePos[1] - minTilePos[0]);
             const iconMap: { [key: string]: string } = theme.icons.reduce(
                 (map: { [key: string]: string }, icon: any) => {
                     map[icon.iconId] = icon.iconPath;
@@ -80,26 +85,37 @@ export default function GameComponment() {
 
             const serverUri = "http://127.0.0.1:8880/";
             const canvas: JSX.Element[] = [];
-            const scaleFactor = 1;
+            const offsetWidthFromCanvasRef = canvasRef.current?.offsetWidth || 1;
+            const offsetHeightFromCanvasRef = canvasRef.current?.offsetHeight || 1;
+            let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
+            if (rawBoardHeight * scaleFactor > offsetHeightFromCanvasRef) {
+                scaleFactor = offsetHeightFromCanvasRef / rawBoardHeight;
+            }
+
             for (const tile of tiles) {
                 let tileX = tile.position[0] - minTilePos[0];
                 let offsetX = tileX * theme.tileStride.x * scaleFactor;
                 let tileY = tile.position[1] - minTilePos[1];
                 let offsetY = tileY * theme.tileStride.y * scaleFactor;
                 let iconPath = iconMap[tile.iconId];
-
+                let tileKey = `tile-${tile.iconId}-${tile.position[0]}-${tile.position[1]}`;
                 canvas.push(
-                    <div>
-                        <img
-                            className="absolute"
-                            style={{
-                                left: offsetX,
-                                top: offsetY,
-                                width: theme.tileAspectRatio.x * scaleFactor,
-                                height: theme.tileAspectRatio.y * scaleFactor,
-                            }}
-                            src={serverUri + iconPath}
-                        />
+                    <div
+                        key={tileKey}
+                        className="absolute"
+                        style={{
+                            left: offsetX,
+                            top: offsetY,
+                            width: theme.tileAspectRatio.x * scaleFactor,
+                            height: theme.tileAspectRatio.y * scaleFactor,
+                        }}
+                    >
+                        <img className="absolute w-full h-full" src={serverUri + iconPath} />
+                        {showCoordinates && (
+                            <span className="absolute inset-0 flex items-center justify-center">
+                                {tile.position[0] + ":" + tile.position[1]}
+                            </span>
+                        )}
                     </div>
                 );
             }
@@ -111,22 +127,29 @@ export default function GameComponment() {
                 let y = tilePos[1] - minTilePos[1];
                 let offsetY = y * theme.tileStride.y * scaleFactor;
                 let iconPath = iconMap[piece.identifier.iconId];
+                let pieceKey = `piece-${piece.identifier.iconId}-${tilePos[0]}-${tilePos[1]}`;
+
+                let pieceWidth = theme.tileAspectRatio.x * scaleFactor * pieceSizeAdjustment;
+                let pieceHeight = theme.tileAspectRatio.y * scaleFactor * pieceSizeAdjustment;
 
                 canvas.push(
-                    <div>
+                    <div key={pieceKey} className="">
                         <img
-                            className="absolute"
+                            onClick={() => console.log("Clicked: " + pieceKey)}
+                            className={`absolute`}
                             style={{
                                 left: offsetX,
                                 top: offsetY,
-                                width: theme.tileAspectRatio.x * scaleFactor,
-                                height: theme.tileAspectRatio.y * scaleFactor,
+                                width: pieceWidth,
+                                height: pieceHeight,
+                                transform: translationString,
                             }}
                             src={serverUri + iconPath}
                         />
                     </div>
                 );
             }
+
             return canvas;
         }
 
@@ -139,7 +162,10 @@ export default function GameComponment() {
 
     return (
         <div className="grid grid-cols-1 gap-2 p-12 items-center sm:grid-cols-2 lg:grid-cols-3  sm:grid-row-2 max-w-[2000px] mx-auto">
-            <div className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-full min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative">
+            <div
+                ref={canvasRef}
+                className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-full min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative"
+            >
                 {renderBoard()}
             </div>
 
