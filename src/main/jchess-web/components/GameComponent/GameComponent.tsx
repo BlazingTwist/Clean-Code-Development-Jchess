@@ -5,20 +5,22 @@ import HistoryComponent from "./HistoryComponent";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
 import { useThemeContext } from "@/app/context/theme_context";
 import { Vector2I } from "@/models/message/GameUpdate.schema";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function GameComponment() {
-    const { gameOptions } = useGameContext(); // old code for client side state, later it probably will be removed
-    const { gameUpdate } = useGameUpdateContext(); // this is the current game state comming from the server
-    const { getCurrentTheme } = useThemeContext(); // this is the current theme selected by the user
-
-    const canvasRef = useRef<HTMLInputElement>(null);
-
     const showCoordinates = process.env.NEXT_PUBLIC_BOARD_WITH_COORDINATES === "true"; // boolean flag in .env.local file to control if coordinates are shown on the board
 
-    const renderBoard = () => {
-        const theme = getCurrentTheme();
+    // Contexts
+    const { gameOptions } = useGameContext(); // old code for client side state, later it probably will be removed
+    const { gameUpdate } = useGameUpdateContext(); // this is the current game state comming from the server
+    const { getCurrentTheme, themeMap } = useThemeContext(); // this is the current theme selected by the user
 
+    const canvasRef = useRef<HTMLInputElement>(null);
+    const [board, setBoard] = useState<JSX.Element[]>([]);
+
+    const theme = getCurrentTheme();
+
+    const renderBoard = () => {
         const tiles = [];
         const pieces = [];
         const markers = [];
@@ -149,16 +151,31 @@ export default function GameComponment() {
                     </div>
                 );
             }
-
-            return canvas;
+            setBoard(canvas);
+        } else {
+            console.log("No board to render", gameUpdate, theme?.tileAspectRatio, theme?.tileStride);
         }
+    };
 
-        return <></>;
+    const handleResize = () => {
+        renderBoard();
     };
 
     function readVector2I(vector: Vector2I) {
         return [vector.x, vector.y];
     }
+
+    useEffect(() => {
+        // add event listener to resize the canvas when the window is resized
+        window.addEventListener("resize", handleResize);
+
+        // call renderBoard() once to render the board
+        renderBoard();
+        // cleanup function
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
 
     return (
         <div className="grid grid-cols-1 gap-2 p-12 items-center sm:grid-cols-2 lg:grid-cols-3  sm:grid-row-2 max-w-[2000px] mx-auto">
@@ -166,7 +183,7 @@ export default function GameComponment() {
                 ref={canvasRef}
                 className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-full min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative"
             >
-                {renderBoard()}
+                {board}
             </div>
 
             {gameOptions.isTimeGame && <TimeGameComponent />}

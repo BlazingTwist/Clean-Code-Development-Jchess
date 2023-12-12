@@ -19,7 +19,11 @@ const ThemeContext = createContext<ContextProps>({
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const [theme, setTheme] = useState<string>("default");
-    const [themeMap, setThemeMap] = useState<Map<string, Theme>>(new Map<string, Theme>());
+    const [themeMap, setThemeMap] = useState<Map<string, Theme>>(() => {
+        // Load the initial state from localStorage
+        const storedThemeMap = localStorage.getItem("themeMap");
+        return storedThemeMap ? new Map(JSON.parse(storedThemeMap)) : new Map<string, Theme>();
+    });
 
     useEffect(() => {
         console.log("Fetching Themes");
@@ -30,6 +34,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
                 themeMap.set(theme.name, theme);
             });
             setThemeMap(themeMap);
+            localStorage.setItem("themeMap", JSON.stringify(Array.from(themeMap.entries()))); // TODO look for an alternative to ensure that the themeMap is always available when reloading the page
         });
 
         console.log("Fetching Themes Done");
