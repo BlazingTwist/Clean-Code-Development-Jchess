@@ -1,5 +1,6 @@
 "use client";
 import { Theme } from "@/models/message/Themes.schema";
+import { fetchThemes } from "@/utils/themeFetcher";
 import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect } from "react";
 
 interface ContextProps {
@@ -22,25 +23,15 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         console.log("Fetching Themes");
-        fetch("http://localhost:8880/api/themes")
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Error fetching Themes: ${response.status} ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                const themeMap = new Map<string, Theme>();
-                console.log("Themes:", data);
 
-                data["themes"].forEach((theme: Theme) => {
-                    themeMap.set(theme.name, theme);
-                });
-                setThemeMap(themeMap);
-            })
-            .catch((error) => {
-                console.error("Error fetching Themes:", error);
+        fetchThemes().then((ThemeResponse) => {
+            const themeMap = new Map<string, Theme>();
+            ThemeResponse.themes.forEach((theme) => {
+                themeMap.set(theme.name, theme);
             });
+            setThemeMap(themeMap);
+        });
+
         console.log("Fetching Themes Done");
     }, []);
 
