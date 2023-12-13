@@ -42,7 +42,7 @@ export function NewGameModal() {
      */
     useEffect(() => {
         // TODO fetch possible values from server:
-        console.log("fetch possible time game amount from server");
+        console.log("fetch possible time game amounts from server");
         setTimeGameValues(["1", "3", "5", "8", "10", "15", "20", "25", "30", "60", "120"]);
     }, []);
 
@@ -134,6 +134,12 @@ export function NewGameModal() {
         );
     };
 
+    type ColorMap = {
+        [key: number]: {
+            [key: number]: string;
+        };
+    };
+
     /**
      * @function handleSubmit
      * @description Handles the form submission, processes input values, and initiates a new game.
@@ -158,9 +164,22 @@ export function NewGameModal() {
         const playerTimes = new Map<number, Date>();
         const playerHistory = new Map<number, Array<string>>();
 
+        // mock Color Map. TODO: remove and add to themes response
+        const colorMap: ColorMap = {
+            3: {
+                0: "white",
+                1: "destructive",
+                2: "black",
+            },
+            2: {
+                0: "white",
+                1: "black",
+            },
+        };
+
         playerNames.forEach((playerName, index) => {
             const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
-            playerColors.set(index, index == 0 ? "white" : index == 1 ? "destructive" : "black");
+            playerColors.set(index, colorMap[playerNames.length][index]);
             playerTimes.set(index, playerTime);
             playerHistory.set(index, ["e4:e5", " e5:e4"]);
         });
