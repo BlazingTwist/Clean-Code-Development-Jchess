@@ -29,7 +29,6 @@ class Config {
       return process.env.NEXT_PUBLIC_LOCAL_STORAGE === 'true';
     }
 
-    // log config values
     static log(): void {
       console.log('NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI', Config.undertowServerUri);
       console.log('NEXT_PUBLIC_CLIENT_URI', Config.clientUri);
