@@ -86,6 +86,16 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Generierung des Online JavaDocs -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <outputDirectory>${project.basedir}/docs/java-docs</outputDirectory>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

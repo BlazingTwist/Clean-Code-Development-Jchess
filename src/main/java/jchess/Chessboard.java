@@ -288,7 +288,7 @@ public class Chessboard extends JPanel
     }/*--endOf-select--*/
 
 
-    /** Method set variables active_x_square & active_y_square
+    /** Method set variables active_x_square {@code &} active_y_square
      * to 0 values.
      */
     public void unselect()

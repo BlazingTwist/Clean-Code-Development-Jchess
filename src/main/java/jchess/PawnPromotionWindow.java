@@ -20,16 +20,20 @@
  */
 package jchess;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.ActionListener;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /** Class responsible for promotion of a pawn.
  * When pawn reach the end of the chessboard it can be change to rook,
  * bishop, queen or knight. For what pawn is promoted decideds player.
- * @param parent Information about the current piece
- * @param color The player color
  */
 public class PawnPromotionWindow extends JDialog implements ActionListener
 {
@@ -42,6 +46,10 @@ public class PawnPromotionWindow extends JDialog implements ActionListener
     public String result;
     GridBagConstraints gbc;
 
+    /**
+     * @param parent Information about the current piece
+     * @param color The player color
+     */
     PawnPromotionWindow(Frame parent, String color)
     {
         super(parent);
