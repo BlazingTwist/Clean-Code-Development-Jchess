@@ -13,11 +13,7 @@ export default function HistoryComponent() {
     // Determine the number of moves made in the game.
     const numMoves = playerState.playerHistory.get(0)?.length;
     return (
-        <Card
-            className={`self-start  max-w-[500px] ${
-                gameOptions.isTimeGame ? "" : "sm:col-span-2 lg:col-span-1 justify-self-center "
-            }`}
-        >
+        <Card className={`self-start  max-w-[500px]`}>
             <CardHeader>
                 <CardTitle>History</CardTitle>
             </CardHeader>

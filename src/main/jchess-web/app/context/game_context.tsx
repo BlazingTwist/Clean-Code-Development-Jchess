@@ -1,8 +1,8 @@
 "use client";
 import Config from "@/utils/config";
-import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNode, useEffect } from "react";
+import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNode, useEffect, use } from "react";
 
-//TODO most of this will be handled by the server, so this file will be removed
+//TODO most of this will be handled by the server, so this will be a lot simpler
 
 /**
  * Represents the options for a chess game.
@@ -12,6 +12,7 @@ type GameOptions = {
     isWhiteOnTop: boolean;
     isTimeGame: boolean;
     timeGameAmountInSeconds: number;
+    sessionId: string;
 };
 
 /**
@@ -65,24 +66,18 @@ function deserializeJsonToPlayerState(jsonString: string): PlayerState {
  * The properties provided by the GameContext.
  */
 interface ContextProps {
-    chessboardState: Array<Array<string>>;
-    setChessboardState: Dispatch<SetStateAction<Array<Array<string>>>>;
     playerState: PlayerState;
     setPlayerState: Dispatch<SetStateAction<PlayerState>>;
     gameOptions: GameOptions;
     setGameOptions: Dispatch<SetStateAction<GameOptions>>;
+    isGame: boolean;
+    resetGame: () => void;
 }
 
 /**
- * The context for managing the state of a chess game.
- * @defaultValue { chessboardState: [], setChessboardState: () => {},
- * playerState: { playerColor: new Map<number, string>(), playerTime: new Map<number, Date>(),
- * playerHistory: new Map<number, Array<string>>() }, setPlayerState: () => {},
- * gameOptions: { playerNames: [], isWhiteOnTop: false, isTimeGame: false, timeGameAmountInSeconds: 0 }, setGameOptions: () => {} }
+ * The context for managing the state of the chess game.
  */
 const GameContext = createContext<ContextProps>({
-    chessboardState: Array<Array<string>>(),
-    setChessboardState: () => {},
     playerState: {
         playerColor: new Map<number, string>(),
         playerTime: new Map<number, Date>(),
@@ -94,8 +89,11 @@ const GameContext = createContext<ContextProps>({
         isWhiteOnTop: false,
         isTimeGame: false,
         timeGameAmountInSeconds: 0,
+        sessionId: "",
     },
     setGameOptions: () => {},
+    isGame: false,
+    resetGame: () => {},
 });
 
 /**
@@ -129,6 +127,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
                   isWhiteOnTop: false,
                   isTimeGame: false,
                   timeGameAmountInSeconds: 0,
+                  sessionId: "",
               };
     });
     const [playerState, setPlayerState] = useState<PlayerState>(() => {
@@ -156,14 +155,37 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         }
     }, [playerState, useLocalStorage]);
 
+    const isGame =
+        gameOptions.sessionId !== "" && gameOptions.sessionId !== undefined && gameOptions.sessionId !== null;
+
+    /**
+     * TODO close socket and tell server to end the game
+     * Resets the game by setting gameUpdate to undefined and removing it from localStorage.
+     */
+    const resetGame = () => {
+        console.log("resetting game");
+        setGameOptions({
+            playerNames: [],
+            isWhiteOnTop: false,
+            isTimeGame: false,
+            timeGameAmountInSeconds: 0,
+            sessionId: "",
+        });
+
+        // Remove the gameUpdate from localStorage if saving cookies is enabled
+        if (useLocalStorage) {
+            localStorage.removeItem(gameOptionsStorageKey);
+        }
+    };
+
     // Provide the context value to be used by children components
     const contextValue: ContextProps = {
-        chessboardState,
-        setChessboardState,
         playerState,
         setPlayerState,
         gameOptions,
         setGameOptions,
+        isGame,
+        resetGame,
     };
 
     // Provide the context to the children components

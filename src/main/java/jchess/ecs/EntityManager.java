@@ -16,9 +16,4 @@ public class EntityManager {
         return entities;
     }
 
-    public <T> void runSystem(ISystem<T> system, T data) {
-        entities.stream()
-                .filter(system::acceptsEntity)
-                .forEach(entity -> system.update(entity, data));
-    }
 }

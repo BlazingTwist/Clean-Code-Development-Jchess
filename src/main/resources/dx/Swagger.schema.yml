@@ -22,6 +22,11 @@ paths:
           schema:
             description: the created session id
             type: string
+        '400':
+          description: Illegal Request (e.g. invalid Parameters, see response body for error message)
+          schema:
+            description: the error message
+            type: string
   /api/game/clicked:
     post:
       summary: Notify the Backend of a player clicking on the board
@@ -42,6 +47,16 @@ paths:
         - application/json
       responses:
         '200':
+          description: List of available themes
           schema:
-            description: List of available themes
             $ref: 'schema/message/Themes.schema.json'
+  /api/modes:
+    get:
+      summary: Lists all available game-modes
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: List of available game-modes
+          schema:
+            $ref: 'schema/message/GameModes.schema.json'

@@ -5,6 +5,8 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+export type MarkerType = "NoAction" | "YesAction" | "Selection";
+
 export interface GameUpdate {
   boardState: Entity[];
   activePlayerId: number;
@@ -45,6 +47,7 @@ export interface PieceIdentifier {
   [k: string]: unknown;
 }
 export interface MarkerComponent {
-  markerType: "NoAction" | "YesAction" | "Selection";
+  markerType: MarkerType;
+  iconId: string;
   [k: string]: unknown;
 }

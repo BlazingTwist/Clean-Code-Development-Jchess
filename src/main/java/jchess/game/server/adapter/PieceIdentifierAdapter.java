@@ -1,6 +1,6 @@
 package jchess.game.server.adapter;
 
-import jchess.game.common.piece.PieceIdentifier;
+import jchess.game.common.components.PieceIdentifier;
 
 public enum PieceIdentifierAdapter implements IAdapter<PieceIdentifier, dx.schema.types.PieceIdentifier> {
     Instance;
@@ -12,7 +12,7 @@ public enum PieceIdentifierAdapter implements IAdapter<PieceIdentifier, dx.schem
         dx.schema.types.PieceIdentifier result = new dx.schema.types.PieceIdentifier();
         result.setPieceTypeId("" + data.pieceTypeId());
         result.setShortName(data.shortName());
-        result.setIconId(data.iconId());
+        result.setIconId(data.iconKey().getIconId());
         result.setOwnerId(data.ownerId());
         result.setForwardBasis(data.forwardBasis());
         return result;

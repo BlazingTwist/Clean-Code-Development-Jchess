@@ -10,32 +10,27 @@ import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import jakarta.servlet.ServletException;
-import jchess.game.layout.hex3p.Hex3PlayerGame;
-import jchess.game.layout.hex3p.Theme;
+import jchess.game.common.IChessGame;
+import jchess.game.common.events.RenderEvent;
+import jchess.game.layout.GameMode;
+import jchess.game.server.session.SessionManager;
 import jchess.game.server.session.SessionMgrController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.URISyntaxException;
-import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class WipExampleServer {
     private static final Logger logger = LoggerFactory.getLogger(WipExampleServer.class);
 
-    private static final String resourcePrefix = "resources";
+    public static final String resourcePrefix = "resources";
 
-    public static Theme theme;
     public static BoardUpdateWebsocket boardUpdateWebsocket;
 
     public static void main(String[] args) throws ServletException, URISyntaxException {
-        String themePath = "/jchess/theme/v2/default";
-        theme = new Theme(new File(Hex3PlayerGame.class.getResource(themePath).toURI()));
         boardUpdateWebsocket = new BoardUpdateWebsocket();
-
-        ThemesServlet.themeMap = Map.of("default", theme.getIconMap());
-        ThemesServlet.resourcePrefix = resourcePrefix;
 
         SessionMgrController.registerSessionManager(GameSessionData.class, 10, TimeUnit.MINUTES);
         SessionMgrController.startHeartbeat(1, TimeUnit.MINUTES);
@@ -48,7 +43,8 @@ public class WipExampleServer {
                 .setDeploymentName("WipChessServer")
                 .addServlet(Servlets.servlet("GameCreate", GameCreateServlet.class).addMapping("/api/game/create"))
                 .addServlet(Servlets.servlet("GameClicked", BoardClickedServlet.class).addMapping("/api/game/clicked"))
-                .addServlet(Servlets.servlet("Themes", ThemesServlet.class).addMapping("/api/themes"));
+                .addServlet(Servlets.servlet("Themes", ThemesServlet.class).addMapping("/api/themes"))
+                .addServlet(Servlets.servlet("GameModes", GameModesServlet.class).addMapping("/api/modes"));
 
 
         DeploymentManager manager = Servlets.defaultContainer().addDeployment(deployment);
@@ -64,6 +60,21 @@ public class WipExampleServer {
                 .build();
         server.start();
         logger.info("Server started");
+    }
+
+    public static String startNewGame(GameMode mode) {
+        String sessionId = UUID.randomUUID().toString();
+        IChessGame game = mode.newGame();
+
+        GameSessionData gameData = new GameSessionData(game);
+        SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
+        gameManager.createSession(sessionId, gameData);
+
+        game.getEventManager().getEvent(RenderEvent.class).addPostEventListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
+        logger.info("Starting new game. Mode '{}'. SessionId '{}'", mode, sessionId);
+        game.start();
+
+        return sessionId;
     }
 
 }

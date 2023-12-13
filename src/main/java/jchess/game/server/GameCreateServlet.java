@@ -1,30 +1,42 @@
 package jchess.game.server;
 
+import dx.schema.message.GameCreate;
+import io.undertow.util.StatusCodes;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jchess.game.layout.hex3p.Hex3PlayerGame;
-import jchess.game.server.session.SessionManager;
-import jchess.game.server.session.SessionMgrController;
+import jchess.game.layout.GameMode;
+import jchess.game.server.util.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.UUID;
 
 public class GameCreateServlet extends HttpServlet {
+    private static final Logger logger = LoggerFactory.getLogger(GameCreateServlet.class);
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // TODO erja get theme from frontend
-        Hex3PlayerGame game = new Hex3PlayerGame(WipExampleServer.theme);
-        game.start();
+        GameCreate createInfo = JsonUtils.getMapper().readValue(req.getReader(), GameCreate.class);
 
-        String sessionId = UUID.randomUUID().toString();
-        GameSessionData gameData = game.getSessionData();
-        SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
-        gameManager.createSession(sessionId, gameData);
-        WipExampleServer.boardUpdateWebsocket.registerGame(sessionId, gameData);
+        GameMode gameMode;
+        try {
+            gameMode = GameMode.valueOf(createInfo.getModeId());
+        } catch (Exception e) {
+            logger.warn("Failed to find GameMode with id: '{}'", createInfo.getModeId());
+            resp.setStatus(StatusCodes.BAD_REQUEST);
+            PrintWriter writer = resp.getWriter();
+            writer.write("Invalid Game-Mode Id");
+            writer.flush();
+            writer.close();
+            return;
+        }
 
+        String sessionId = WipExampleServer.startNewGame(gameMode);
+
+        resp.setStatus(StatusCodes.CREATED);
         PrintWriter writer = resp.getWriter();
         writer.write(sessionId);
         writer.flush();

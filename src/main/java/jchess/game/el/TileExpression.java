@@ -1,7 +1,7 @@
 package jchess.game.el;
 
 import jchess.ecs.Entity;
-import jchess.game.common.piece.PieceIdentifier;
+import jchess.game.common.components.PieceIdentifier;
 
 import java.util.Arrays;
 import java.util.List;

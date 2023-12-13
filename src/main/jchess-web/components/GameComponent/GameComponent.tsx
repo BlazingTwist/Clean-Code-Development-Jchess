@@ -7,6 +7,8 @@ import { Vector2I } from "@/models/message/GameUpdate.schema";
 import Config from "@/utils/config";
 import TimeGameComponent from "./TimeGameComponent";
 import HistoryComponent from "./HistoryComponent";
+import { postClick } from "@/services/rest_api_service";
+import PlayerOverviewComponent from "./PlayerOverviewComponent";
 
 export default function GameComponment() {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
@@ -81,12 +83,13 @@ export default function GameComponment() {
                 tiles,
                 iconMap,
                 pieces,
+                markers,
                 pieceSizeAdjustment,
                 translationString
             );
             setBoard(canvas);
         } else {
-            console.log("No board to render", gameUpdate, theme?.tileAspectRatio, theme?.tileStride);
+            console.log("waiting for game update");
         }
     };
 
@@ -102,6 +105,7 @@ export default function GameComponment() {
      * @param {any[]} tiles - The tiles array.
      * @param {Map<string, string>} iconMap - The icon map.
      * @param {any[]} pieces - The pieces array.
+     * @param {any[]} markers - The markers array.
      * @param {number} pieceSizeAdjustment - The piece size adjustment.
      * @param {string} translationString - The translation string.
      */
@@ -113,6 +117,11 @@ export default function GameComponment() {
         pieces: {
             identifier: import("@/models/message/GameUpdate.schema").PieceIdentifier;
             tile: { position: number[]; iconId: string };
+        }[],
+        markers: {
+            markerType: import("@/models/message/GameUpdate.schema").MarkerType;
+            tile: { position: number[]; iconId: string };
+            iconId: string;
         }[],
         pieceSizeAdjustment: number,
         translationString: string
@@ -142,7 +151,21 @@ export default function GameComponment() {
                         height: theme!.tileAspectRatio!.y * scaleFactor,
                     }}
                 >
-                    <img className="absolute w-full h-full" src={serverUri + iconPath} />
+                    <img
+                        className="absolute w-full h-full"
+                        src={serverUri + iconPath}
+                        onClick={() => {
+                            console.log("Clicked: " + tileKey);
+
+                            postClick({
+                                sessionId: gameOptions.sessionId,
+                                clickPos: {
+                                    x: tile.position[0],
+                                    y: tile.position[1],
+                                },
+                            });
+                        }}
+                    />
                     {showCoordinates && (
                         <span className="absolute inset-0 flex items-center justify-center">
                             {tile.position[0] + ":" + tile.position[1]}
@@ -167,7 +190,6 @@ export default function GameComponment() {
             canvas.push(
                 <div key={pieceKey} className="">
                     <img
-                        onClick={() => console.log("Clicked: " + pieceKey)}
                         className={`absolute`}
                         style={{
                             left: offsetX,
@@ -175,12 +197,40 @@ export default function GameComponment() {
                             width: pieceWidth,
                             height: pieceHeight,
                             transform: translationString,
+                            pointerEvents: "none",
                         }}
                         src={serverUri + iconPath}
                     />
                 </div>
             );
         }
+
+        for (let marker of markers) {
+            let markerPos = marker.tile.position;
+            let x = markerPos[0] - minTilePos[0];
+            let offsetX = x * theme!.tileStride!.x * scaleFactor;
+            let y = markerPos[1] - minTilePos[1];
+            let offsetY = y * theme!.tileStride!.y * scaleFactor;
+            let markerKey = `marker-${marker.iconId}-${markerPos[0]}-${markerPos[1]}`;
+            let iconPath = iconMap[marker.iconId];
+
+            canvas.push(
+                <div key={markerKey} className="">
+                    <img
+                        style={{
+                            top: offsetY,
+                            left: offsetX,
+                            position: "absolute",
+                            width: theme!.tileAspectRatio!.x * scaleFactor,
+                            height: theme!.tileAspectRatio!.y * scaleFactor,
+                            pointerEvents: "none",
+                        }}
+                        src={serverUri + iconPath}
+                    ></img>
+                </div>
+            );
+        }
+
         return canvas;
     }
 
@@ -215,6 +265,7 @@ export default function GameComponment() {
             if (marker && tileObject) {
                 markers.push({
                     markerType: marker.markerType,
+                    iconId: marker.iconId,
                     tile: tileObject,
                 });
             }
@@ -236,7 +287,7 @@ export default function GameComponment() {
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, []);
+    }, [gameUpdate]);
 
     return (
         <div className="grid grid-cols-1 gap-2 p-12 items-center sm:grid-cols-2 lg:grid-cols-3  sm:grid-row-2 max-w-[2000px] mx-auto">
@@ -248,6 +299,7 @@ export default function GameComponment() {
             </div>
 
             {gameOptions.isTimeGame && <TimeGameComponent />}
+            {!gameOptions.isTimeGame && <PlayerOverviewComponent />}
             {<HistoryComponent />}
         </div>
     );

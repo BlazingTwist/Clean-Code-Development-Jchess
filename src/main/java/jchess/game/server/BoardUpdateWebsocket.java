@@ -10,10 +10,10 @@ import io.undertow.websockets.core.BufferedTextMessage;
 import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
+import jchess.game.common.IChessGame;
 import jchess.game.server.adapter.EntityAdapter;
-import jchess.game.server.session.SessionManager;
-import jchess.game.server.session.SessionMgrController;
 import jchess.game.server.util.JsonUtils;
+import jchess.game.server.util.SessionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,46 +28,30 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
     private static final Logger logger = LoggerFactory.getLogger(BoardUpdateWebsocket.class);
     private final Map<String, List<WebSocketChannel>> channelsBySessionId = new HashMap<>();
 
-    public void registerGame(String sessionId, GameSessionData game) {
-        game.onBoardChangedEvent().addPostEventListener((x) -> {
-            String message = getUpdateMessage(game);
-            if (message == null) {
-                return;
-            }
-
-            int socketsNotified = 0;
-            List<WebSocketChannel> channels = channelsBySessionId.get(sessionId);
-            Iterator<WebSocketChannel> iterator = channels.iterator();
-            while (iterator.hasNext()) {
-                WebSocketChannel channel = iterator.next();
-                if (channel.getCloseCode() >= 0) {
-                    iterator.remove();
-                    continue;
-                }
-
-                WebSockets.sendText(message, channel, null);
-                socketsNotified++;
-            }
-            logger.info("Notified {} WebSockets of boardUpdate", socketsNotified);
-        });
-    }
-
-    private String getUpdateMessage(GameSessionData game) {
-        GameUpdate gameUpdateObject = new GameUpdate();
-        gameUpdateObject.setActivePlayerId(game.gameState().activePlayerId());
-        gameUpdateObject.setBoardState(game.entityManager().getEntities().stream()
-                .map(EntityAdapter.Instance::convert)
-                .toList());
-
-        ObjectMapper mapper = JsonUtils.getMapper();
-        String message;
-        try {
-            message = mapper.writeValueAsString(gameUpdateObject);
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to generate Json message", e);
-            return null;
+    public void onGameRenderEvent(String sessionId, IChessGame game) {
+        String message = getUpdateMessage(game);
+        if (message == null) {
+            return;
         }
-        return message;
+
+        List<WebSocketChannel> channels = channelsBySessionId.get(sessionId);
+        if (channels == null || channels.isEmpty()) {
+            return;
+        }
+
+        int socketsNotified = 0;
+        Iterator<WebSocketChannel> iterator = channels.iterator();
+        while (iterator.hasNext()) {
+            WebSocketChannel channel = iterator.next();
+            if (channel.getCloseCode() >= 0) {
+                iterator.remove();
+                continue;
+            }
+
+            WebSockets.sendText(message, channel, null);
+            socketsNotified++;
+        }
+        logger.info("Notified {} WebSockets of boardUpdate", socketsNotified);
     }
 
     @Override
@@ -89,11 +73,28 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
         channels.add(channel);
 
         // send the current board state to the newly registered WebSocket
-        SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
-        SessionManager.Session<GameSessionData> gameData = gameManager.getSession(sessionId);
-        String updateMessage = getUpdateMessage(gameData.sessionData);
+        IChessGame game = SessionUtils.findGame(sessionId);
+        String updateMessage = getUpdateMessage(game);
         if (updateMessage != null) {
             WebSockets.sendText(updateMessage, channel, null);
         }
+    }
+
+    private String getUpdateMessage(IChessGame game) {
+        GameUpdate gameUpdateObject = new GameUpdate();
+        gameUpdateObject.setActivePlayerId(game.getActivePlayerId());
+        gameUpdateObject.setBoardState(game.getEntityManager().getEntities().stream()
+                .map(EntityAdapter.Instance::convert)
+                .toList());
+
+        ObjectMapper mapper = JsonUtils.getMapper();
+        String message;
+        try {
+            message = mapper.writeValueAsString(gameUpdateObject);
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to generate Json message", e);
+            return null;
+        }
+        return message;
     }
 }

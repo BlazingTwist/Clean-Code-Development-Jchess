@@ -1,6 +1,6 @@
 package jchess.game.server.adapter;
 
-import jchess.game.common.marker.MarkerComponent;
+import jchess.game.common.components.MarkerComponent;
 
 public enum MarkerComponentAdapter implements IAdapter<MarkerComponent, dx.schema.types.MarkerComponent> {
     Instance;
@@ -11,7 +11,7 @@ public enum MarkerComponentAdapter implements IAdapter<MarkerComponent, dx.schem
 
         dx.schema.types.MarkerComponent result = new dx.schema.types.MarkerComponent();
         result.setMarkerType(dx.schema.types.MarkerComponent.MarkerType.fromValue(data.markerType.name()));
-        result.setIconId(data.getIconId());
+        result.setIconId(data.getIconKey().getIconId());
         return result;
     }
 }

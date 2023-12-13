@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { fetchGameUpdate } from "@/utils/gameUpdateFetcher";
-import { useGameUpdateContext } from "@/app/context/game_update_context";
+import { postCreateGame } from "@/services/rest_api_service";
+
 import { useGameContext } from "@/app/context/game_context";
 
 /**
@@ -32,8 +31,6 @@ export function NewGameModal() {
     const [isTimeGame, setTimeGame] = useState(false);
     const [timeGameAmount, setTimeGameAmount] = useState("0");
 
-    // custom hooks for client side state
-    const { setGameUpdate } = useGameUpdateContext();
     const { setGameOptions, setPlayerState } = useGameContext(); // old code for client side state, later it probably will be removed
 
     /**
@@ -112,7 +109,6 @@ export function NewGameModal() {
         console.log("isTimeGame:" + isTimeGame);
         console.log("timeGameAmount:" + timeGameAmount);
 
-        console.log("post newGame to server");
         // TODO send the player names to the server and retrieve the player colors and times
         // MOCK GameStart Endpoit on the Client
         const playerColors = new Map<number, string>();
@@ -121,26 +117,28 @@ export function NewGameModal() {
 
         playerNames.forEach((playerName, index) => {
             const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
-            playerColors.set(index, index == 0 ? "black" : index == 1 ? "white" : "destructive");
+            playerColors.set(index, index == 0 ? "white" : index == 1 ? "destructive" : "black");
             playerTimes.set(index, playerTime);
             playerHistory.set(index, ["e4:e5", " e5:e4"]);
         });
 
-        setGameOptions({
-            playerNames,
-            isWhiteOnTop,
-            isTimeGame,
-            timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
-        });
+        console.log("post newGame to server");
+        // TODO improve error handling
+        postCreateGame().then((sessionId) => {
+            console.log("sessionId:" + sessionId);
+            setGameOptions({
+                playerNames,
+                isWhiteOnTop,
+                isTimeGame,
+                timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
+                sessionId,
+            });
 
-        setPlayerState({
-            playerColor: playerColors,
-            playerTime: playerTimes,
-            playerHistory: playerHistory,
-        });
-
-        fetchGameUpdate().then((gameUpdate) => {
-            setGameUpdate(gameUpdate);
+            setPlayerState({
+                playerColor: playerColors,
+                playerTime: playerTimes,
+                playerHistory: playerHistory,
+            });
             router.push("/");
         });
     };

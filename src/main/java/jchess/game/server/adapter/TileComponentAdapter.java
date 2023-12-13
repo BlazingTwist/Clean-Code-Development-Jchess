@@ -1,6 +1,6 @@
 package jchess.game.server.adapter;
 
-import jchess.game.common.tile.TileComponent;
+import jchess.game.common.components.TileComponent;
 
 public enum TileComponentAdapter implements IAdapter<TileComponent, dx.schema.types.TileComponent> {
     Instance;
@@ -11,7 +11,7 @@ public enum TileComponentAdapter implements IAdapter<TileComponent, dx.schema.ty
 
         dx.schema.types.TileComponent result = new dx.schema.types.TileComponent();
         result.setPosition(Vector2IAdapter.Instance.convert(data.position));
-        result.setIconId(data.iconId);
+        result.setIconId(data.iconKey.getIconId());
         return result;
     }
 }

@@ -1,9 +1,12 @@
 "use client";
 import Link from "next/link";
 
-import { useGameUpdateContext } from "@/app/context/game_update_context";
+import { useGameContext } from "@/app/context/game_context";
 import { Button } from "@/components/ui/button";
 import GameComponent from "./GameComponent/GameComponent";
+import { useEffect, useState } from "react";
+import { useGameUpdateContext } from "@/app/context/game_update_context";
+import Config from "@/utils/config";
 
 /**
  * Represents the main body component for the JChess application.
@@ -11,8 +14,34 @@ import GameComponent from "./GameComponent/GameComponent";
  */
 export default function Body() {
     // Retrieve the game state from the context
-    const { isGame } = useGameUpdateContext();
+    const { isGame, gameOptions } = useGameContext();
+    const { setGameUpdate } = useGameUpdateContext();
 
+    const [ws, setWs] = useState<WebSocket | undefined>(undefined);
+
+    useEffect(() => {
+        // Open a websocket connection when the game starts
+        if (isGame) {
+            const serverUri = Config.socketServerUri;
+            const socketEndpoint = `${serverUri}/api/board/update`;
+
+            const ws = new WebSocket(socketEndpoint);
+            setWs(ws);
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ sessionId: gameOptions.sessionId }));
+            };
+            ws.onmessage = (event) => {
+                let data = JSON.parse(event.data);
+                setGameUpdate(data);
+            };
+            // Cleanup WebSocket on component unmount
+            return () => {
+                if (ws) {
+                    ws.close();
+                }
+            };
+        }
+    }, [isGame, gameOptions.sessionId]);
     /**
      * Renders the appropriate content based on the game state.
      * If the game is not in progress, it displays a welcome screen with a "New Game" button.
