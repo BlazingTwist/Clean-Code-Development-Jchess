@@ -11,6 +11,9 @@
     "displayName": {
       "type": "string"
     },
+    "numPlayers": {
+      "type": "integer"
+    },
     "themeIds": {
       "description": "List of allowed themes for this Game-Mode",
       "type": "array",
@@ -19,5 +22,5 @@
       }
     }
   },
-  "required": ["modeId", "themeIds"]
+  "required": ["modeId", "displayName", "numPlayers", "themeIds"]
 }

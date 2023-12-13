@@ -1,4 +1,4 @@
-package jchess.game.server;
+package jchess.game.server.api.servlet;
 
 import dx.schema.message.GameModes;
 import dx.schema.types.GameMode;
@@ -24,6 +24,7 @@ public class GameModesServlet extends HttpServlet {
             GameMode gameMode = new GameMode();
             gameMode.setModeId(mode.name());
             gameMode.setDisplayName(mode.getDisplayName());
+            gameMode.setNumPlayers(mode.getNumPlayers());
             gameMode.setThemeIds(Arrays.asList(mode.getAllowedThemeIds()));
             gameModes.add(gameMode);
         }

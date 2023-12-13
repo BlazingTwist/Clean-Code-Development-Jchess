@@ -30,5 +30,5 @@
       }
     }
   },
-  "required": ["name", "icons"]
+  "required": ["name", "tileAspectRatio", "tileStride", "icons"]
 }

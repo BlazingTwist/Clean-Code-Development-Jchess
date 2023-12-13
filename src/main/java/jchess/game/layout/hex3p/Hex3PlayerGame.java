@@ -9,6 +9,7 @@ import jchess.game.common.components.MarkerType;
 import jchess.game.common.components.PieceComponent;
 import jchess.game.common.components.PieceIdentifier;
 import jchess.game.common.components.TileComponent;
+import jchess.game.layout.GameMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class Hex3PlayerGame extends BaseChessGame {
     private final Entity[][] tiles = new Entity[numTilesVertical][numTilesHorizontal];
 
     public Hex3PlayerGame() {
-        super(3);
+        super(GameMode.Hex3P.getNumPlayers());
 
         PieceMoveEvent pieceMoveEvent = eventManager.getEvent(PieceMoveEvent.class);
         pieceMoveEvent.addPreEventListener(event -> {

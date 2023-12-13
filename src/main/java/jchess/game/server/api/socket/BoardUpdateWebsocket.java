@@ -1,4 +1,4 @@
-package jchess.game.server;
+package jchess.game.server.api.socket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
