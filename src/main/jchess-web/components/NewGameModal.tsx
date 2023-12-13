@@ -9,10 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { fetchGameUpdate } from "@/utils/gameUpdateFetcher";
-import { useGameUpdateContext } from "@/app/context/game_update_context";
+import { postCreateGame } from "@/services/rest_api_service";
+
 import { useGameContext } from "@/app/context/game_context";
-import { createGame } from "@/utils/gameCreatePost";
 
 /**
  * @function NewGameModal
@@ -32,8 +31,6 @@ export function NewGameModal() {
     const [isTimeGame, setTimeGame] = useState(false);
     const [timeGameAmount, setTimeGameAmount] = useState("0");
 
-    // custom hooks for client side state
-    const { setGameUpdate } = useGameUpdateContext();
     const { setGameOptions, setPlayerState } = useGameContext(); // old code for client side state, later it probably will be removed
 
     /**
@@ -127,7 +124,7 @@ export function NewGameModal() {
 
         console.log("post newGame to server");
         // TODO improve error handling
-        createGame().then((sessionId) => {
+        postCreateGame().then((sessionId) => {
             console.log("sessionId:" + sessionId);
             setGameOptions({
                 playerNames,
@@ -142,27 +139,8 @@ export function NewGameModal() {
                 playerTime: playerTimes,
                 playerHistory: playerHistory,
             });
-
-            enterSocket(sessionId);
             router.push("/");
-            //fetchGameUpdate().then((gameUpdate) => {
-            //    setGameUpdate(gameUpdate);
-            //    router.push("/");
-            //});
         });
-    };
-
-    const [ws, setWs] = useState<WebSocket | undefined>(undefined);
-    const enterSocket = (sessionId: string) => {
-        const ws = new WebSocket("ws://localhost:8880/api/board/update");
-        setWs(ws);
-        ws.onopen = () => {
-            ws.send(JSON.stringify({ sessionId: sessionId }));
-        };
-        ws.onmessage = (event) => {
-            let data = JSON.parse(event.data);
-            setGameUpdate(data);
-        };
     };
 
     return (

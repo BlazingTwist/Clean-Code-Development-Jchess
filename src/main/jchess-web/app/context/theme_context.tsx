@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect, ReactNode } from "react";
 import { Theme } from "@/models/message/Themes.schema";
-import { fetchThemes } from "@/utils/themeFetcher";
+import { fetchThemes } from "@/services/rest_api_service";
 import Config from "@/utils/config";
 
 /**
