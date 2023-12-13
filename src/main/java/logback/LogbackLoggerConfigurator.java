@@ -15,13 +15,13 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.spi.ContextAwareBase;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class LogbackLoggerConfigurator extends ContextAwareBase implements Configurator {
 
     private static final String LOG_FILE = "logs/jChess.log";
 
-    @SuppressWarnings("CommentedOutCode")
     @Override
     public ExecutionStatus configure(LoggerContext context) {
         ConsoleAppender<ILoggingEvent> consoleAppender = createConsoleAppender();
@@ -32,10 +32,9 @@ public class LogbackLoggerConfigurator extends ContextAwareBase implements Confi
         rootLogger.addAppender(fileAppender);
 
         // if a specific package logger is too vocal, you can silence it like this:
-        /*
         List<OutputStreamAppender<ILoggingEvent>> appenders = Arrays.asList(consoleAppender, fileAppender);
-        configureLogger(context, Level.WARN, appenders, "io.undertow");
-        */
+        configureLogger(context, Level.INFO, appenders, "io.undertow");
+        configureLogger(context, Level.INFO, appenders, "org.xnio");
 
         return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;
     }
