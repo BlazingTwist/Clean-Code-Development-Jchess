@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 public class PieceMoveRules implements IPieceMoveRules {
     private final CompiledTileExpression baseMoveSet;
-    private boolean didMove = false; // TODO erja, hook up to pieceMoveEvent
 
     public PieceMoveRules(PieceType pieceType, PieceIdentifier identifier) {
         baseMoveSet = pieceType.getBaseMoves().compile(identifier);
