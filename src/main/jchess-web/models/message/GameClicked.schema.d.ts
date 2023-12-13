@@ -5,10 +5,13 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type MarkerType = "NoAction" | "YesAction" | "Selection";
-
-export interface MarkerComponent {
-  markerType: MarkerType;
-  iconId: string;
+export interface GameClicked {
+  sessionId: string;
+  clickPos: Vector2I;
+  [k: string]: unknown;
+}
+export interface Vector2I {
+  x: number;
+  y: number;
   [k: string]: unknown;
 }

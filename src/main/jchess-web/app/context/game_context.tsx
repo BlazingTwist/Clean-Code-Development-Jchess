@@ -12,6 +12,7 @@ type GameOptions = {
     isWhiteOnTop: boolean;
     isTimeGame: boolean;
     timeGameAmountInSeconds: number;
+    sessionId: string;
 };
 
 /**
@@ -94,6 +95,7 @@ const GameContext = createContext<ContextProps>({
         isWhiteOnTop: false,
         isTimeGame: false,
         timeGameAmountInSeconds: 0,
+        sessionId: "",
     },
     setGameOptions: () => {},
 });

@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { fetchGameUpdate } from "@/utils/gameUpdateFetcher";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
 import { useGameContext } from "@/app/context/game_context";
+import { createGame } from "@/utils/gameCreatePost";
 
 /**
  * @function NewGameModal
@@ -112,7 +112,6 @@ export function NewGameModal() {
         console.log("isTimeGame:" + isTimeGame);
         console.log("timeGameAmount:" + timeGameAmount);
 
-        console.log("post newGame to server");
         // TODO send the player names to the server and retrieve the player colors and times
         // MOCK GameStart Endpoit on the Client
         const playerColors = new Map<number, string>();
@@ -126,23 +125,44 @@ export function NewGameModal() {
             playerHistory.set(index, ["e4:e5", " e5:e4"]);
         });
 
-        setGameOptions({
-            playerNames,
-            isWhiteOnTop,
-            isTimeGame,
-            timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
-        });
+        console.log("post newGame to server");
+        // TODO improve error handling
+        createGame().then((sessionId) => {
+            console.log("sessionId:" + sessionId);
+            setGameOptions({
+                playerNames,
+                isWhiteOnTop,
+                isTimeGame,
+                timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
+                sessionId,
+            });
 
-        setPlayerState({
-            playerColor: playerColors,
-            playerTime: playerTimes,
-            playerHistory: playerHistory,
-        });
+            setPlayerState({
+                playerColor: playerColors,
+                playerTime: playerTimes,
+                playerHistory: playerHistory,
+            });
 
-        fetchGameUpdate().then((gameUpdate) => {
-            setGameUpdate(gameUpdate);
+            enterSocket(sessionId);
             router.push("/");
+            //fetchGameUpdate().then((gameUpdate) => {
+            //    setGameUpdate(gameUpdate);
+            //    router.push("/");
+            //});
         });
+    };
+
+    const [ws, setWs] = useState<WebSocket | undefined>(undefined);
+    const enterSocket = (sessionId: string) => {
+        const ws = new WebSocket("ws://localhost:8880/api/board/update");
+        setWs(ws);
+        ws.onopen = () => {
+            ws.send(JSON.stringify({ sessionId: sessionId }));
+        };
+        ws.onmessage = (event) => {
+            let data = JSON.parse(event.data);
+            setGameUpdate(data);
+        };
     };
 
     return (
