@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GameMode",
+  "type": "object",
+  "javaType": "dx.schema.types.GameMode",
+  "properties": {
+    "modeId": {
+      "description": "Id of the Game-Mode",
+      "type": "string"
+    },
+    "themeIds": {
+      "description": "List of allowed themes for this Game-Mode",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["modeId", "themeIds"]
+}

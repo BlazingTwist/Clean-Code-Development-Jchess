@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GameModes",
+  "type": "object",
+  "javaType": "dx.schema.message.GameModes",
+  "properties": {
+    "modes": {
+      "type": "array",
+      "items": {
+        "$ref": "../types/GameMode.schema.json"
+      }
+    }
+  },
+  "required": ["modes"]
+}

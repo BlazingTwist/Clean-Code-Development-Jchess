@@ -4,6 +4,10 @@
   "type": "object",
   "javaType": "dx.schema.message.GameCreate",
   "properties": {
+    "modeId": {
+      "description": "Id of the Game-Mode to be started",
+      "type": "string"
+    }
   },
-  "required": []
+  "required": ["modeId"]
 }

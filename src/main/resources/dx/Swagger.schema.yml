@@ -42,6 +42,16 @@ paths:
         - application/json
       responses:
         '200':
+          description: List of available themes
           schema:
-            description: List of available themes
             $ref: 'schema/message/Themes.schema.json'
+  /api/modes:
+    get:
+      summary: Lists all available game-modes
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: List of available game-modes
+          schema:
+            $ref: 'schema/message/GameModes.schema.json'
