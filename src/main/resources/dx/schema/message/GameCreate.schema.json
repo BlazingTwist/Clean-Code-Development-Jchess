@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GameCreate",
+  "type": "object",
+  "javaType": "dx.schema.message.GameCreate",
+  "properties": {
+  },
+  "required": []
+}

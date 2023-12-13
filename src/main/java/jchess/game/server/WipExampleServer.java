@@ -12,27 +12,33 @@ import io.undertow.servlet.api.DeploymentManager;
 import jakarta.servlet.ServletException;
 import jchess.game.layout.hex3p.Hex3PlayerGame;
 import jchess.game.layout.hex3p.Theme;
+import jchess.game.server.session.SessionMgrController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class WipExampleServer {
     private static final Logger logger = LoggerFactory.getLogger(WipExampleServer.class);
 
     private static final String resourcePrefix = "resources";
 
+    public static Theme theme;
+    public static BoardUpdateWebsocket boardUpdateWebsocket;
+
     public static void main(String[] args) throws ServletException, URISyntaxException {
         String themePath = "/jchess/theme/v2/default";
-        Theme theme = new Theme(new File(Hex3PlayerGame.class.getResource(themePath).toURI()));
-        Hex3PlayerGame game = new Hex3PlayerGame(theme);
-        game.start();
+        theme = new Theme(new File(Hex3PlayerGame.class.getResource(themePath).toURI()));
+        boardUpdateWebsocket = new BoardUpdateWebsocket();
+
         ThemesServlet.themeMap = Map.of("default", theme.getIconMap());
         ThemesServlet.resourcePrefix = resourcePrefix;
-        GameUpdateServlet.gameState = game.gameState;
-        GameUpdateServlet.entityManager = game.entityManager;
+
+        SessionMgrController.registerSessionManager(GameSessionData.class, 10, TimeUnit.MINUTES);
+        SessionMgrController.startHeartbeat(1, TimeUnit.MINUTES);
 
         ClassPathResourceManager resourceManager = new ClassPathResourceManager(WipExampleServer.class.getClassLoader());
 
@@ -40,14 +46,17 @@ public class WipExampleServer {
                 .setClassLoader(WipExampleServer.class.getClassLoader())
                 .setContextPath("")
                 .setDeploymentName("WipChessServer")
-                .addServlet(Servlets.servlet("GameUpdate", GameUpdateServlet.class).addMapping("/api/gameUpdate"))
+                .addServlet(Servlets.servlet("GameCreate", GameCreateServlet.class).addMapping("/api/game/create"))
+                .addServlet(Servlets.servlet("GameClicked", BoardClickedServlet.class).addMapping("/api/game/clicked"))
                 .addServlet(Servlets.servlet("Themes", ThemesServlet.class).addMapping("/api/themes"));
+
 
         DeploymentManager manager = Servlets.defaultContainer().addDeployment(deployment);
         manager.deploy();
         HttpHandler handler = manager.start();
         PathHandler pathHandler = Handlers.path(handler)
-                .addPrefixPath(resourcePrefix, new ResourceHandler(resourceManager));
+                .addPrefixPath(resourcePrefix, new ResourceHandler(resourceManager))
+                .addPrefixPath("/api/board/update", Handlers.websocket(boardUpdateWebsocket));
 
         Undertow server = Undertow.builder()
                 .addHttpListener(8880, "localhost")
@@ -56,4 +65,5 @@ public class WipExampleServer {
         server.start();
         logger.info("Server started");
     }
+
 }

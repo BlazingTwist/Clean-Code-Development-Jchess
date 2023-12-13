@@ -9,7 +9,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jchess.game.server.util.CorsUtils;
 import jchess.game.server.util.JsonUtils;
 
 import java.io.IOException;
@@ -24,7 +23,6 @@ public class ThemesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        CorsUtils.setHeaders(resp);
         resp.setContentType("text/json");
         PrintWriter writer = resp.getWriter();
 

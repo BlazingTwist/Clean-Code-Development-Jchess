@@ -6,6 +6,7 @@ import jchess.ecs.EntityManager;
 import jchess.game.common.BoardCanvas;
 import jchess.game.common.BoardClickedListener;
 import jchess.game.common.BoardMouseListener;
+import jchess.game.common.GameState;
 import jchess.game.common.RenderContext;
 import jchess.game.common.marker.MarkerRenderSystem;
 import jchess.game.common.piece.PieceComponent;
@@ -28,6 +29,7 @@ import java.net.URISyntaxException;
 
 public class Square2PlayerGame {
     private static final Logger logger = LoggerFactory.getLogger(Square2PlayerGame.class);
+
     public static void main(String[] args) throws URISyntaxException {
         String themePath = "/jchess/theme/v2/default";
         Theme theme1 = new Theme(new File(Square2PlayerGame.class.getResource(themePath).toURI()));
@@ -46,7 +48,7 @@ public class Square2PlayerGame {
     }
 
     public final Theme theme;
-    private final Square2pGameState gameState;
+    private final GameState gameState;
     public final EntityManager entityManager;
     public final EcsEvent<Void> renderEvent;
     public final EcsEvent<MoveInfo> pieceMoveEvent;
@@ -61,14 +63,19 @@ public class Square2PlayerGame {
 
     public Square2PlayerGame(Theme theme) {
         this.theme = theme;
-        gameState = new Square2pGameState();
+        gameState = new GameState(this::getTile);
         entityManager = new EntityManager();
         renderEvent = new EcsEvent<>(entityManager);
         pieceMoveEvent = new EcsEvent<>(entityManager);
         boardCanvas = new BoardCanvas(renderEvent, Square2PlayerGame::boardTransform);
         boardClickListener = new BoardClickedListener(
                 gameState, entityManager, renderEvent,
-                (fromTile, toTile) -> pieceMoveEvent.fire(new MoveInfo(fromTile, toTile))
+                (fromTile, toTile) -> pieceMoveEvent.fire(new MoveInfo(fromTile, toTile)),
+                markerType -> switch (markerType) {
+                    case Selection -> "board.tileMarker_selected";
+                    case NoAction -> "board.tileMarker_noAction";
+                    case YesAction -> "board.tileMarker_yesAction";
+                }
         );
 
         BoardMouseListener boardMouseListener = new BoardMouseListener();

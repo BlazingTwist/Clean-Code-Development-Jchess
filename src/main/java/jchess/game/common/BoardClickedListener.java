@@ -7,23 +7,27 @@ import jchess.game.common.marker.MarkerComponent;
 import jchess.game.common.marker.MarkerType;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class BoardClickedListener {
-    private final IGameState gameState;
+    private final GameState gameState;
     private final EntityManager entityManager;
     private final EcsEvent<Void> renderEvent;
     public final BiConsumer<Entity, Entity> moveEventListener;
+    public final Function<MarkerType, String> iconIdSupplier;
 
     public BoardClickedListener(
-            IGameState gameState,
+            GameState gameState,
             EntityManager entityManager,
             EcsEvent<Void> renderEvent,
-            BiConsumer<Entity, Entity> moveEventListener
+            BiConsumer<Entity, Entity> moveEventListener,
+            Function<MarkerType, String> iconIdSupplier
     ) {
         this.gameState = gameState;
         this.entityManager = entityManager;
         this.renderEvent = renderEvent;
         this.moveEventListener = moveEventListener;
+        this.iconIdSupplier = iconIdSupplier;
     }
 
     public void onClick(Entity tile) {
@@ -65,14 +69,14 @@ public class BoardClickedListener {
     }
 
     private void createSelectionMarker(Entity selectedTile) {
-        MarkerComponent marker = new MarkerComponent();
+        MarkerComponent marker = new MarkerComponent(iconIdSupplier);
         marker.onMarkerClicked = null;
         marker.markerType = MarkerType.Selection;
         selectedTile.marker = marker;
     }
 
     private void createMoveMarker(Entity fromTile, Entity toTile, boolean isActivePiece) {
-        MarkerComponent marker = new MarkerComponent();
+        MarkerComponent marker = new MarkerComponent(iconIdSupplier);
         marker.onMarkerClicked = isActivePiece ? () -> movePiece(fromTile, toTile) : null;
         marker.markerType = isActivePiece ? MarkerType.YesAction : MarkerType.NoAction;
         toTile.marker = marker;

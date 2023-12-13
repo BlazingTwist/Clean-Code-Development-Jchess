@@ -5,12 +5,19 @@
   "javaType": "dx.schema.types.MarkerComponent",
   "properties": {
     "markerType": {
+      "title": "MarkerType",
       "enum": [
         "NoAction",
         "YesAction",
         "Selection"
       ]
+    },
+    "iconId": {
+      "type": "string"
     }
   },
-  "required": ["markerType"]
+  "required": [
+    "markerType",
+    "iconId"
+  ]
 }

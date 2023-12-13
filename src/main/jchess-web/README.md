@@ -31,3 +31,17 @@ cd src/main/resources/dx
 json2ts -i schema/ -o ../../jchess-web/models/ --cwd schema/types
 ```
 
+## Generate API Docs
+
+This project uses [AsyncAPI Generator](https://github.com/asyncapi/generator) to generate documentation for the WebSocket Api.  
+We also use [Redocly](https://www.npmjs.com/package/@redocly/cli) to generate documentation for the REST Api.  
+The output is placed in `/src/main/jchess-web/api-docs/`.
+
+```bash
+bun install -g @asyncapi/generator
+bun install -g @redocly/cli
+
+# Im /src/main/jchess-web/ Verzeichnis ausführen
+ag --output ./api-docs/asyncapi/ ../resources/dx/AsyncApi.schema.yml @asyncapi/html-template
+redocly build-docs ../resources/dx/Swagger.schema.yml --output=./api-docs/swagger.html
+```

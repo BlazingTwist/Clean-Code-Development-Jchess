@@ -1,0 +1,47 @@
+swagger: "2.0"
+info:
+  title: REST definition for JChess
+  version: "0.1.0"
+host: "127.0.0.1:8880"
+schemes:
+  - http
+paths:
+  /api/game/create:
+    post:
+      summary: Start a new Game of JChess
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: GameProperties
+          schema:
+            $ref: 'schema/message/GameCreate.schema.json'
+      responses:
+        '201':
+          description: Game Created
+          schema:
+            description: the created session id
+            type: string
+  /api/game/clicked:
+    post:
+      summary: Notify the Backend of a player clicking on the board
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: ClickInfo
+          schema:
+            $ref: 'schema/message/GameClicked.schema.json'
+      responses:
+        '200':
+          description: Click accepted
+  /api/themes:
+    get:
+      summary: Lists all available themes
+      produces:
+        - application/json
+      responses:
+        '200':
+          schema:
+            description: List of available themes
+            $ref: 'schema/message/Themes.schema.json'

@@ -6,10 +6,12 @@ import jchess.ecs.EntityManager;
 import jchess.game.common.BoardCanvas;
 import jchess.game.common.BoardClickedListener;
 import jchess.game.common.BoardMouseListener;
+import jchess.game.common.GameState;
 import jchess.game.common.RenderContext;
 import jchess.game.common.piece.PieceComponent;
 import jchess.game.common.piece.PieceIdentifier;
 import jchess.game.common.tile.TileComponent;
+import jchess.game.server.GameSessionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ import java.net.URISyntaxException;
 
 public class Hex3PlayerGame {
     private static final Logger logger = LoggerFactory.getLogger(Hex3PlayerGame.class);
+
     public static void main(String[] args) throws URISyntaxException {
         String themePath = "/jchess/theme/v2/default";
         Theme theme1 = new Theme(new File(Hex3PlayerGame.class.getResource(themePath).toURI()));
@@ -43,13 +46,13 @@ public class Hex3PlayerGame {
     }
 
     public final Theme theme;
-    public final Hex3pGameState gameState;
+    public final GameState gameState;
     public final EntityManager entityManager;
     public final EcsEvent<Void> renderEvent;
     public final EcsEvent<MoveInfo> pieceMoveEvent;
     private final BoardCanvas boardCanvas;
     private final BoardClickedListener boardClickListener;
-    private Entity[][] tiles;
+    private final Entity[][] tiles = new Entity[numTilesVertical][numTilesHorizontal];
     private static final int numTilesHorizontal = 17 + 16;
     private static final int numTilesVertical = 17;
     private static final int PLAYER_LIGHT = 0;
@@ -58,14 +61,19 @@ public class Hex3PlayerGame {
 
     public Hex3PlayerGame(Theme theme) {
         this.theme = theme;
-        gameState = new Hex3pGameState();
+        gameState = new GameState(this::getTile);
         entityManager = new EntityManager();
         renderEvent = new EcsEvent<>(entityManager);
         pieceMoveEvent = new EcsEvent<>(entityManager);
         boardCanvas = new BoardCanvas(renderEvent, this::boardTransform);
         boardClickListener = new BoardClickedListener(
                 gameState, entityManager, renderEvent,
-                (fromTile, toTile) -> pieceMoveEvent.fire(new MoveInfo(fromTile, toTile))
+                (fromTile, toTile) -> pieceMoveEvent.fire(new MoveInfo(fromTile, toTile)),
+                markerType -> switch (markerType) {
+                    case Selection -> "board.hexMarker_selected";
+                    case NoAction -> "board.hexMarker_noAction";
+                    case YesAction -> "board.hexMarker_yesAction";
+                }
         );
 
         BoardMouseListener boardMouseListener = new BoardMouseListener();
@@ -92,6 +100,10 @@ public class Hex3PlayerGame {
     public void start() {
         generateBoard();
         renderEvent.fire(null);
+    }
+
+    public GameSessionData getSessionData() {
+        return new GameSessionData(gameState, entityManager, renderEvent, boardClickListener);
     }
 
     private double getCanvasTileScaleFactor() {
@@ -128,9 +140,9 @@ public class Hex3PlayerGame {
         int x = (int) (clickPos.x / (15 * scaleFactor));
         int y = (int) (clickPos.y / (24 * scaleFactor));
 
-        if(y % 2 == 0) {
+        if (y % 2 == 0) {
             x = x - (x % 2);
-        }else{
+        } else {
             x = x - ((x + 1) % 2);
         }
 
@@ -148,7 +160,6 @@ public class Hex3PlayerGame {
     }
 
     private void generateBoard() {
-        tiles = new Entity[numTilesVertical][numTilesHorizontal];
         // first pass: create entities
         for (int y = 0; y < numTilesVertical; y++) {
             Entity[] tileRow = tiles[y];
@@ -232,7 +243,7 @@ public class Hex3PlayerGame {
         }
     }
 
-    private static String getPlayerColor(int playerId){
+    private static String getPlayerColor(int playerId) {
         return switch (playerId) {
             case 0 -> "light";
             case 1 -> "medium";

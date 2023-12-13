@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GameClicked",
+  "type": "object",
+  "javaType": "dx.schema.message.GameClicked",
+  "properties": {
+    "sessionId": {
+      "type": "string"
+    },
+    "clickPos": {
+      "$ref": "../types/Vector2I.schema.json"
+    }
+  },
+  "required": ["sessionId", "clickPos"]
+}

@@ -11,6 +11,7 @@ public enum MarkerComponentAdapter implements IAdapter<MarkerComponent, dx.schem
 
         dx.schema.types.MarkerComponent result = new dx.schema.types.MarkerComponent();
         result.setMarkerType(dx.schema.types.MarkerComponent.MarkerType.fromValue(data.markerType.name()));
+        result.setIconId(data.getIconId());
         return result;
     }
 }

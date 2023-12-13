@@ -1,0 +1,32 @@
+asyncapi: 2.6.0
+info:
+  title: WebSocket definition for JChess
+  version: '0.1.0'
+servers:
+  backend:
+    url: "127.0.0.1:8880"
+    protocol: ws
+    description: The Java Backend (Undertow)
+defaultContentType: "application/json"
+channels:
+  api/board/update:
+    subscribe:
+      summary: Used by the frontend to register with the backend
+      operationId: onBoardUpdateSubscribe
+      message:
+        name: BoardUpdateSubscribe
+        messageId: BoardUpdateSubscribe
+        payload:
+          type: object
+          properties:
+            sessionId:
+              type: string
+              description: the sessionId of the game instance to register with
+    publish:
+      summary: Used by the backend to push game state changes to the clients
+      operationId: onBoardUpdate
+      message:
+        name: BoardUpdate
+        messageId: BoardUpdate
+        payload:
+          $ref: "./schema/message/GameUpdate.schema.json"
