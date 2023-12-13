@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jchess.game.server.WipExampleServer;
+import jchess.game.server.adapter.Vector2IAdapter;
 import jchess.game.server.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,9 @@ import java.util.Objects;
 
 public class ThemesServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(ThemesServlet.class);
-    public static final Map<String, Map<String, String>> themeMap = new HashMap<>();
-    public static final String resourcePrefix = WipExampleServer.resourcePrefix;
+    private static final Map<String, Map<String, String>> themeMap = new HashMap<>();
+    private static final Map<String, TileInfo> themeTileInfoMap = new HashMap<>();
+    private static final String resourcePrefix = WipExampleServer.resourcePrefix;
 
     public ThemesServlet() {
         try {
@@ -47,12 +49,19 @@ public class ThemesServlet extends HttpServlet {
             return;
         }
 
-        for (File themeDir : themeDirectories) {
-            Map<String, String> hexIcons = jchess.game.layout.hex3p.Theme.getIconMap(themeDir);
-            themeMap.put(themeDir.getName(), hexIcons);
+        TileInfo hexTileInfo = new TileInfo(Vector2IAdapter.fromPosition(30, 32), Vector2IAdapter.fromPosition(15, 24));
+        TileInfo squareTileInfo = new TileInfo(Vector2IAdapter.fromPosition(50, 50), Vector2IAdapter.fromPosition(50, 50));
 
+        for (File themeDir : themeDirectories) {
+            String hexThemeId = themeDir.getName();
+            Map<String, String> hexIcons = jchess.game.layout.hex3p.Theme.getIconMap(themeDir);
+            themeMap.put(hexThemeId, hexIcons);
+            themeTileInfoMap.put(hexThemeId, hexTileInfo);
+
+            String squareThemeId = themeDir.getName() + "_square";
             Map<String, String> squareIcons = jchess.game.layout.square2p.Theme.getIconMap(themeDir);
-            themeMap.put(themeDir.getName() + "_square", squareIcons);
+            themeMap.put(squareThemeId, squareIcons);
+            themeTileInfoMap.put(squareThemeId, squareTileInfo);
         }
     }
 
@@ -60,23 +69,17 @@ public class ThemesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/json");
 
-        Vector2I tileAspectRatio = new Vector2I();
-        tileAspectRatio.setX(30);
-        tileAspectRatio.setY(32);
-
-        Vector2I tileStride = new Vector2I();
-        tileStride.setX(15); // width / 2
-        tileStride.setY(24); // (height + edgeLength) / 2
-
         Themes message = new Themes();
         List<Theme> themeList = message.getThemes();
         for (Map.Entry<String, Map<String, String>> themeEntry : themeMap.entrySet()) {
             Theme themeMessage = new Theme();
             themeList.add(themeMessage);
 
+            TileInfo tileInfo = themeTileInfoMap.get(themeEntry.getKey());
+
             themeMessage.setName(themeEntry.getKey());
-            themeMessage.setTileAspectRatio(tileAspectRatio);
-            themeMessage.setTileStride(tileStride);
+            themeMessage.setTileAspectRatio(tileInfo.tileSize);
+            themeMessage.setTileStride(tileInfo.tileStride);
             List<Icon> themeIcons = themeMessage.getIcons();
             for (Map.Entry<String, String> iconEntry : themeEntry.getValue().entrySet()) {
                 Icon icon = new Icon();
@@ -89,5 +92,8 @@ public class ThemesServlet extends HttpServlet {
 
         resp.setStatus(StatusCodes.OK);
         JsonUtils.getMapper().writeValue(resp.getWriter(), message);
+    }
+
+    private record TileInfo(Vector2I tileSize, Vector2I tileStride) {
     }
 }

@@ -17,8 +17,15 @@ public enum Vector2IAdapter implements IAdapter<Point, Vector2I> {
         return result;
     }
 
+    public static Vector2I fromPosition(int x, int y) {
+        Vector2I result = new Vector2I();
+        result.setX(x);
+        result.setY(y);
+        return result;
+    }
+
     public static Point toPoint(Vector2I vector) {
-        if(vector == null) return new Point(0, 0);
+        if (vector == null) return new Point(0, 0);
         return new Point(vector.getX(), vector.getY());
     }
 }
