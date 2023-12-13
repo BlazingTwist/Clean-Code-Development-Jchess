@@ -5,32 +5,28 @@ import { useGameContext } from "@/app/context/game_context";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
 
 /**
- * Represents the TimeGameComponent that displays player information and time left.
- * @returns {JSX.Element} The rendered TimeGameComponent.
+ * Represents the PlayerOverviewComponent that displays player information
+ * @returns {JSX.Element} The rendered PlayerOverviewComponent.
  */
-export default function TimeGameComponent() {
+export default function PlayerOverviewComponent() {
     // Extracting game options and player state using the custom hook.
     const { gameOptions, playerState } = useGameContext();
     const { gameUpdate } = useGameUpdateContext();
     return (
         <Card className="self-start mb-6 max-w-[500px]">
             <CardHeader>
-                <CardTitle>Time Game</CardTitle>
+                <CardTitle>Player Overiew</CardTitle>
             </CardHeader>
             <CardContent>
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[100px]">Player Name</TableHead>
+                            <TableHead className="">Player Name</TableHead>
                             <TableHead>Color</TableHead>
-                            <TableHead>Time Left</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {gameOptions.playerNames.map((playerName: string, index: number) => {
-                            const minutesLeft = playerState.playerTime.get(index)?.getUTCMinutes();
-                            const secondsLeft = playerState.playerTime.get(index)?.getUTCSeconds();
-                            const hoursLeft = playerState.playerTime.get(index)?.getUTCHours();
                             const isCurrentPlayer = gameUpdate?.activePlayerId === index;
                             const playerColor = playerState.playerColor.get(index);
 
@@ -53,10 +49,6 @@ export default function TimeGameComponent() {
                                                 />
                                             )}
                                         </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        {hoursLeft != 0 && String(hoursLeft).padStart(2, "0") + ":"}
-                                        {String(minutesLeft).padStart(2, "0")}:{String(secondsLeft).padStart(2, "0")}
                                     </TableCell>
                                 </TableRow>
                             );

@@ -7,10 +7,8 @@ import Config from "@/utils/config";
  * The properties provided by the GameUpdateContext.
  */
 interface GameUpdateContextProps {
-    isGame: boolean;
     gameUpdate: GameUpdate | undefined;
     setGameUpdate: Dispatch<SetStateAction<GameUpdate | undefined>>;
-    resetGame: () => void;
 }
 
 /**
@@ -51,24 +49,8 @@ export const GameUpdateProvider: React.FC<GameUpdateProviderProps> = ({ children
         }
     }, [gameUpdate, useLocalStorage]);
 
-    /**
-     * Resets the game by setting gameUpdate to undefined and removing it from localStorage.
-     */
-    const resetGame = () => {
-        console.log("resetting game");
-        setGameUpdate(undefined);
-
-        // Remove the gameUpdate from localStorage if saving cookies is enabled
-        if (useLocalStorage) {
-            localStorage.removeItem(storageKey);
-        }
-    };
-
-    // Determine if the game is active based on the presence of gameUpdate
-    const isGame = gameUpdate !== undefined && gameUpdate !== null;
-
     // Create the context value to be provided
-    const contextValue: GameUpdateContextProps = { isGame, gameUpdate, setGameUpdate, resetGame };
+    const contextValue: GameUpdateContextProps = { gameUpdate, setGameUpdate };
 
     // Provide the context to the children components
     return <GameUpdateContext.Provider value={contextValue}>{children}</GameUpdateContext.Provider>;

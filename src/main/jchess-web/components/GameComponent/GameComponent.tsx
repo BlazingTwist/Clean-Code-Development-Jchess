@@ -7,7 +7,8 @@ import { Vector2I } from "@/models/message/GameUpdate.schema";
 import Config from "@/utils/config";
 import TimeGameComponent from "./TimeGameComponent";
 import HistoryComponent from "./HistoryComponent";
-import { postClick } from "@/utils/clickedPost";
+import { postClick } from "@/services/rest_api_service";
+import PlayerOverviewComponent from "./PlayerOverviewComponent";
 
 export default function GameComponment() {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
@@ -88,7 +89,7 @@ export default function GameComponment() {
             );
             setBoard(canvas);
         } else {
-            console.log("No board to render", gameUpdate, theme?.tileAspectRatio, theme?.tileStride);
+            console.log("waiting for game update");
         }
     };
 
@@ -298,6 +299,7 @@ export default function GameComponment() {
             </div>
 
             {gameOptions.isTimeGame && <TimeGameComponent />}
+            {!gameOptions.isTimeGame && <PlayerOverviewComponent />}
             {<HistoryComponent />}
         </div>
     );
