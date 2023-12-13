@@ -19,6 +19,15 @@ Lastly you can run the development server:
 bun dev
 ```
 
+Or you can build and start the project in production mode:[^1]
+
+[^1]: At the moment this only works if `NEXT_PUBLIC_LOCAL_STORAGE` is set to `false` in the .env.local file.
+
+```bash
+bun run build
+bun run start
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## Typescript from JSON Schema
@@ -45,3 +54,4 @@ bun install -g @redocly/cli
 ag --output ./api-docs/asyncapi/ ../resources/dx/AsyncApi.schema.yml @asyncapi/html-template
 redocly build-docs ../resources/dx/Swagger.schema.yml --output=./api-docs/swagger.html
 ```
+
