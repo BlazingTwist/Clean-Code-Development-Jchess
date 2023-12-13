@@ -85,7 +85,13 @@ export default function GameComponment() {
                 {}
             );
 
-            const serverUri = "http://127.0.0.1:8880/";
+            const serverUri = process.env.NEXT_PUBLIC_CLIENT_URI + "/web/api/";
+            if (serverUri === undefined) {
+                throw new Error(
+                    "NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI is undefined, make sure to set it in .env.local"
+                );
+            }
+            //const serverUri = "http://127.0.0.1:8880/";
             const canvas: JSX.Element[] = [];
             const offsetWidthFromCanvasRef = canvasRef.current?.offsetWidth || 1;
             const offsetHeightFromCanvasRef = canvasRef.current?.offsetHeight || 1;

@@ -9,7 +9,7 @@ export async function fetchData(apiEndpoint: string, res: NextApiResponse) {
     try {
         const serverUri = process.env.NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI;
         if (serverUri === undefined) {
-            throw new Error("NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI is undefined, make sure to set it in .env.local");
+            throw new Error("JCHESS_UNDERTOW_SERVER_URI is undefined, make sure to set it in .env.local");
         }
 
         // Fetch data from the Undertow server

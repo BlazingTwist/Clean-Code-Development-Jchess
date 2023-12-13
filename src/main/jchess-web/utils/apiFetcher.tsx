@@ -6,7 +6,8 @@
  * @throws An error if the fetch request fails or if there is an error parsing the response.
  */
 export async function fetchData<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`http://localhost:3000/web/api/${endpoint}`);
+    const serverUri = process.env.NEXT_PUBLIC_CLIENT_URI;
+    const response = await fetch(`${serverUri}/web/api/${endpoint}`);
     if (!response.ok) {
         throw new Error(`Error fetching ${endpoint}: ${response.status} ${response.statusText}`);
     }
