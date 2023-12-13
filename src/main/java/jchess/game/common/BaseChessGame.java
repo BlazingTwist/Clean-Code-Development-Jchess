@@ -6,8 +6,9 @@ import jchess.ecs.EntityManager;
 import jchess.game.common.events.BoardClickedEvent;
 import jchess.game.common.events.PieceMoveEvent;
 import jchess.game.common.events.RenderEvent;
-import jchess.game.common.marker.MarkerComponent;
-import jchess.game.common.marker.MarkerType;
+import jchess.game.common.components.MarkerComponent;
+import jchess.game.common.components.MarkerType;
+import jchess.game.common.theme.IIconKey;
 
 public abstract class BaseChessGame implements IChessGame {
     protected final EntityManager entityManager;
@@ -33,7 +34,7 @@ public abstract class BaseChessGame implements IChessGame {
 
     protected abstract Entity getEntityAtPosition(int x, int y);
 
-    protected abstract String getMarkerIcon(MarkerType markerType);
+    protected abstract IIconKey getMarkerIcon(MarkerType markerType);
 
     protected void onBoardClicked(int x, int y) {
         Entity clickedEntity = getEntityAtPosition(x, y);

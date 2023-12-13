@@ -2,12 +2,13 @@ package jchess.game.layout.square2p;
 
 import jchess.ecs.Entity;
 import jchess.game.common.BaseChessGame;
+import jchess.game.common.theme.IIconKey;
 import jchess.game.common.events.PieceMoveEvent;
 import jchess.game.common.events.RenderEvent;
-import jchess.game.common.marker.MarkerType;
-import jchess.game.common.piece.PieceComponent;
-import jchess.game.common.piece.PieceIdentifier;
-import jchess.game.common.tile.TileComponent;
+import jchess.game.common.components.MarkerType;
+import jchess.game.common.components.PieceComponent;
+import jchess.game.common.components.PieceIdentifier;
+import jchess.game.common.components.TileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,11 +37,11 @@ public class Square2PlayerGame extends BaseChessGame {
     }
 
     @Override
-    protected String getMarkerIcon(MarkerType markerType) {
+    protected IIconKey getMarkerIcon(MarkerType markerType) {
         return switch (markerType) {
-            case Selection -> "board.tileMarker_selected";
-            case NoAction -> "board.tileMarker_noAction";
-            case YesAction -> "board.tileMarker_yesAction";
+            case Selection -> Theme.BoardIcons.tileMarker_selected;
+            case NoAction -> Theme.BoardIcons.tileMarker_noAction;
+            case YesAction -> Theme.BoardIcons.tileMarker_yesAction;
         };
     }
 
@@ -66,7 +67,7 @@ public class Square2PlayerGame extends BaseChessGame {
             Entity[] tileRow = tiles[y];
             for (int x = 0; x < numTiles; x++) {
                 TileComponent tile = new TileComponent();
-                tile.iconId = ((x + y) % 2 == 0) ? "board.tileLight" : "board.tileDark";
+                tile.iconKey = ((x + y) % 2 == 0) ? Theme.BoardIcons.tileLight : Theme.BoardIcons.tileDark;
                 tile.position = new Point(x, y);
 
                 tile.neighborsByDirection.put(0, getEntityAtPosition(x, y - 1));
@@ -108,37 +109,35 @@ public class Square2PlayerGame extends BaseChessGame {
         }
     }
 
+    private Theme.PieceColor getColor(boolean isWhite) {
+        return isWhite ? Theme.PieceColor.light : Theme.PieceColor.dark;
+    }
+
     private void placeRook(int x, int y, boolean isWhite) {
-        String icon = isWhite ? "piece.rookWhite" : "piece.rookBlack";
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Rook, icon);
+        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Rook, Theme.PieceIcons.rook, getColor(isWhite));
     }
 
     private void placeKnight(int x, int y, boolean isWhite) {
-        String icon = isWhite ? "piece.knightWhite" : "piece.knightBlack";
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Knight, icon);
+        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Knight, Theme.PieceIcons.knight, getColor(isWhite));
     }
 
     private void placeBishop(int x, int y, boolean isWhite) {
-        String icon = isWhite ? "piece.bishopWhite" : "piece.bishopBlack";
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Bishop, icon);
+        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Bishop, Theme.PieceIcons.bishop, getColor(isWhite));
     }
 
     private void placeQueen(int x, int y, boolean isWhite) {
-        String icon = isWhite ? "piece.queenWhite" : "piece.queenBlack";
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Queen, icon);
+        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Queen, Theme.PieceIcons.queen, getColor(isWhite));
     }
 
     private void placeKing(int x, int y, boolean isWhite) {
-        String icon = isWhite ? "piece.kingWhite" : "piece.kingBlack";
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.King, icon);
+        placePiece(x, y, isWhite, PieceMoveRules.PieceType.King, Theme.PieceIcons.king, getColor(isWhite));
     }
 
     private void placePawn(int x, int y, boolean isWhite) {
-        String icon = isWhite ? "piece.pawnWhite" : "piece.pawnBlack";
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Pawn, icon);
+        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Pawn, Theme.PieceIcons.pawn, getColor(isWhite));
     }
 
-    private void placePiece(int x, int y, boolean isWhite, PieceMoveRules.PieceType pieceType, String iconId) {
+    private void placePiece(int x, int y, boolean isWhite, PieceMoveRules.PieceType pieceType, Theme.PieceIcons pieceIcon, Theme.PieceColor pieceColor) {
         Entity tile = getEntityAtPosition(x, y);
         if (tile == null) {
             logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
@@ -148,7 +147,7 @@ public class Square2PlayerGame extends BaseChessGame {
         PieceIdentifier pieceIdentifier = new PieceIdentifier(
                 pieceType.getId(),
                 pieceType.getShortName(),
-                iconId,
+                pieceIcon.asIconKey(pieceColor),
                 isWhite ? 0 : 1,
                 isWhite ? 0 : 180
         );

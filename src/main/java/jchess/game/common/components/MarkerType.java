@@ -1,4 +1,4 @@
-package jchess.game.common.marker;
+package jchess.game.common.components;
 
 public enum MarkerType {
     NoAction,

@@ -12,13 +12,11 @@ import io.undertow.servlet.api.DeploymentManager;
 import jakarta.servlet.ServletException;
 import jchess.game.common.events.RenderEvent;
 import jchess.game.layout.hex3p.Hex3PlayerGame;
-import jchess.game.layout.hex3p.Theme;
 import jchess.game.server.session.SessionManager;
 import jchess.game.server.session.SessionMgrController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.URISyntaxException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -28,12 +26,9 @@ public class WipExampleServer {
 
     public static final String resourcePrefix = "resources";
 
-    public static Theme theme;
     public static BoardUpdateWebsocket boardUpdateWebsocket;
 
     public static void main(String[] args) throws ServletException, URISyntaxException {
-        String themePath = "/jchess/theme/v2/default";
-        theme = new Theme(new File(Hex3PlayerGame.class.getResource(themePath).toURI()));
         boardUpdateWebsocket = new BoardUpdateWebsocket();
 
         SessionMgrController.registerSessionManager(GameSessionData.class, 10, TimeUnit.MINUTES);

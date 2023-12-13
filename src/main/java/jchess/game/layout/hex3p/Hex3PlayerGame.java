@@ -2,12 +2,13 @@ package jchess.game.layout.hex3p;
 
 import jchess.ecs.Entity;
 import jchess.game.common.BaseChessGame;
+import jchess.game.common.theme.IIconKey;
 import jchess.game.common.events.PieceMoveEvent;
 import jchess.game.common.events.RenderEvent;
-import jchess.game.common.marker.MarkerType;
-import jchess.game.common.piece.PieceComponent;
-import jchess.game.common.piece.PieceIdentifier;
-import jchess.game.common.tile.TileComponent;
+import jchess.game.common.components.MarkerType;
+import jchess.game.common.components.PieceComponent;
+import jchess.game.common.components.PieceIdentifier;
+import jchess.game.common.components.TileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +40,11 @@ public class Hex3PlayerGame extends BaseChessGame {
     }
 
     @Override
-    protected String getMarkerIcon(MarkerType markerType) {
+    protected IIconKey getMarkerIcon(MarkerType markerType) {
         return switch (markerType) {
-            case Selection -> "board.hexMarker_selected";
-            case NoAction -> "board.hexMarker_noAction";
-            case YesAction -> "board.hexMarker_yesAction";
+            case Selection -> Theme.BoardIcons.hexMarker_selected;
+            case NoAction -> Theme.BoardIcons.hexMarker_noAction;
+            case YesAction -> Theme.BoardIcons.hexMarker_yesAction;
         };
     }
 
@@ -73,9 +74,9 @@ public class Hex3PlayerGame extends BaseChessGame {
             int x1 = 32 - x0;
             for (int x = x0; x <= x1; x += 2) {
                 TileComponent tile = new TileComponent();
-                tile.iconId = (x % 3 == 0) ? "board.hexLight"
-                        : ((x % 3 == 1) ? "board.hexMedium"
-                        : "board.hexDark");
+                tile.iconKey = (x % 3 == 0) ? Theme.BoardIcons.hexLight
+                        : ((x % 3 == 1) ? Theme.BoardIcons.hexMedium
+                        : Theme.BoardIcons.hexDark);
                 tile.position = new Point(x, y);
 
                 tile.neighborsByDirection.put(0, getEntityAtPosition(x, y - 2));
@@ -139,40 +140,40 @@ public class Hex3PlayerGame extends BaseChessGame {
         }
     }
 
-    private static String getPlayerColor(int playerId) {
+    private static Theme.PieceColor getPlayerColor(int playerId) {
         return switch (playerId) {
-            case 0 -> "light";
-            case 1 -> "medium";
-            case 2 -> "dark";
+            case 0 -> Theme.PieceColor.light;
+            case 1 -> Theme.PieceColor.medium;
+            case 2 -> Theme.PieceColor.dark;
             default -> throw new IllegalArgumentException("'playerId' must be 0, 1 or 2, but was '" + playerId + "'");
         };
     }
 
     private void placeRook(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Rook, "piece.rook." + getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Rook, Theme.PieceIcons.rook, getPlayerColor(playerColor));
     }
 
     private void placeKnight(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Knight, "piece.knight." + getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Knight, Theme.PieceIcons.knight, getPlayerColor(playerColor));
     }
 
     private void placeBishop(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Bishop, "piece.bishop." + getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Bishop, Theme.PieceIcons.bishop, getPlayerColor(playerColor));
     }
 
     private void placeQueen(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Queen, "piece.queen." + getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Queen, Theme.PieceIcons.queen, getPlayerColor(playerColor));
     }
 
     private void placeKing(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.King, "piece.king." + getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.King, Theme.PieceIcons.king, getPlayerColor(playerColor));
     }
 
     private void placePawn(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Pawn, "piece.pawn." + getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Pawn, Theme.PieceIcons.pawn, getPlayerColor(playerColor));
     }
 
-    private void placePiece(int x, int y, int playerColor, PieceMoveRules.PieceType pieceType, String iconId) {
+    private void placePiece(int x, int y, int playerColor, PieceMoveRules.PieceType pieceType, Theme.PieceIcons pieceIcon, Theme.PieceColor color) {
         Entity tile = getEntityAtPosition(x, y);
         if (tile == null) {
             logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
@@ -182,7 +183,7 @@ public class Hex3PlayerGame extends BaseChessGame {
         PieceIdentifier pieceId = new PieceIdentifier(
                 pieceType.getId(),
                 pieceType.getShortName(),
-                iconId,
+                pieceIcon.asIconKey(color),
                 playerColor,
                 ((playerColor - 3) * (-120)) % 360 // [0, 240, 120]
         );

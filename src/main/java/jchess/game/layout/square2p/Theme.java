@@ -1,94 +1,96 @@
 package jchess.game.layout.square2p;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jchess.game.common.theme.IIconKey;
+import jchess.game.common.theme.ThemeUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.Image;
 import java.io.File;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Theme {
-    private static final Logger logger = LoggerFactory.getLogger(Theme.class);
+    public static Map<String, String> getIconMap(File themeDirectory) {
+        HashMap<String, String> iconMap = new HashMap<>();
 
-    public final Image preview;
-    public final BoardTheme board;
-    public final PieceTheme piece;
-    public final UiTheme ui;
+        iconMap.put("preview", ThemeUtils.getIconPath(themeDirectory, "Preview.png"));
 
-    public Theme(File themeDirectory) {
-        preview = loadImage(themeDirectory, "Preview.png");
-        board = new BoardTheme(new File(themeDirectory, "board_square"));
-        piece = new PieceTheme(new File(themeDirectory, "piece"));
-        ui = new UiTheme(new File(themeDirectory, "ui"));
+        File boardThemeDirectory = new File(themeDirectory, "board_square");
+        for (BoardIcons boardIcon : BoardIcons.values()) {
+            String iconPath = ThemeUtils.getIconPath(boardThemeDirectory, boardIcon.getFileName());
+            iconMap.put(boardIcon.getIconId(), iconPath);
+        }
+
+        File pieceThemeDirectory = new File(themeDirectory, "piece");
+        for (PieceIcons pieceIcon : PieceIcons.values()) {
+            for (PieceColor pieceColor : PieceColor.values()) {
+                String iconPath = ThemeUtils.getIconPath(pieceThemeDirectory, pieceIcon.getFileName(pieceColor));
+                iconMap.put(pieceIcon.getIconKey(pieceColor), iconPath);
+            }
+        }
+
+        return iconMap;
     }
 
-    private static Image loadImage(File directory, String imageName) {
-        File imageFile = new File(directory, imageName);
-        try {
-            return ImageIO.read(imageFile);
-        } catch (IOException e) {
-            logger.error("failed to read image '{}'", imageFile.getAbsolutePath());
-            e.printStackTrace();
-            return null;
+    public enum BoardIcons implements IIconKey {
+        tileLight("tile-Light.png"),
+        tileDark("tile-Dark.png"),
+        tileMarker_yesAction("tileMarker_yesAction.png"),
+        tileMarker_noAction("tileMarker_noAction.png"),
+        tileMarker_selected("tileMarker_selected.png");
+
+        private final String fileName;
+
+        BoardIcons(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public String getIconId() {
+            return "board." + this.name();
+        }
+
+        public String getFileName() {
+            return fileName;
         }
     }
 
-    public static class BoardTheme {
-        public final Image tileLight;
-        public final Image tileDark;
+    public enum PieceColor {
+        light("-W.png"),
+        dark("-B.png");
 
-        public final Image tileMarker_yesAction;
-        public final Image tileMarker_noAction;
-        public final Image tileMarker_selected;
+        private final String fileNameSuffix;
 
-        public BoardTheme(File themeDirectory) {
-            tileLight = loadImage(themeDirectory, "tile-Light.png");
-            tileDark = loadImage(themeDirectory, "tile-Dark.png");
+        PieceColor(String fileNameSuffix) {
+            this.fileNameSuffix = fileNameSuffix;
+        }
 
-            tileMarker_yesAction = loadImage(themeDirectory, "tileMarker_yesAction.png");
-            tileMarker_noAction = loadImage(themeDirectory, "tileMarker_noAction.png");
-            tileMarker_selected = loadImage(themeDirectory, "tileMarker_selected.png");
+        public String getFileNameSuffix() {
+            return fileNameSuffix;
         }
     }
 
-    public static class PieceTheme {
-        public final Image rookBlack;
-        public final Image rookWhite;
-        public final Image knightBlack;
-        public final Image knightWhite;
-        public final Image bishopBlack;
-        public final Image bishopWhite;
-        public final Image queenBlack;
-        public final Image queenWhite;
-        public final Image kingBlack;
-        public final Image kingWhite;
-        public final Image pawnBlack;
-        public final Image pawnWhite;
+    public enum PieceIcons {
+        rook("Rook"),
+        knight("Knight"),
+        bishop("Bishop"),
+        queen("Queen"),
+        king("King"),
+        pawn("Pawn");
 
-        public PieceTheme(File themeDirectory) {
-            rookBlack = loadImage(themeDirectory, "Rook-B.png");
-            rookWhite = loadImage(themeDirectory, "Rook-W.png");
-            knightBlack = loadImage(themeDirectory, "Knight-B.png");
-            knightWhite = loadImage(themeDirectory, "Knight-W.png");
-            bishopBlack = loadImage(themeDirectory, "Bishop-B.png");
-            bishopWhite = loadImage(themeDirectory, "Bishop-W.png");
-            queenBlack = loadImage(themeDirectory, "Queen-B.png");
-            queenWhite = loadImage(themeDirectory, "Queen-W.png");
-            kingBlack = loadImage(themeDirectory, "King-B.png");
-            kingWhite = loadImage(themeDirectory, "King-W.png");
-            pawnBlack = loadImage(themeDirectory, "Pawn-B.png");
-            pawnWhite = loadImage(themeDirectory, "Pawn-W.png");
+        private final String fileName;
+
+        PieceIcons(String fileName) {
+            this.fileName = fileName;
         }
-    }
 
-    public static class UiTheme {
-        public final Image addTabIcon;
-        public final Image clickedAddTabIcon;
+        public String getIconKey(PieceColor color) {
+            return "piece." + this.name() + "." + color.name();
+        }
 
-        public UiTheme(File themeDirectory) {
-            addTabIcon = loadImage(themeDirectory, "add-tab-icon.png");
-            clickedAddTabIcon = loadImage(themeDirectory, "clicked-add-tab-icon.png");
+        public String getFileName(PieceColor color) {
+            return fileName + color.getFileNameSuffix();
+        }
+
+        public IIconKey asIconKey(PieceColor color) {
+            return () -> getIconKey(color);
         }
     }
 }

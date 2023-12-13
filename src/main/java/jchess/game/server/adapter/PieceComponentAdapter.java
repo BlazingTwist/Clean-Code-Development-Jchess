@@ -1,6 +1,6 @@
 package jchess.game.server.adapter;
 
-import jchess.game.common.piece.PieceComponent;
+import jchess.game.common.components.PieceComponent;
 
 public enum PieceComponentAdapter implements IAdapter<PieceComponent, dx.schema.types.PieceComponent> {
     Instance;

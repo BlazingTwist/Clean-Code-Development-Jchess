@@ -1,8 +1,8 @@
 package jchess.ecs;
 
-import jchess.game.common.marker.MarkerComponent;
-import jchess.game.common.piece.PieceComponent;
-import jchess.game.common.tile.TileComponent;
+import jchess.game.common.components.MarkerComponent;
+import jchess.game.common.components.PieceComponent;
+import jchess.game.common.components.TileComponent;
 
 import java.util.stream.Stream;
 

@@ -1,7 +1,7 @@
 package jchess.game.layout.square2p;
 
 import jchess.ecs.Entity;
-import jchess.game.common.piece.PieceIdentifier;
+import jchess.game.common.components.PieceIdentifier;
 import jchess.game.el.CompiledTileExpression;
 import jchess.game.el.IPieceMoveRules;
 import jchess.game.el.TileExpression;

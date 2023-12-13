@@ -1,4 +1,4 @@
-package jchess.game.common.piece;
+package jchess.game.common.components;
 
 import jchess.game.el.IPieceMoveRules;
 

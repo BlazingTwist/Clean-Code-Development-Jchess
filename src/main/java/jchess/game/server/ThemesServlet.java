@@ -48,11 +48,11 @@ public class ThemesServlet extends HttpServlet {
         }
 
         for (File themeDir : themeDirectories) {
-            Map<String, String> hexIcons = new jchess.game.layout.hex3p.Theme(themeDir).getIconMap();
+            Map<String, String> hexIcons = jchess.game.layout.hex3p.Theme.getIconMap(themeDir);
             themeMap.put(themeDir.getName(), hexIcons);
 
-            // TODO erja load Square2P Theme
-            // Map<String, String> squareIcons = new jchess.game.layout.square2p.Theme(themeDir).get
+            Map<String, String> squareIcons = jchess.game.layout.square2p.Theme.getIconMap(themeDir);
+            themeMap.put(themeDir.getName() + "_square", squareIcons);
         }
     }
 
