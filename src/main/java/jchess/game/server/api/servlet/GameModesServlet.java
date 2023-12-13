@@ -1,4 +1,4 @@
-package jchess.game.server;
+package jchess.game.server.api.servlet;
 
 import dx.schema.message.GameModes;
 import dx.schema.types.GameMode;

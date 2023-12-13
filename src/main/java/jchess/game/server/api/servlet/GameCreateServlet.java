@@ -1,4 +1,4 @@
-package jchess.game.server;
+package jchess.game.server.api.servlet;
 
 import dx.schema.message.GameCreate;
 import io.undertow.util.StatusCodes;
@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jchess.game.layout.GameMode;
+import jchess.game.server.WipExampleServer;
 import jchess.game.server.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

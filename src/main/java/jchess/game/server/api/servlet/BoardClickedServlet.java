@@ -1,4 +1,4 @@
-package jchess.game.server;
+package jchess.game.server.api.servlet;
 
 import dx.schema.message.GameClicked;
 import dx.schema.types.Vector2I;
