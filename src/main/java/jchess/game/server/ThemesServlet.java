@@ -1,10 +1,10 @@
 package jchess.game.server;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dx.schema.message.Themes;
 import dx.schema.types.Icon;
 import dx.schema.types.Theme;
 import dx.schema.types.Vector2I;
+import io.undertow.util.StatusCodes;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +58,6 @@ public class ThemesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/json");
-        PrintWriter writer = resp.getWriter();
 
         Vector2I tileAspectRatio = new Vector2I();
         tileAspectRatio.setX(30);
@@ -88,8 +86,7 @@ public class ThemesServlet extends HttpServlet {
             }
         }
 
-        ObjectMapper mapper = JsonUtils.getMapper();
-        mapper.writeValue(writer, message);
-        writer.close();
+        resp.setStatus(StatusCodes.OK);
+        JsonUtils.getMapper().writeValue(resp.getWriter(), message);
     }
 }

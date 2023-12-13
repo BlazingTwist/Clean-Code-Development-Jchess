@@ -9,4 +9,6 @@ public interface IChessGame {
     EcsEventManager getEventManager();
 
     int getActivePlayerId();
+
+    void start();
 }

@@ -2,6 +2,7 @@ package jchess.game.server;
 
 import dx.schema.message.GameClicked;
 import dx.schema.types.Vector2I;
+import io.undertow.util.StatusCodes;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,5 +21,7 @@ public class BoardClickedServlet extends HttpServlet {
         GameClicked clickInfo = JsonUtils.getMapper().readValue(req.getReader(), GameClicked.class);
         IChessGame game = SessionUtils.findGame(clickInfo.getSessionId());
         game.getEventManager().<EcsEvent<Vector2I>>getEvent(BoardClickedEvent.class).fire(clickInfo.getClickPos());
+
+        resp.setStatus(StatusCodes.OK);
     }
 }

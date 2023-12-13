@@ -30,6 +30,7 @@ public abstract class BaseChessGame implements IChessGame {
         boardClickedEvent.addPostEventListener(vector -> onBoardClicked(vector.getX(), vector.getY()));
     }
 
+    @Override
     public abstract void start();
 
     protected abstract Entity getEntityAtPosition(int x, int y);

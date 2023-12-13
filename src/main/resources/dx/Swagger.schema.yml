@@ -22,6 +22,11 @@ paths:
           schema:
             description: the created session id
             type: string
+        '400':
+          description: Illegal Request (e.g. invalid Parameters, see response body for error message)
+          schema:
+            description: the error message
+            type: string
   /api/game/clicked:
     post:
       summary: Notify the Backend of a player clicking on the board

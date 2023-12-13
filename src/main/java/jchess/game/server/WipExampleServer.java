@@ -10,8 +10,9 @@ import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import jakarta.servlet.ServletException;
+import jchess.game.common.IChessGame;
 import jchess.game.common.events.RenderEvent;
-import jchess.game.layout.hex3p.Hex3PlayerGame;
+import jchess.game.layout.GameMode;
 import jchess.game.server.session.SessionManager;
 import jchess.game.server.session.SessionMgrController;
 import org.slf4j.Logger;
@@ -42,7 +43,8 @@ public class WipExampleServer {
                 .setDeploymentName("WipChessServer")
                 .addServlet(Servlets.servlet("GameCreate", GameCreateServlet.class).addMapping("/api/game/create"))
                 .addServlet(Servlets.servlet("GameClicked", BoardClickedServlet.class).addMapping("/api/game/clicked"))
-                .addServlet(Servlets.servlet("Themes", ThemesServlet.class).addMapping("/api/themes"));
+                .addServlet(Servlets.servlet("Themes", ThemesServlet.class).addMapping("/api/themes"))
+                .addServlet(Servlets.servlet("GameModes", GameModesServlet.class).addMapping("/api/modes"));
 
 
         DeploymentManager manager = Servlets.defaultContainer().addDeployment(deployment);
@@ -60,15 +62,16 @@ public class WipExampleServer {
         logger.info("Server started");
     }
 
-    public static String startNewGame() {
+    public static String startNewGame(GameMode mode) {
         String sessionId = UUID.randomUUID().toString();
-        Hex3PlayerGame game = new Hex3PlayerGame();
+        IChessGame game = mode.newGame();
 
         GameSessionData gameData = new GameSessionData(game);
         SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
         gameManager.createSession(sessionId, gameData);
 
         game.getEventManager().getEvent(RenderEvent.class).addPostEventListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
+        logger.info("Starting new game. Mode '{}'. SessionId '{}'", mode, sessionId);
         game.start();
 
         return sessionId;
