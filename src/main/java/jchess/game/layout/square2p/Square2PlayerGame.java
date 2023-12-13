@@ -9,6 +9,7 @@ import jchess.game.common.components.MarkerType;
 import jchess.game.common.components.PieceComponent;
 import jchess.game.common.components.PieceIdentifier;
 import jchess.game.common.components.TileComponent;
+import jchess.game.layout.GameMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ public class Square2PlayerGame extends BaseChessGame {
 
 
     public Square2PlayerGame() {
-        super(2);
+        super(GameMode.Square2P.getNumPlayers());
 
         PieceMoveEvent pieceMoveEvent = eventManager.getEvent(PieceMoveEvent.class);
         pieceMoveEvent.addPreEventListener(event -> {

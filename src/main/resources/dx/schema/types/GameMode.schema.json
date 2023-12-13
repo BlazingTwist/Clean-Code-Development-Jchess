@@ -22,5 +22,5 @@
       }
     }
   },
-  "required": ["modeId", "displayName", "themeIds"]
+  "required": ["modeId", "displayName", "numPlayers", "themeIds"]
 }

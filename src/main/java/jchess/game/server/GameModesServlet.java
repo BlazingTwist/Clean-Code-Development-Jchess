@@ -24,6 +24,7 @@ public class GameModesServlet extends HttpServlet {
             GameMode gameMode = new GameMode();
             gameMode.setModeId(mode.name());
             gameMode.setDisplayName(mode.getDisplayName());
+            gameMode.setNumPlayers(mode.getNumPlayers());
             gameMode.setThemeIds(Arrays.asList(mode.getAllowedThemeIds()));
             gameModes.add(gameMode);
         }
