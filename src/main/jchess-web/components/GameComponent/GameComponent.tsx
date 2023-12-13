@@ -8,6 +8,7 @@ import Config from "@/utils/config";
 import TimeGameComponent from "./TimeGameComponent";
 import HistoryComponent from "./HistoryComponent";
 import { postClick } from "@/services/rest_api_service";
+import PlayerOverviewComponent from "./PlayerOverviewComponent";
 
 export default function GameComponment() {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
@@ -298,6 +299,7 @@ export default function GameComponment() {
             </div>
 
             {gameOptions.isTimeGame && <TimeGameComponent />}
+            {!gameOptions.isTimeGame && <PlayerOverviewComponent />}
             {<HistoryComponent />}
         </div>
     );
