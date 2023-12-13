@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useGameContext } from "@/app/context/game_context";
 import { Button } from "@/components/ui/button";
 import GameComponent from "./GameComponent/GameComponent";
-import openSocket from "@/services/websocket_service";
 import { useEffect, useState } from "react";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
 import Config from "@/utils/config";
@@ -20,7 +19,6 @@ export default function Body() {
 
     const [ws, setWs] = useState<WebSocket | undefined>(undefined);
 
-    // Open a websocket connection when the game starts
     useEffect(() => {
         // Open a websocket connection when the game starts
         if (isGame) {

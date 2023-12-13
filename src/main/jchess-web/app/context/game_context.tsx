@@ -66,8 +66,6 @@ function deserializeJsonToPlayerState(jsonString: string): PlayerState {
  * The properties provided by the GameContext.
  */
 interface ContextProps {
-    chessboardState: Array<Array<string>>;
-    setChessboardState: Dispatch<SetStateAction<Array<Array<string>>>>;
     playerState: PlayerState;
     setPlayerState: Dispatch<SetStateAction<PlayerState>>;
     gameOptions: GameOptions;
@@ -77,15 +75,9 @@ interface ContextProps {
 }
 
 /**
- * The context for managing the state of a chess game.
- * @defaultValue { chessboardState: [], setChessboardState: () => {},
- * playerState: { playerColor: new Map<number, string>(), playerTime: new Map<number, Date>(),
- * playerHistory: new Map<number, Array<string>>() }, setPlayerState: () => {},
- * gameOptions: { playerNames: [], isWhiteOnTop: false, isTimeGame: false, timeGameAmountInSeconds: 0 }, setGameOptions: () => {} }
+ * The context for managing the state of the chess game.
  */
 const GameContext = createContext<ContextProps>({
-    chessboardState: Array<Array<string>>(),
-    setChessboardState: () => {},
     playerState: {
         playerColor: new Map<number, string>(),
         playerTime: new Map<number, Date>(),
@@ -188,8 +180,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
     // Provide the context value to be used by children components
     const contextValue: ContextProps = {
-        chessboardState,
-        setChessboardState,
         playerState,
         setPlayerState,
         gameOptions,
