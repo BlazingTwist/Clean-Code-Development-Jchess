@@ -117,7 +117,7 @@ export function NewGameModal() {
 
         playerNames.forEach((playerName, index) => {
             const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
-            playerColors.set(index, index == 0 ? "black" : index == 1 ? "white" : "destructive");
+            playerColors.set(index, index == 0 ? "white" : index == 1 ? "destructive" : "black");
             playerTimes.set(index, playerTime);
             playerHistory.set(index, ["e4:e5", " e5:e4"]);
         });
