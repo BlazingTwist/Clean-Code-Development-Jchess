@@ -8,6 +8,9 @@
       "description": "Id of the Game-Mode",
       "type": "string"
     },
+    "displayName": {
+      "type": "string"
+    },
     "themeIds": {
       "description": "List of allowed themes for this Game-Mode",
       "type": "array",
