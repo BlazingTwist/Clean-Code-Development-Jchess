@@ -204,7 +204,7 @@
          */
         function sendGet(xmlRequest, url, onDone) {
             xmlRequest.onreadystatechange = () => {
-                if (xmlRequest.readyState === 4 && xmlRequest.status === 200) {
+                if (xmlRequest.readyState === 4) {
                     onDone();
                 }
             }
@@ -224,7 +224,7 @@
             if (onDone) {
                 xmlRequest.onreadystatechange = () => {
                     if (xmlRequest.readyState === 4) {
-                        onDone(xmlRequest.status);
+                        onDone();
                     }
                 }
             }

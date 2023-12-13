@@ -10,21 +10,23 @@ import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import jakarta.servlet.ServletException;
+import jchess.game.common.events.RenderEvent;
 import jchess.game.layout.hex3p.Hex3PlayerGame;
 import jchess.game.layout.hex3p.Theme;
+import jchess.game.server.session.SessionManager;
 import jchess.game.server.session.SessionMgrController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class WipExampleServer {
     private static final Logger logger = LoggerFactory.getLogger(WipExampleServer.class);
 
-    private static final String resourcePrefix = "resources";
+    public static final String resourcePrefix = "resources";
 
     public static Theme theme;
     public static BoardUpdateWebsocket boardUpdateWebsocket;
@@ -33,9 +35,6 @@ public class WipExampleServer {
         String themePath = "/jchess/theme/v2/default";
         theme = new Theme(new File(Hex3PlayerGame.class.getResource(themePath).toURI()));
         boardUpdateWebsocket = new BoardUpdateWebsocket();
-
-        ThemesServlet.themeMap = Map.of("default", theme.getIconMap());
-        ThemesServlet.resourcePrefix = resourcePrefix;
 
         SessionMgrController.registerSessionManager(GameSessionData.class, 10, TimeUnit.MINUTES);
         SessionMgrController.startHeartbeat(1, TimeUnit.MINUTES);
@@ -64,6 +63,20 @@ public class WipExampleServer {
                 .build();
         server.start();
         logger.info("Server started");
+    }
+
+    public static String startNewGame() {
+        String sessionId = UUID.randomUUID().toString();
+        Hex3PlayerGame game = new Hex3PlayerGame();
+
+        GameSessionData gameData = new GameSessionData(game);
+        SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
+        gameManager.createSession(sessionId, gameData);
+
+        game.getEventManager().getEvent(RenderEvent.class).addPostEventListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
+        game.start();
+
+        return sessionId;
     }
 
 }
