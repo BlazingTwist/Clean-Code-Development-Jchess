@@ -12,6 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { postCreateGame } from "@/services/rest_api_service";
 
 import { useGameContext } from "@/app/context/game_context";
+import { useThemeContext } from "@/app/context/theme_context";
+import { GameMode } from "@/models/message/GameModes.schema";
+import { GameCreate } from "@/models/message/GameCreate.schema";
 
 /**
  * @function NewGameModal
@@ -23,15 +26,15 @@ export function NewGameModal() {
 
     // State variables for player information and game settings
     // values for the select elements
-    const [playerNumberValues, setPlayerNumberValues] = useState<string[]>([]);
     const [timeGameValues, setTimeGameValues] = useState<string[]>([]);
-    // results of the select elements
-    const [numberOfPlayers, setNumberOfPlayers] = useState("0");
     const [isWhiteOnTop, setWhiteOnTop] = useState(false);
     const [isTimeGame, setTimeGame] = useState(false);
     const [timeGameAmount, setTimeGameAmount] = useState("0");
 
     const { setGameOptions, setPlayerState } = useGameContext(); // old code for client side state, later it probably will be removed
+    const { gameModeMap, setTheme } = useThemeContext();
+
+    const [gameMode, setGameMode] = useState<GameMode | undefined>(undefined);
 
     /**
      * @function useEffect
@@ -39,21 +42,21 @@ export function NewGameModal() {
      */
     useEffect(() => {
         // TODO fetch possible values from server:
-        console.log("fetch possible player number from server");
-        setPlayerNumberValues(["3"]);
-
         console.log("fetch possible time game amount from server");
         setTimeGameValues(["1", "3", "5", "8", "10", "15", "20", "25", "30", "60", "120"]);
     }, []);
 
     /**
      * @function renderNameInputs
-     * @description Renders input fields for player names based on the selected number of players.
+     * @description Renders input fields for player names based on the selected gameMode.
      * @returns {JSX.Element[]} Array of JSX Elements representing player name input fields.
      */
     const renderNameInputs = () => {
+        if (!gameMode || !gameMode?.numPlayers) {
+            return [];
+        }
         const inputs: JSX.Element[] = [];
-        for (let i = 1; i <= parseInt(numberOfPlayers); i++) {
+        for (let i = 1; i <= gameMode!.numPlayers; i++) {
             inputs.push(
                 <div key={i}>
                     <div className="flex flex-col space-y-1.5">
@@ -64,6 +67,46 @@ export function NewGameModal() {
             );
         }
         return inputs;
+    };
+
+    /**
+     * @function renderThemeSelect
+     * @description Renders a dropdown for selecting the theme for the gameMode.
+     * @returns {JSX.Element} JSX Element representing the time select dropdown.
+     */
+    const renderThemeSelect = () => {
+        const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
+
+        useEffect(() => {
+            // Reset selected theme when gameMode changes
+            setSelectedTheme(undefined);
+        }, [gameMode]);
+
+        if (!gameMode) {
+            return [];
+        }
+
+        return (
+            <Select
+                onValueChange={(theme) => {
+                    setTheme(theme);
+                    setSelectedTheme(theme);
+                }}
+                value={selectedTheme} // Controlled component to manage the selected theme
+                required
+            >
+                <SelectTrigger id="them-selection">
+                    <SelectValue placeholder="Select Theme" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                    {Array.from(gameMode.themeIds).map((value) => (
+                        <SelectItem key={value} value={value}>
+                            {value}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        );
     };
 
     /**
@@ -101,7 +144,7 @@ export function NewGameModal() {
 
         // Access the inputted player names
         const playerNames = Array.from(
-            { length: parseInt(numberOfPlayers) },
+            { length: gameMode?.numPlayers || 0 },
             (_, i) => (document.getElementById(`player-${i + 1}`) as HTMLInputElement).value
         );
 
@@ -124,7 +167,10 @@ export function NewGameModal() {
 
         console.log("post newGame to server");
         // TODO improve error handling
-        postCreateGame().then((sessionId) => {
+
+        postCreateGame({
+            modeId: gameMode!.modeId,
+        }).then((sessionId) => {
             console.log("sessionId:" + sessionId);
             setGameOptions({
                 playerNames,
@@ -153,20 +199,22 @@ export function NewGameModal() {
                 <form onSubmit={handleSubmit}>
                     <CardContent>
                         <div className="flex flex-col space-y-1.5 mb-4">
-                            <Label htmlFor="framework">Number of Players</Label>
-                            <Select onValueChange={setNumberOfPlayers} required>
+                            <Label htmlFor="framework">Game Mode</Label>
+                            <Select onValueChange={(value) => setGameMode(gameModeMap.get(value))} required>
                                 <SelectTrigger id="board-layout">
-                                    <SelectValue placeholder="Select Number of Players" />
+                                    <SelectValue placeholder="Select Game Mode" />
                                 </SelectTrigger>
                                 <SelectContent position="popper">
-                                    {playerNumberValues.map((value) => (
+                                    {Array.from(gameModeMap.keys()).map((value) => (
                                         <SelectItem key={value} value={value}>
                                             {value}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {renderThemeSelect()}
                         </div>
+
                         <div className="flex flex-col space-y-1.5 mb-4">{renderNameInputs()}</div>
                         <div className="flex items-center space-x-2 mb-4 ">
                             <Checkbox

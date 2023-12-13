@@ -129,17 +129,22 @@ export default function GameComponment() {
         const canvas: JSX.Element[] = [];
         const serverUri = Config.clientUri + "/api/";
         const offsetWidthFromCanvasRef = canvasRef.current?.offsetWidth || 1;
+        const offsetHeightFromCanvasRef = canvasRef.current?.offsetHeight || 1;
         const rawBoardWidth = theme!.tileAspectRatio!.x + theme!.tileStride!.x * (maxTilePos[0] - minTilePos[0]);
+        const rawBoardHeight = theme!.tileAspectRatio!.y + theme!.tileStride!.y * (maxTilePos[1] - minTilePos[0]);
 
         let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
+        if (rawBoardHeight * scaleFactor > offsetHeightFromCanvasRef) {
+            scaleFactor = offsetHeightFromCanvasRef / rawBoardHeight;
+        }
 
         for (const tile of tiles) {
-            let tileX = tile.position[0] - minTilePos[0];
-            let offsetX = tileX * theme!.tileStride!.x * scaleFactor;
-            let tileY = tile.position[1] - minTilePos[1];
-            let offsetY = tileY * theme!.tileStride!.y * scaleFactor;
-            let iconPath = iconMap[tile.iconId];
-            let tileKey = `tile-${tile.iconId}-${tile.position[0]}-${tile.position[1]}`;
+            const tileX = tile.position[0] - minTilePos[0];
+            const offsetX = tileX * theme!.tileStride!.x * scaleFactor;
+            const tileY = tile.position[1] - minTilePos[1];
+            const offsetY = tileY * theme!.tileStride!.y * scaleFactor;
+            const iconPath = iconMap[tile.iconId];
+            const tileKey = `tile-${tile.iconId}-${tile.position[0]}-${tile.position[1]}`;
             canvas.push(
                 <div
                     key={tileKey}
@@ -176,16 +181,16 @@ export default function GameComponment() {
         }
 
         for (const piece of pieces) {
-            let tilePos = piece.tile.position;
-            let x = tilePos[0] - minTilePos[0];
-            let offsetX = x * theme!.tileStride!.x * scaleFactor;
-            let y = tilePos[1] - minTilePos[1];
-            let offsetY = y * theme!.tileStride!.y * scaleFactor;
-            let iconPath = iconMap[piece.identifier.iconId];
-            let pieceKey = `piece-${piece.identifier.iconId}-${tilePos[0]}-${tilePos[1]}`;
+            const tilePos = piece.tile.position;
+            const x = tilePos[0] - minTilePos[0];
+            const offsetX = x * theme!.tileStride!.x * scaleFactor;
+            const y = tilePos[1] - minTilePos[1];
+            const offsetY = y * theme!.tileStride!.y * scaleFactor;
+            const iconPath = iconMap[piece.identifier.iconId];
+            const pieceKey = `piece-${piece.identifier.iconId}-${tilePos[0]}-${tilePos[1]}`;
 
-            let pieceWidth = theme!.tileAspectRatio!.x * scaleFactor * pieceSizeAdjustment;
-            let pieceHeight = theme!.tileAspectRatio!.y * scaleFactor * pieceSizeAdjustment;
+            const pieceWidth = theme!.tileAspectRatio!.x * scaleFactor * pieceSizeAdjustment;
+            const pieceHeight = theme!.tileAspectRatio!.y * scaleFactor * pieceSizeAdjustment;
 
             canvas.push(
                 <div key={pieceKey} className="">
@@ -205,14 +210,14 @@ export default function GameComponment() {
             );
         }
 
-        for (let marker of markers) {
-            let markerPos = marker.tile.position;
-            let x = markerPos[0] - minTilePos[0];
-            let offsetX = x * theme!.tileStride!.x * scaleFactor;
-            let y = markerPos[1] - minTilePos[1];
-            let offsetY = y * theme!.tileStride!.y * scaleFactor;
-            let markerKey = `marker-${marker.iconId}-${markerPos[0]}-${markerPos[1]}`;
-            let iconPath = iconMap[marker.iconId];
+        for (const marker of markers) {
+            const markerPos = marker.tile.position;
+            const x = markerPos[0] - minTilePos[0];
+            const offsetX = x * theme!.tileStride!.x * scaleFactor;
+            const y = markerPos[1] - minTilePos[1];
+            const offsetY = y * theme!.tileStride!.y * scaleFactor;
+            const markerKey = `marker-${marker.iconId}-${markerPos[0]}-${markerPos[1]}`;
+            const iconPath = iconMap[marker.iconId];
 
             canvas.push(
                 <div key={markerKey} className="">

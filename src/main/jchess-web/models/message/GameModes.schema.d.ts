@@ -5,22 +5,20 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface Theme {
-  /**
-   * Name of the Theme
-   */
-  name: string;
-  tileAspectRatio: Vector2I;
-  tileStride: Vector2I;
-  icons: {
-    iconId: string;
-    iconPath: string;
-    [k: string]: unknown;
-  }[];
+export interface GameModes {
+  modes: GameMode[];
   [k: string]: unknown;
 }
-export interface Vector2I {
-  x: number;
-  y: number;
+export interface GameMode {
+  /**
+   * Id of the Game-Mode
+   */
+  modeId: string;
+  displayName: string;
+  numPlayers?: number;
+  /**
+   * List of allowed themes for this Game-Mode
+   */
+  themeIds: string[];
   [k: string]: unknown;
 }

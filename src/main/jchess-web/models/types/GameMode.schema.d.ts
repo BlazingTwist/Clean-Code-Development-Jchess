@@ -5,10 +5,16 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface GameCreate {
+export interface GameMode {
   /**
-   * Id of the Game-Mode to be started
+   * Id of the Game-Mode
    */
   modeId: string;
+  displayName: string;
+  numPlayers?: number;
+  /**
+   * List of allowed themes for this Game-Mode
+   */
+  themeIds: string[];
   [k: string]: unknown;
 }

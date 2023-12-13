@@ -14,8 +14,8 @@ export interface Theme {
    * Name of the Theme
    */
   name: string;
-  tileAspectRatio?: Vector2I;
-  tileStride?: Vector2I;
+  tileAspectRatio: Vector2I;
+  tileStride: Vector2I;
   icons: {
     iconId: string;
     iconPath: string;

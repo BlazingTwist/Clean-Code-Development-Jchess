@@ -1,4 +1,7 @@
 import { GameClicked } from "@/models/message/GameClicked.schema";
+import { GameCreate } from "@/models/message/GameCreate.schema";
+import { GameModes } from "@/models/message/GameModes.schema";
+import { Themes } from "@/models/message/Themes.schema";
 import { Theme } from "@/models/types/Theme.schema";
 import Config from "@/utils/config";
 
@@ -7,14 +10,14 @@ import Config from "@/utils/config";
  * @description Creates a new game on the server.
  * @returns A promise that resolves to the session id of the new game.
  */
-export async function postCreateGame(): Promise<string> {
+export async function postCreateGame(gameCreateBody: GameCreate): Promise<string> {
     const serverUri = Config.clientUri;
     const response = await fetch(`${serverUri}/api/game/create`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify(gameCreateBody),
     });
     if (!response.ok) {
         throw new Error(`Error fetching ${serverUri}/api/game/create: ${response.status} ${response.statusText}`);
@@ -47,16 +50,20 @@ export async function postClick(body: GameClicked): Promise<void> {
     }
 }
 
-type ThemeResponse = {
-    themes: Theme[];
-};
-
 /**
  * Fetches the themes from the nextJs server.
  * @returns A promise that resolves to an array of themes.
  */
-export async function fetchThemes(): Promise<ThemeResponse> {
-    return fetchData<ThemeResponse>("themes");
+export async function fetchThemes(): Promise<Themes> {
+    return fetchData<Themes>("themes");
+}
+
+/**
+ * Fetches the Game Modes from the nextJs server.
+ * @returns A promise that resolves to an array of themes.
+ */
+export async function fetchGameModes(): Promise<GameModes> {
+    return fetchData<GameModes>("modes");
 }
 
 /**
@@ -80,3 +87,4 @@ export async function fetchData<T>(endpoint: string): Promise<T> {
         throw error;
     }
 }
+
