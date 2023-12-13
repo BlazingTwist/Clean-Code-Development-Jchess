@@ -11,7 +11,7 @@ export async function fetchData<T>(endpoint: string): Promise<T> {
     Config.log();
     const serverUri = Config.clientUri;
     console.log(`Fetching ${endpoint} from ${serverUri}`);
-    const response = await fetch(`${serverUri}/web/api/${endpoint}`);
+    const response = await fetch(`${serverUri}/api/${endpoint}`);
     if (!response.ok) {
         throw new Error(`Error fetching ${endpoint}: ${response.status} ${response.statusText}`);
     }

@@ -86,7 +86,7 @@ export default function GameComponment() {
                 {}
             );
 
-            const serverUri = Config.clientUri + "/web/api/";
+            const serverUri = Config.clientUri + "/api/";
             if (serverUri === undefined) {
                 throw new Error(
                     "NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI is undefined, make sure to set it in .env.local"

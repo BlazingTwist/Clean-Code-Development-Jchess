@@ -40,9 +40,6 @@ public class WipExampleServer {
                 .setClassLoader(WipExampleServer.class.getClassLoader())
                 .setContextPath("")
                 .setDeploymentName("WipChessServer")
-                .addServlet(Servlets.servlet("WebClientProxy", ProxyServlet.class).addMapping("/web/*")
-                        .addInitParam("targetUri", "http://localhost:3000/web")
-                        .addInitParam("log", "true"))
                 .addServlet(Servlets.servlet("GameUpdate", GameUpdateServlet.class).addMapping("/api/gameUpdate"))
                 .addServlet(Servlets.servlet("Themes", ThemesServlet.class).addMapping("/api/themes"));
 
