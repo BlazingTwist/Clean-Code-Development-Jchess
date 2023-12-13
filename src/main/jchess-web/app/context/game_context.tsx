@@ -1,4 +1,5 @@
 "use client";
+import Config from "@/utils/config";
 import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNode, useEffect } from "react";
 
 //TODO most of this will be handled by the server, so this file will be removed
@@ -111,7 +112,7 @@ interface GameProviderProps {
  */
 export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     // Determine if cookies should be saved based on the environment variable
-    const useLocalStorage = process.env.NEXT_PUBLIC_LOCAL_STORAGE === "true";
+    const useLocalStorage = Config.useLocalStorage;
 
     // The key for storing game options and player state in localStorage
     const gameOptionsStorageKey = "gameOptions";

@@ -1,3 +1,4 @@
+import Config from "@/utils/config";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -10,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             query = req.query["resources"] as string;
         }
 
-        const serverUri = process.env.NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI;
+        const serverUri = Config.undertowServerUri;
 
         if (serverUri === undefined) {
             throw new Error("JCHESS_UNDERTOW_SERVER_URI is undefined, make sure to set it in .env.local");

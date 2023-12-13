@@ -1,3 +1,5 @@
+import Config from "./config";
+
 /**
  * Fetches data from the nextjs endpoint.
  *
@@ -6,7 +8,9 @@
  * @throws An error if the fetch request fails or if there is an error parsing the response.
  */
 export async function fetchData<T>(endpoint: string): Promise<T> {
-    const serverUri = process.env.NEXT_PUBLIC_CLIENT_URI;
+    Config.log();
+    const serverUri = Config.clientUri;
+    console.log(`Fetching ${endpoint} from ${serverUri}`);
     const response = await fetch(`${serverUri}/web/api/${endpoint}`);
     if (!response.ok) {
         throw new Error(`Error fetching ${endpoint}: ${response.status} ${response.statusText}`);

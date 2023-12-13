@@ -25,7 +25,7 @@ export default function TimeGameComponent() {
                             const secondsLeft = playerState.playerTime.get(index)?.getUTCSeconds();
                             const hoursLeft = playerState.playerTime.get(index)?.getUTCHours();
                             return (
-                                <TableRow>
+                                <TableRow key={index}>
                                     <TableCell key={index}>{playerName}</TableCell>
                                     <TableCell>
                                         <div

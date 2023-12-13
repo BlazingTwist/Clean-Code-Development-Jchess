@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect, ReactNode } from "react";
 import { GameUpdate } from "@/models/message/GameUpdate.schema";
+import Config from "@/utils/config";
 
 /**
  * The properties provided by the GameUpdateContext.
@@ -32,7 +33,7 @@ interface GameUpdateProviderProps {
  */
 export const GameUpdateProvider: React.FC<GameUpdateProviderProps> = ({ children }) => {
     // Determine if cookies should be saved based on the environment variable
-    const useLocalStorage = process.env.NEXT_PUBLIC_LOCAL_STORAGE === "true";
+    const useLocalStorage = Config.useLocalStorage;
 
     // The key for storing game updates in localStorage
     const storageKey = "gameUpdate";

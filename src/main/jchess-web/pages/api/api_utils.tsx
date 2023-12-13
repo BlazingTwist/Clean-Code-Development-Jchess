@@ -1,3 +1,4 @@
+import Config from "@/utils/config";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 /**
@@ -7,11 +8,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
  */
 export async function fetchData(apiEndpoint: string, res: NextApiResponse) {
     try {
-        const serverUri = process.env.NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI;
-        if (serverUri === undefined) {
-            throw new Error("JCHESS_UNDERTOW_SERVER_URI is undefined, make sure to set it in .env.local");
-        }
-
+        const serverUri = Config.undertowServerUri;
         // Fetch data from the Undertow server
         const response = await fetch(`${serverUri}/api/${apiEndpoint}`);
         const data = await response.json();

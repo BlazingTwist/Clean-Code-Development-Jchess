@@ -20,17 +20,17 @@ export default function HistoryComponent() {
                     <TableHeader>
                         <TableRow>
                             {gameOptions.playerNames.map((playerName, index) => {
-                                return <TableHead>{playerName}</TableHead>;
+                                return <TableHead key={index}>{playerName}</TableHead>;
                             })}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {Array.from({ length: numMoves! }, (_, i) => i).map((_, moveIdx) => {
                             return (
-                                <TableRow>
+                                <TableRow key={moveIdx}>
                                     {gameOptions.playerNames.map((_, index) => {
                                         return (
-                                            <TableCell>
+                                            <TableCell key={moveIdx + " " + index}>
                                                 {playerState.playerHistory.size > moveIdx
                                                     ? playerState.playerHistory.get(index)![moveIdx]
                                                     : ""}

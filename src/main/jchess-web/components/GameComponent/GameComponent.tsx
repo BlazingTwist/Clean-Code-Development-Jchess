@@ -6,9 +6,10 @@ import { useGameUpdateContext } from "@/app/context/game_update_context";
 import { useThemeContext } from "@/app/context/theme_context";
 import { Vector2I } from "@/models/message/GameUpdate.schema";
 import { useEffect, useRef, useState } from "react";
+import Config from "@/utils/config";
 
 export default function GameComponment() {
-    const showCoordinates = process.env.NEXT_PUBLIC_BOARD_WITH_COORDINATES === "true"; // boolean flag in .env.local file to control if coordinates are shown on the board
+    const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
 
     // Contexts
     const { gameOptions } = useGameContext(); // old code for client side state, later it probably will be removed
@@ -85,7 +86,7 @@ export default function GameComponment() {
                 {}
             );
 
-            const serverUri = process.env.NEXT_PUBLIC_CLIENT_URI + "/web/api/";
+            const serverUri = Config.clientUri + "/web/api/";
             if (serverUri === undefined) {
                 throw new Error(
                     "NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI is undefined, make sure to set it in .env.local"

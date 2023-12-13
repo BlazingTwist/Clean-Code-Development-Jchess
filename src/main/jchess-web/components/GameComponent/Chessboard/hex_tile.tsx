@@ -8,8 +8,11 @@ interface HexTileProps extends React.SVGAttributes<HTMLOrSVGElement> {
     children?: React.ReactNode;
 }
 
-export const HexTile = React.forwardRef<HTMLOrSVGElement, HexTileProps>(
-    ({ svgClassName, pathClassName, widthPercentage, children, ...props }, ref) => (
+export const HexTile = React.forwardRef<HTMLOrSVGElement, HexTileProps>(function HexTile(
+    { svgClassName, pathClassName, widthPercentage, children, ...props },
+    ref
+) {
+    return (
         <div className={`relative pointer-events-none`} style={{ width: `${widthPercentage}%` }}>
             <svg
                 className={cn("aspect-[173/200]  relative", svgClassName)}
@@ -29,6 +32,8 @@ export const HexTile = React.forwardRef<HTMLOrSVGElement, HexTileProps>(
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">{children}</div>
         </div>
-    )
-);
+    );
+});
+
+HexTile.displayName = "HexTile";
 

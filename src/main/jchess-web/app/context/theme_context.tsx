@@ -2,6 +2,7 @@
 import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect, ReactNode } from "react";
 import { Theme } from "@/models/message/Themes.schema";
 import { fetchThemes } from "@/utils/themeFetcher";
+import Config from "@/utils/config";
 
 /**
  * The properties provided by the ThemeContext.
@@ -38,7 +39,7 @@ interface ThemeProviderProps {
  */
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     // Determine if cookies should be saved based on the environment variable
-    const useLocalStorage = process.env.NEXT_PUBLIC_LOCAL_STORAGE === "true";
+    const useLocalStorage = Config.useLocalStorage;
 
     // The key for storing the themeMap in localStorage
     const storageKey = "themeMap";
@@ -64,7 +65,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
             setThemeMap(newThemeMap);
 
             // Save themeMap to localStorage if saving cookies is enabled
-            useLocalStorage && localStorage.setItem(storageKey, JSON.stringify(Array.from(newThemeMap.entries())));
+            Config.useLocalStorage &&
+                localStorage.setItem(storageKey, JSON.stringify(Array.from(newThemeMap.entries())));
         });
 
         console.log("Fetching Themes Done");
