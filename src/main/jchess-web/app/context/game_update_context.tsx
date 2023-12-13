@@ -1,53 +1,93 @@
 "use client";
+import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect, ReactNode } from "react";
 import { GameUpdate } from "@/models/message/GameUpdate.schema";
-import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect } from "react";
 
-interface ContextProps {
+/**
+ * The properties provided by the GameUpdateContext.
+ */
+interface GameUpdateContextProps {
     isGame: boolean;
     gameUpdate: GameUpdate | undefined;
     setGameUpdate: Dispatch<SetStateAction<GameUpdate | undefined>>;
     resetGame: () => void;
 }
 
-const GameUpdateContext = createContext<ContextProps>({
-    isGame: false,
-    gameUpdate: undefined,
-    setGameUpdate: () => {},
-    resetGame: () => {},
-});
+/**
+ * The context for managing game updates.
+ * @defaultValue undefined
+ */
+const GameUpdateContext = createContext<GameUpdateContextProps | undefined>(undefined);
 
-export const GameUpdateProvider = ({ children }: { children: React.ReactNode }) => {
+/**
+ * The properties for the GameUpdateProvider component.
+ */
+interface GameUpdateProviderProps {
+    children: ReactNode;
+}
+
+/**
+ * Provides a context for managing game updates.
+ * @param {GameUpdateProviderProps} props - The component properties.
+ * @returns {JSX.Element} The JSX element.
+ */
+export const GameUpdateProvider: React.FC<GameUpdateProviderProps> = ({ children }) => {
+    // Determine if cookies should be saved based on the environment variable
+    const useLocalStorage = process.env.NEXT_PUBLIC_LOCAL_STORAGE === "true";
+
+    // The key for storing game updates in localStorage
+    const storageKey = "gameUpdate";
+
+    // Initialize state for game updates
     const [gameUpdate, setGameUpdate] = useState<GameUpdate | undefined>(() => {
-        // Load the initial state from localStorage
-        const storedGameUpdate = localStorage.getItem("gameUpdate");
-        return storedGameUpdate ? JSON.parse(storedGameUpdate) : undefined;
+        // Load the initial state from localStorage if saving cookies is enabled
+        return useLocalStorage ? JSON.parse(localStorage.getItem(storageKey) || "null") : undefined;
     });
 
     // Save the gameUpdate to localStorage whenever it changes
     useEffect(() => {
-        if (gameUpdate) {
-            localStorage.setItem("gameUpdate", JSON.stringify(gameUpdate));
-        } else {
-            localStorage.removeItem("gameUpdate");
+        if (useLocalStorage) {
+            localStorage.setItem(storageKey, JSON.stringify(gameUpdate || null));
         }
-    }, [gameUpdate]);
+    }, [gameUpdate, useLocalStorage]);
 
-    const isGame = gameUpdate !== undefined;
-
+    /**
+     * Resets the game by setting gameUpdate to undefined and removing it from localStorage.
+     */
     const resetGame = () => {
         console.log("resetting game");
-        // Reset the gameUpdate to undefined
         setGameUpdate(undefined);
-        // Remove the gameUpdate from localStorage
-        localStorage.removeItem("gameUpdate");
+
+        // Remove the gameUpdate from localStorage if saving cookies is enabled
+        if (useLocalStorage) {
+            localStorage.removeItem(storageKey);
+        }
     };
 
-    return (
-        <GameUpdateContext.Provider value={{ isGame, gameUpdate, setGameUpdate, resetGame }}>
-            {children}
-        </GameUpdateContext.Provider>
-    );
+    // Determine if the game is active based on the presence of gameUpdate
+    const isGame = gameUpdate !== undefined && gameUpdate !== null;
+
+    // Create the context value to be provided
+    const contextValue: GameUpdateContextProps = { isGame, gameUpdate, setGameUpdate, resetGame };
+
+    // Provide the context to the children components
+    return <GameUpdateContext.Provider value={contextValue}>{children}</GameUpdateContext.Provider>;
 };
 
-export const useGameUpdateContext = () => useContext(GameUpdateContext);
+/**
+ * Custom hook for accessing the GameUpdateContext.
+ * @returns {GameUpdateContextProps} The context properties.
+ * @throws {Error} Throws an error if used outside of a GameUpdateProvider.
+ */
+export const useGameUpdateContext = (): GameUpdateContextProps => {
+    // Get the context from the GameUpdateContext
+    const context = useContext(GameUpdateContext);
+
+    // Throw an error if the hook is used outside of a GameUpdateProvider
+    if (!context) {
+        throw new Error("useGameUpdateContext must be used within a GameUpdateProvider");
+    }
+
+    // Return the context properties
+    return context;
+};
 

@@ -1,53 +1,99 @@
 "use client";
+import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect, ReactNode } from "react";
 import { Theme } from "@/models/message/Themes.schema";
 import { fetchThemes } from "@/utils/themeFetcher";
-import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect } from "react";
 
-interface ContextProps {
+/**
+ * The properties provided by the ThemeContext.
+ */
+interface ThemeContextProps {
     theme: string;
     setTheme: Dispatch<SetStateAction<string>>;
     themeMap: Map<string, Theme>;
     getCurrentTheme: () => Theme | undefined;
 }
 
-const ThemeContext = createContext<ContextProps>({
+/**
+ * The context for managing themes.
+ * @defaultValue { theme: "", setTheme: () => {}, themeMap: new Map<string, Theme>(), getCurrentTheme: () => undefined }
+ */
+const ThemeContext = createContext<ThemeContextProps>({
     theme: "",
     setTheme: () => {},
     themeMap: new Map<string, Theme>(),
     getCurrentTheme: () => undefined,
 });
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+/**
+ * The properties for the ThemeProvider component.
+ */
+interface ThemeProviderProps {
+    children: ReactNode;
+}
+
+/**
+ * Provides a context for managing themes.
+ * @param {ThemeProviderProps} props - The component properties.
+ * @returns {JSX.Element} The JSX element.
+ */
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+    // Determine if cookies should be saved based on the environment variable
+    const useLocalStorage = process.env.NEXT_PUBLIC_LOCAL_STORAGE === "true";
+
+    // The key for storing the themeMap in localStorage
+    const storageKey = "themeMap";
+
+    // Initialize state for the selected theme and theme map
     const [theme, setTheme] = useState<string>("default");
     const [themeMap, setThemeMap] = useState<Map<string, Theme>>(() => {
-        // Load the initial state from localStorage
-        const storedThemeMap = localStorage.getItem("themeMap");
-        return storedThemeMap ? new Map(JSON.parse(storedThemeMap)) : new Map<string, Theme>();
+        // Load the initial state from localStorage if saving cookies is enabled
+        return useLocalStorage
+            ? new Map(JSON.parse(localStorage.getItem(storageKey) || "null"))
+            : new Map<string, Theme>();
     });
 
+    // Fetch themes and update themeMap on component mount
     useEffect(() => {
         console.log("Fetching Themes");
 
-        fetchThemes().then((ThemeResponse) => {
-            const themeMap = new Map<string, Theme>();
-            ThemeResponse.themes.forEach((theme) => {
-                themeMap.set(theme.name, theme);
+        fetchThemes().then((themeResponse) => {
+            const newThemeMap = new Map<string, Theme>();
+            themeResponse.themes.forEach((theme) => {
+                newThemeMap.set(theme.name, theme);
             });
-            setThemeMap(themeMap);
-            localStorage.setItem("themeMap", JSON.stringify(Array.from(themeMap.entries()))); // TODO look for an alternative to ensure that the themeMap is always available when reloading the page
+            setThemeMap(newThemeMap);
+
+            // Save themeMap to localStorage if saving cookies is enabled
+            useLocalStorage && localStorage.setItem(storageKey, JSON.stringify(Array.from(newThemeMap.entries())));
         });
 
         console.log("Fetching Themes Done");
     }, []);
 
+    /**
+     * Gets the current selected theme.
+     * @returns {Theme} The current theme.
+     */
     const getCurrentTheme = (): Theme => {
         return themeMap.get(theme) ?? themeMap.get("default")!;
     };
 
-    return (
-        <ThemeContext.Provider value={{ theme, setTheme, themeMap, getCurrentTheme }}>{children}</ThemeContext.Provider>
-    );
+    // Create the context value to be provided
+    const contextValue: ThemeContextProps = { theme, setTheme, themeMap, getCurrentTheme };
+
+    // Provide the context to the children components
+    return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
 };
 
-export const useThemeContext = () => useContext(ThemeContext);
+/**
+ * Custom hook for accessing the ThemeContext.
+ * @returns {ThemeContextProps} The context properties.
+ */
+export const useThemeContext = (): ThemeContextProps => {
+    // Get the context from the ThemeContext
+    const context = useContext(ThemeContext);
+
+    // Return the context properties
+    return context!;
+};
 

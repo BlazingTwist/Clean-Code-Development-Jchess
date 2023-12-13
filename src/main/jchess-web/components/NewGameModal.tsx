@@ -11,6 +11,7 @@ import { useState } from "react";
 import { fetchGameUpdate } from "@/utils/gameUpdateFetcher";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
 import { useRouter } from "next/navigation";
+import { useGameContext } from "@/app/context/game_context";
 
 export function NewGameModal() {
     const router = useRouter();
@@ -20,6 +21,8 @@ export function NewGameModal() {
     const [timeGameAmount, setTimeGameAmount] = useState("0");
 
     const { setGameUpdate } = useGameUpdateContext();
+
+    const { setGameOptions, setPlayerState } = useGameContext(); // old code for client side state, later it probably will be removed
 
     const renderNameInputs = () => {
         const inputs: JSX.Element[] = [];
@@ -75,6 +78,32 @@ export function NewGameModal() {
         fetchGameUpdate().then((gameUpdate) => {
             setGameUpdate(gameUpdate);
             router.push("/");
+        });
+
+        // TODO send the player names to the server and retrieve the player colors and times
+        // MOCK GameStart Endpoit on the Client
+        const playerColors = new Map<number, string>();
+        const playerTimes = new Map<number, Date>();
+        const playerHistory = new Map<number, Array<string>>();
+
+        playerNames.forEach((playerName, index) => {
+            const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
+            playerColors.set(index, index == 0 ? "black" : index == 1 ? "white" : "destructive");
+            playerTimes.set(index, playerTime);
+            playerHistory.set(index, ["e4:e5", " e5:e4"]);
+        });
+
+        setGameOptions({
+            playerNames,
+            isWhiteOnTop,
+            isTimeGame,
+            timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
+        });
+
+        setPlayerState({
+            playerColor: playerColors,
+            playerTime: playerTimes,
+            playerHistory: playerHistory,
         });
     };
 
