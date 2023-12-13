@@ -3,7 +3,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { useGameContext } from "@/app/context/game_context";
 
+/**
+ * Represents the TimeGameComponent that displays player information and time left.
+ * @returns {JSX.Element} The rendered TimeGameComponent.
+ */
 export default function TimeGameComponent() {
+    // Extracting game options and player state using the custom hook.
     const { gameOptions, playerState } = useGameContext();
     return (
         <Card className="self-start mb-6 max-w-[500px]">

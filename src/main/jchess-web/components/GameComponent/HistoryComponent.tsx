@@ -3,8 +3,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { useGameContext } from "@/app/context/game_context";
 
+/**
+ * HistoryComponent displays the game history in a card format.
+ * It shows the moves of each player in a table.
+ */
 export default function HistoryComponent() {
+    // Extract game options and player state using the game context hook.
     const { gameOptions, playerState } = useGameContext();
+    // Determine the number of moves made in the game.
     const numMoves = playerState.playerHistory.get(0)?.length;
     return (
         <Card
