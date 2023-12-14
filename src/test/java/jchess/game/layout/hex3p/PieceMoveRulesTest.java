@@ -137,7 +137,7 @@ public class PieceMoveRulesTest {
     }
 
     @Test
-    void pawnMoveTest() {
+    public void pawnMoveTest() {
         logger.info("--- Pawn Test ---");
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Pawn, 0, new int[]{});
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Pawn, 1, new int[]{10});
@@ -146,7 +146,7 @@ public class PieceMoveRulesTest {
     }
 
     @Test
-    void rookMoveTest() {
+    public void rookMoveTest() {
         logger.info("--- Rook Test ---");
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Rook, 0, new int[]{1, 2, 3, 4, 7, 9});
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Rook, 3, new int[]{0, 1, 2, 6, 8, 9});
@@ -158,7 +158,7 @@ public class PieceMoveRulesTest {
     }
 
     @Test
-    void knightMoveTest() {
+    public void knightMoveTest() {
         logger.info("--- Knight Test ---");
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Knight, 0, new int[]{6, 8});
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Knight, 3, new int[]{4, 7});
@@ -170,7 +170,7 @@ public class PieceMoveRulesTest {
     }
 
     @Test
-    void bishopMoveTest() {
+    public void bishopMoveTest() {
         logger.info("--- Bishop Test ---");
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Bishop, 1, new int[]{6, 7});
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Bishop, 5, new int[]{0, 3, 9, 10, 11, 12});
@@ -178,7 +178,7 @@ public class PieceMoveRulesTest {
     }
 
     @Test
-    void kingMoveTest() {
+    public void kingMoveTest() {
         logger.info("--- King Test ---");
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.King, 0, new int[]{1, 4, 5, 10, 11});
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.King, 1, new int[]{0, 2, 4, 5, 6, 7, 10});
@@ -186,7 +186,7 @@ public class PieceMoveRulesTest {
     }
 
     @Test
-    void queenMoveTest() {
+    public void queenMoveTest() {
         logger.info("--- Queen Test ---");
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Queen, 5, new int[]{0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12});
         MoveTestNoOtherPieces(PieceMoveRules.PieceType.Queen, 10, new int[]{0, 1, 2, 3, 4, 5, 6, 9, 11, 12});
