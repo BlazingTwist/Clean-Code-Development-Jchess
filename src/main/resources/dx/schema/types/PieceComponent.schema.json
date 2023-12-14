@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PieceComponent",
+  "type": "object",
+  "javaType": "dx.schema.types.PieceComponent",
+  "properties": {
+    "identifier": {
+      "$ref": "PieceIdentifier.schema.json"
+    }
+  },
+  "required": ["identifier"]
+}

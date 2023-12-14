@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TileComponent",
+  "type": "object",
+  "javaType": "dx.schema.types.TileComponent",
+  "properties": {
+    "position": {
+      "$ref": "Vector2I.schema.json"
+    },
+    "iconId": {
+      "type": "string"
+    }
+  },
+  "required": ["position", "iconId"]
+}

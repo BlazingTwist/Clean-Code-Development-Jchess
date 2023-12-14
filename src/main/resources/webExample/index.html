@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Backend Communication Example</title>
+    <script src="Templating.js"></script>
+</head>
+<body style="padding: 0; margin: 0">
+    <div style="width: 100vw; height: 100vh;" id="board_canvas">
+        <button style="position: absolute; bottom: 10px; right: 10px" onclick="main()">Load Board</button>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+        let activeTheme = null;
+        let themeMap = null;
+
+        function main() {
+            loadThemes()
+        }
+
+        function loadThemes() {
+            let themesRequest = new XMLHttpRequest();
+            sendGet(themesRequest, "http://localhost:8880/api/themes", () => {
+                onThemeLoaded(JSON.parse(themesRequest.responseText));
+            });
+        }
+
+        function onThemeLoaded(themes) {
+            activeTheme = themes['themes'][0]['name'];
+            themeMap = {};
+            for (const theme of themes["themes"]) {
+                let iconMap = {}
+                themeMap[theme['name']] = {
+                    tileAspectRatio: readVector2I(theme['tileAspectRatio']),
+                    tileStride: readVector2I(theme['tileStride']),
+                    icons: iconMap
+                };
+
+                for (const icon of theme['icons']) {
+                    iconMap[icon['iconId']] = icon['iconPath'];
+                }
+            }
+            loadBoard();
+        }
+
+        function loadBoard() {
+            let gameStartRequest = new XMLHttpRequest();
+            sendPost(gameStartRequest, "http://localhost:8880/api/game/create", {}, () => {
+                currentSessionId = gameStartRequest.responseText;
+                console.log("gameStartRequest status: " + gameStartRequest.status + " | body: " + currentSessionId);
+
+                let boardUpdateSocket = new WebSocket("ws://localhost:8880/api/board/update");
+                boardUpdateSocket.addEventListener("message", (event) => {
+                    console.log("Got socket response");
+                    let data = JSON.parse(event.data);
+                    console.log(data);
+                    displayBoard(data);
+                })
+                boardUpdateSocket.addEventListener("open", () => {
+                    boardUpdateSocket.send(JSON.stringify({sessionId: currentSessionId}));
+                })
+            })
+        }
+
+        function displayBoard(gameUpdate) {
+            let theme = themeMap[activeTheme];
+            /**
+             * @type {{position: number[], iconId: string}[]}
+             */
+            let tiles = [];
+            let pieces = [];
+            let markers = [];
+
+            for (const entity of gameUpdate['boardState']) {
+                let tile = entity['tile'];
+                let piece = entity['piece'];
+                let marker = entity['marker'];
+
+                let tileObject = null;
+                if (tile) {
+                    tileObject = {
+                        position: readVector2I(tile['position']),
+                        iconId: tile['iconId']
+                    }
+                    tiles.push(tileObject);
+                }
+                if (piece && tileObject) {
+                    pieces.push({
+                        identifier: piece['identifier'],
+                        tile: tileObject
+                    })
+                }
+                if (marker && tileObject) {
+                    markers.push({
+                        markerType: marker['markerType'],
+                        iconId: marker['iconId'],
+                        tile: tileObject
+                    })
+                }
+            }
+
+            let minTilePos;
+            let maxTilePos;
+            {
+                let minX = Number.POSITIVE_INFINITY;
+                let minY = Number.POSITIVE_INFINITY;
+                let maxX = Number.NEGATIVE_INFINITY;
+                let maxY = Number.NEGATIVE_INFINITY;
+                for (let tile of tiles) {
+                    minX = Math.min(minX, tile.position[0]);
+                    maxX = Math.max(maxX, tile.position[0]);
+                    minY = Math.min(minY, tile.position[1]);
+                    maxY = Math.max(maxY, tile.position[1]);
+                }
+                minTilePos = [minX, minY];
+                maxTilePos = [maxX, maxY];
+            }
+            let rawBoardWidth = theme.tileAspectRatio[0] + (theme.tileStride[0] * (maxTilePos[0] - minTilePos[0]));
+            let rawBoardHeight = theme.tileAspectRatio[1] + (theme.tileStride[1] * (maxTilePos[1] - minTilePos[0]));
+
+            let boardCanvas = document.getElementById('board_canvas');
+            console.log(`raw size: [${rawBoardWidth}, ${rawBoardHeight}] | canvasSize: [${boardCanvas.offsetWidth}, ${boardCanvas.offsetHeight}]`)
+            let scaleFactor = boardCanvas.offsetWidth / rawBoardWidth;
+            if (rawBoardHeight * scaleFactor > boardCanvas.offsetHeight) {
+                scaleFactor = boardCanvas.offsetHeight / rawBoardHeight;
+            }
+
+            {
+                let children = boardCanvas.children;
+                for (let i = children.length - 1; i >= 1; i--) {
+                    boardCanvas.removeChild(children.item(i));
+                }
+            }
+
+            let tileWidth = theme.tileAspectRatio[0] * scaleFactor;
+            let tileHeight = theme.tileAspectRatio[1] * scaleFactor;
+            for (let tile of tiles) {
+                let tileX = tile.position[0] - minTilePos[0]
+                let offsetX = tileX * theme.tileStride[0] * scaleFactor;
+                let tileY = tile.position[1] - minTilePos[1];
+                let offsetY = tileY * theme.tileStride[1] * scaleFactor;
+                let iconPath = theme.icons[tile.iconId];
+
+                let tileTemplate = Templating.html(
+                    `<img style='top: ${offsetY}px; left: ${offsetX}px; position: absolute; width: ${tileWidth}px; height: ${tileHeight}px;' src="http://localhost:8880/${iconPath}">`
+                );
+                /** @type {HTMLImageElement} */
+                let tileImage = tileTemplate.element;
+                boardCanvas.appendChild(tileImage);
+                tileImage.onclick = () => {
+                    console.log("got click on tile:");
+                    console.log(tile);
+                    let gameClickedRequest = new XMLHttpRequest();
+                    sendPost(gameClickedRequest, "http://localhost:8880/api/game/clicked", {
+                        sessionId: currentSessionId,
+                        clickPos: {
+                            x: tile.position[0],
+                            y: tile.position[1]
+                        }
+                    }, null);
+                }
+            }
+
+            for (let piece of pieces) {
+                let tilePos = piece.tile.position;
+                let x = tilePos[0] - minTilePos[0];
+                let offsetX = x * theme.tileStride[0] * scaleFactor;
+                let y = tilePos[1] - minTilePos[1];
+                let offsetY = y * theme.tileStride[1] * scaleFactor;
+                let iconPath = theme.icons[piece.identifier.iconId];
+
+                let pieceTemplate = Templating.html(
+                    `<img style='top: ${offsetY}px; left: ${offsetX}px; position: absolute; width: ${tileWidth}px; height: ${tileHeight}px; pointer-events: none' src="http://localhost:8880/${iconPath}">`
+                )
+                boardCanvas.appendChild(pieceTemplate.element);
+            }
+
+            for(let marker of markers) {
+                let markerPos = marker.tile.position;
+                let x = markerPos[0] - minTilePos[0];
+                let offsetX = x * theme.tileStride[0] * scaleFactor;
+                let y = markerPos[1] - minTilePos[1];
+                let offsetY = y * theme.tileStride[1] * scaleFactor;
+                console.log("MARKER");
+                console.log(marker);
+                let iconPath = theme.icons[marker.iconId]
+
+                let markerTemplate = Templating.html(
+                    `<img style='top: ${offsetY}px; left: ${offsetX}px; position: absolute; width: ${tileWidth}px; height: ${tileHeight}px; pointer-events: none' src="http://localhost:8880/${iconPath}">`
+                );
+                boardCanvas.appendChild(markerTemplate.element);
+            }
+        }
+
+        function readVector2I(dxObject) {
+            return [dxObject['x'], dxObject['y']];
+        }
+
+        /**
+         * @param {XMLHttpRequest} xmlRequest
+         * @param url
+         * @param onDone callback for when the request is done.
+         */
+        function sendGet(xmlRequest, url, onDone) {
+            xmlRequest.onreadystatechange = () => {
+                if (xmlRequest.readyState === 4) {
+                    onDone();
+                }
+            }
+
+            xmlRequest.open("GET", url, true);
+            xmlRequest.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xmlRequest.send(null);
+        }
+
+        /**
+         * @param {XMLHttpRequest} xmlRequest
+         * @param url
+         * @param {any} body object that will be stringified as the JSON request-body.
+         * @param onDone callback for when the request is done.
+         */
+        function sendPost(xmlRequest, url, body, onDone) {
+            if (onDone) {
+                xmlRequest.onreadystatechange = () => {
+                    if (xmlRequest.readyState === 4) {
+                        onDone();
+                    }
+                }
+            }
+
+            xmlRequest.open("POST", url, true);
+            xmlRequest.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xmlRequest.send(JSON.stringify(body));
+        }
+    </script>
+</body>
+</html>

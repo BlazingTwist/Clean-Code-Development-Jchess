@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Vector2I",
+  "type": "object",
+  "javaType": "dx.schema.types.Vector2I",
+  "properties": {
+    "x": {
+      "type": "integer"
+    },
+    "y": {
+      "type": "integer"
+    }
+  },
+  "required": ["x", "y"]
+}

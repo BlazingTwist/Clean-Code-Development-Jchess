@@ -1,105 +1,99 @@
 package jchess.game.layout.hex3p;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jchess.game.common.theme.IIconKey;
+import jchess.game.common.theme.ThemeUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.Image;
 import java.io.File;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Theme {
-    private static final Logger logger = LoggerFactory.getLogger(Theme.class);
-    public final Image preview;
-    public final BoardTheme board;
-    public final PieceTheme piece;
-    public final UiTheme ui;
+    public static Map<String, String> getIconMap(File themeDirectory) {
+        HashMap<String, String> iconMap = new HashMap<>();
 
-    public Theme(File themeDirectory) {
-        preview = loadImage(themeDirectory, "Preview.png");
-        board = new BoardTheme(new File(themeDirectory, "board_hex3"));
-        piece = new PieceTheme(new File(themeDirectory, "piece"));
-        ui = new UiTheme(new File(themeDirectory, "ui"));
-    }
+        iconMap.put("preview", ThemeUtils.getIconPath(themeDirectory, "Preview.png"));
 
-    private static Image loadImage(File directory, String imageName) {
-        File imageFile = new File(directory, imageName);
-        try {
-            return ImageIO.read(imageFile);
-        } catch (IOException e) {
-            logger.error("failed to read image '{}'", imageFile.getAbsolutePath());
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static class BoardTheme {
-        public final Image hexLight;
-        public final Image hexMedium;
-        public final Image hexDark;
-
-        public final Image hexMarker_yesAction;
-        public final Image hexMarker_noAction;
-        public final Image hexMarker_selected;
-
-        public BoardTheme(File themeDirectory) {
-            hexLight = loadImage(themeDirectory, "hex-Light.png");
-            hexMedium = loadImage(themeDirectory, "hex-Medium.png");
-            hexDark = loadImage(themeDirectory, "hex-Dark.png");
-
-            hexMarker_yesAction = loadImage(themeDirectory, "hexMarker_yesAction.png");
-            hexMarker_noAction = loadImage(themeDirectory, "hexMarker_noAction.png");
-            hexMarker_selected = loadImage(themeDirectory, "hexMarker_selected.png");
-        }
-    }
-
-    public static class PieceTheme {
-        public final PieceImages rook;
-        public final PieceImages knight;
-        public final PieceImages bishop;
-        public final PieceImages queen;
-        public final PieceImages king;
-        public final PieceImages pawn;
-
-        public PieceTheme(File themeDirectory) {
-            rook = new PieceImages(themeDirectory, "Rook");
-            knight = new PieceImages(themeDirectory, "Knight");
-            bishop = new PieceImages(themeDirectory, "Bishop");
-            queen = new PieceImages(themeDirectory, "Queen");
-            king = new PieceImages(themeDirectory, "King");
-            pawn = new PieceImages(themeDirectory, "Pawn");
+        File boardThemeDirectory = new File(themeDirectory, "board_hex3");
+        for (BoardIcons boardIcon : BoardIcons.values()) {
+            String iconPath = ThemeUtils.getIconPath(boardThemeDirectory, boardIcon.getFileName());
+            iconMap.put(boardIcon.getIconId(), iconPath);
         }
 
-        public static class PieceImages {
-            public final Image light;
-            public final Image medium;
-            public final Image dark;
-
-            public PieceImages(File themeDirectory, String baseName) {
-                light = loadImage(themeDirectory, baseName + "-W.png");
-                medium = loadImage(themeDirectory, baseName + "-M.png");
-                dark = loadImage(themeDirectory, baseName + "-B.png");
-            }
-
-            public Image get(int playerId) {
-                return switch (playerId) {
-                    case 0 -> light;
-                    case 1 -> medium;
-                    case 2 -> dark;
-                    default ->
-                            throw new IllegalArgumentException("'playerId' must be 0, 1 or 2, but was '" + playerId + "'");
-                };
+        File pieceThemeDirectory = new File(themeDirectory, "piece");
+        for (PieceIcons pieceIcon : PieceIcons.values()) {
+            for (PieceColor pieceColor : PieceColor.values()) {
+                String iconPath = ThemeUtils.getIconPath(pieceThemeDirectory, pieceIcon.getFileName(pieceColor));
+                iconMap.put(pieceIcon.getIconKey(pieceColor), iconPath);
             }
         }
+
+        return iconMap;
     }
 
-    public static class UiTheme {
-        public final Image addTabIcon;
-        public final Image clickedAddTabIcon;
+    public enum BoardIcons implements IIconKey {
+        hexLight("hex-Light.png"),
+        hexMedium("hex-Medium.png"),
+        hexDark("hex-Dark.png"),
+        hexMarker_yesAction("hexMarker_yesAction.png"),
+        hexMarker_noAction("hexMarker_noAction.png"),
+        hexMarker_selected("hexMarker_selected.png");
 
-        public UiTheme(File themeDirectory) {
-            addTabIcon = loadImage(themeDirectory, "add-tab-icon.png");
-            clickedAddTabIcon = loadImage(themeDirectory, "clicked-add-tab-icon.png");
+        private final String fileName;
+
+        BoardIcons(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public String getIconId() {
+            return "board." + this.name();
+        }
+
+        public String getFileName() {
+            return fileName;
         }
     }
+
+    public enum PieceColor {
+        light("-W.png"),
+        medium("-M.png"),
+        dark("-B.png");
+
+        private final String fileNameSuffix;
+
+        PieceColor(String fileNameSuffix) {
+            this.fileNameSuffix = fileNameSuffix;
+        }
+
+        public String getFileNameSuffix() {
+            return fileNameSuffix;
+        }
+    }
+
+    public enum PieceIcons {
+        rook("Rook"),
+        knight("Knight"),
+        bishop("Bishop"),
+        queen("Queen"),
+        king("King"),
+        pawn("Pawn");
+
+        private final String fileName;
+
+        PieceIcons(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public String getIconKey(PieceColor color) {
+            return "piece." + this.name() + "." + color.name();
+        }
+
+        public String getFileName(PieceColor color) {
+            return fileName + color.getFileNameSuffix();
+        }
+
+        public IIconKey asIconKey(PieceColor color) {
+            return () -> getIconKey(color);
+        }
+    }
+
 }

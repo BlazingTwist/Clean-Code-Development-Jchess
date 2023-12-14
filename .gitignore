@@ -78,3 +78,4 @@ fabric.properties
 
 target
 /logs/
+/src/main/jchess-web/api-docs

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MarkerComponent",
+  "type": "object",
+  "javaType": "dx.schema.types.MarkerComponent",
+  "properties": {
+    "markerType": {
+      "title": "MarkerType",
+      "enum": [
+        "NoAction",
+        "YesAction",
+        "Selection"
+      ]
+    },
+    "iconId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "markerType",
+    "iconId"
+  ]
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .message-entry {
+            left: 20px;
+            right: 20px;
+            margin: 3px;
+            padding: 3px;
+            color: white;
+        }
+    </style>
+    <script src="Templating.js"></script>
+</head>
+<body>
+    <div style="display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center">
+        <div style="display: flex; flex-direction: row; gap: 10px; align-items: center; flex-basis: 0; width: 100%">
+            <label for="messageInput">Nachricht</label>
+            <textarea id="messageInput" name="messageInput" rows="4" style="flex-grow: 1"></textarea>
+            <button onclick="sendRequest()">Nachricht Senden</button>
+        </div>
+        <div id="messagePanel" style="display: flex; flex-direction: column; gap: 10px; background-color: #666666; border-radius: 5px; border: 1px solid #777777; width: 95vw; align-items: start">
+            <div class="message-entry" style="font-size: 1.25em;">
+                Erhaltene Nachrichten
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let socket = new WebSocket("ws://localhost:8880/websocket");
+
+        // Listen for messages
+        socket.addEventListener("message", (event) => {
+            let message = event.data;
+            console.log("Message from server ", message);
+
+            let messageDiv = Templating.html(`<div class="message-entry">${message}</div>`).element;
+            document.getElementById("messagePanel").appendChild(messageDiv);
+        });
+
+        function sendRequest() {
+            let message = document.getElementById("messageInput").value;
+            console.log("Sending message: '" + message + "'");
+            socket.send(message);
+        }
+    </script>
+</body>
+</html>

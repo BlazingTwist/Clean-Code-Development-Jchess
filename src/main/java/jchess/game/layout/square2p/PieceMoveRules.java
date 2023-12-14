@@ -1,7 +1,7 @@
 package jchess.game.layout.square2p;
 
 import jchess.ecs.Entity;
-import jchess.game.common.piece.PieceIdentifier;
+import jchess.game.common.components.PieceIdentifier;
 import jchess.game.el.CompiledTileExpression;
 import jchess.game.el.IPieceMoveRules;
 import jchess.game.el.TileExpression;
@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 public class PieceMoveRules implements IPieceMoveRules {
     private final CompiledTileExpression baseMoveSet;
-    private boolean didMove = false; // TODO erja, hook up to pieceMoveEvent
 
     public PieceMoveRules(PieceType pieceType, PieceIdentifier identifier) {
         baseMoveSet = pieceType.getBaseMoves().compile(identifier);
