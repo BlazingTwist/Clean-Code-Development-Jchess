@@ -13,11 +13,12 @@ type Props = {
  */
 export default function Home({ searchParams }: Props) {
     const showNewGameModal = searchParams?.newGame;
+    const sessionId = searchParams?.sessionId;
 
     return (
         <main className="min-h-screen bg-accent min-w-[400px] ">
-            <Nav />
-            <Body />
+            <Nav sessionId={sessionId} />
+            <Body sessionId={sessionId} />
             {/* Display the NewGameModal if specified in the search parameters. */}
             {showNewGameModal && <NewGameModal />}
         </main>

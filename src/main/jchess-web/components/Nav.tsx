@@ -14,17 +14,16 @@ import {
     MenubarShortcut,
     MenubarTrigger,
 } from "@/components/ui/menubar";
-import { useGameUpdateContext } from "@/app/context/game_update_context";
 import { useGameContext } from "@/app/context/game_context";
 
 /**
  * Main navigation component for the application.
  * Displays a menu bar with Play, Options, and Help sections.
  */
-export default function Nav() {
+export default function Nav({ sessionId }: { sessionId: string | undefined }) {
     // Use the game update context to check game status and reset the game.
-    const { isGame, resetGame } = useGameContext();
-
+    const { resetGame } = useGameContext();
+    const isGame = sessionId !== undefined;
     /**
      * Render the navigation component.
      * @returns {JSX.Element} The JSX element representing the navigation component.

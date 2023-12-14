@@ -10,13 +10,13 @@ import HistoryComponent from "./HistoryComponent";
 import { postClick } from "@/services/rest_api_service";
 import PlayerOverviewComponent from "./PlayerOverviewComponent";
 
-export default function GameComponment() {
+export default function GameComponment({ sessionId }: { sessionId: string }) {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
 
     // Contexts
     const { gameOptions } = useGameContext(); // old code for client side state, later it probably will be removed
     const { gameUpdate } = useGameUpdateContext(); // this is the current game state comming from the server
-    const { getCurrentTheme, themeMap } = useThemeContext(); // this is the current theme selected by the user
+    const { getCurrentTheme } = useThemeContext(); // this is the current theme selected by the user
 
     // State
     const canvasRef = useRef<HTMLInputElement>(null);
@@ -89,7 +89,7 @@ export default function GameComponment() {
             );
             setBoard(canvas);
         } else {
-            console.log("waiting for game update");
+            console.log("waiting for game update", gameUpdate, theme);
         }
     };
 
@@ -134,9 +134,6 @@ export default function GameComponment() {
         const rawBoardHeight = theme!.tileAspectRatio!.y + theme!.tileStride!.y * (maxTilePos[1] - minTilePos[0]);
 
         let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
-        if (rawBoardHeight * scaleFactor > offsetHeightFromCanvasRef) {
-            scaleFactor = offsetHeightFromCanvasRef / rawBoardHeight;
-        }
 
         for (const tile of tiles) {
             const tileX = tile.position[0] - minTilePos[0];
@@ -163,7 +160,7 @@ export default function GameComponment() {
                             console.log("Clicked: " + tileKey);
 
                             postClick({
-                                sessionId: gameOptions.sessionId,
+                                sessionId: sessionId,
                                 clickPos: {
                                     x: tile.position[0],
                                     y: tile.position[1],
@@ -292,7 +289,7 @@ export default function GameComponment() {
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, [gameUpdate]);
+    }, [gameUpdate, getCurrentTheme()]);
 
     return (
         <div className="grid grid-cols-1 gap-2 p-12 items-center sm:grid-cols-2 lg:grid-cols-3  sm:grid-row-2 max-w-[2000px] mx-auto">

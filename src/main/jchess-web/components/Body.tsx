@@ -7,28 +7,44 @@ import GameComponent from "./GameComponent/GameComponent";
 import { useEffect, useState } from "react";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
 import Config from "@/utils/config";
+import { useThemeContext } from "@/app/context/theme_context";
+import { fetchThemes } from "@/services/rest_api_service";
 
 /**
  * Represents the main body component for the JChess application.
  * Displays either a welcome screen or the chess game component based on the game state.
  */
-export default function Body() {
+export default function Body({ sessionId }: { sessionId: string | undefined }) {
     // Retrieve the game state from the context
-    const { isGame, gameOptions } = useGameContext();
     const { setGameUpdate } = useGameUpdateContext();
+    const { getCurrentTheme, setTheme } = useThemeContext();
 
     const [ws, setWs] = useState<WebSocket | undefined>(undefined);
+
+    const isGame = sessionId !== undefined;
 
     useEffect(() => {
         // Open a websocket connection when the game starts
         if (isGame) {
+            console.log("Opening WebSocket connection");
             const serverUri = Config.socketServerUri;
             const socketEndpoint = `${serverUri}/api/board/update`;
 
             const ws = new WebSocket(socketEndpoint);
             setWs(ws);
             ws.onopen = () => {
-                ws.send(JSON.stringify({ sessionId: gameOptions.sessionId }));
+                console.log("WebSocket connection opened");
+                // TODO this is a hack to get the themes to load on a new socket connection (new tab, refresh, other client)
+                if (getCurrentTheme() === undefined) {
+                    fetchThemes().then((themes) => {
+                        const selectedTheme = prompt(
+                            "Please select a theme before starting a game. \n Themes are: " +
+                                themes.themes.map((theme) => theme.name).join(", ")
+                        );
+                        setTheme(selectedTheme || "default");
+                    });
+                }
+                ws.send(JSON.stringify({ sessionId: sessionId }));
             };
             ws.onmessage = (event) => {
                 let data = JSON.parse(event.data);
@@ -41,7 +57,7 @@ export default function Body() {
                 }
             };
         }
-    }, [isGame, gameOptions.sessionId]);
+    }, [isGame, sessionId]);
     /**
      * Renders the appropriate content based on the game state.
      * If the game is not in progress, it displays a welcome screen with a "New Game" button.
@@ -67,7 +83,7 @@ export default function Body() {
             );
         } else {
             // Render the chess game component when the game is in progress
-            return <GameComponent />;
+            return <GameComponent sessionId={sessionId} />;
         }
     };
 

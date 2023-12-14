@@ -196,7 +196,6 @@ export function NewGameModal() {
                 isWhiteOnTop,
                 isTimeGame,
                 timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
-                sessionId,
             });
 
             setPlayerState({
@@ -204,7 +203,7 @@ export function NewGameModal() {
                 playerTime: playerTimes,
                 playerHistory: playerHistory,
             });
-            router.push("/");
+            router.push("/?sessionId=" + sessionId);
         });
     };
 

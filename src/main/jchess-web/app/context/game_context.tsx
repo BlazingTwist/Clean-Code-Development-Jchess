@@ -1,5 +1,6 @@
 "use client";
 import Config from "@/utils/config";
+import { useRouter } from "next/navigation";
 import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNode, useEffect, use } from "react";
 
 //TODO most of this will be handled by the server, so this will be a lot simpler
@@ -12,7 +13,6 @@ type GameOptions = {
     isWhiteOnTop: boolean;
     isTimeGame: boolean;
     timeGameAmountInSeconds: number;
-    sessionId: string;
 };
 
 /**
@@ -70,7 +70,6 @@ interface ContextProps {
     setPlayerState: Dispatch<SetStateAction<PlayerState>>;
     gameOptions: GameOptions;
     setGameOptions: Dispatch<SetStateAction<GameOptions>>;
-    isGame: boolean;
     resetGame: () => void;
 }
 
@@ -89,10 +88,8 @@ const GameContext = createContext<ContextProps>({
         isWhiteOnTop: false,
         isTimeGame: false,
         timeGameAmountInSeconds: 0,
-        sessionId: "",
     },
     setGameOptions: () => {},
-    isGame: false,
     resetGame: () => {},
 });
 
@@ -127,7 +124,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
                   isWhiteOnTop: false,
                   isTimeGame: false,
                   timeGameAmountInSeconds: 0,
-                  sessionId: "",
               };
     });
     const [playerState, setPlayerState] = useState<PlayerState>(() => {
@@ -155,9 +151,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         }
     }, [playerState, useLocalStorage]);
 
-    const isGame =
-        gameOptions.sessionId !== "" && gameOptions.sessionId !== undefined && gameOptions.sessionId !== null;
-
+    const router = useRouter();
     /**
      * TODO close socket and tell server to end the game
      * Resets the game by setting gameUpdate to undefined and removing it from localStorage.
@@ -169,13 +163,14 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
             isWhiteOnTop: false,
             isTimeGame: false,
             timeGameAmountInSeconds: 0,
-            sessionId: "",
         });
 
         // Remove the gameUpdate from localStorage if saving cookies is enabled
         if (useLocalStorage) {
             localStorage.removeItem(gameOptionsStorageKey);
         }
+
+        router.push("/");
     };
 
     // Provide the context value to be used by children components
@@ -184,7 +179,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         setPlayerState,
         gameOptions,
         setGameOptions,
-        isGame,
         resetGame,
     };
 
