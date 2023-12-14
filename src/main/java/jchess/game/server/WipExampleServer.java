@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URISyntaxException;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class WipExampleServer {
@@ -68,12 +67,11 @@ public class WipExampleServer {
     }
 
     public static String startNewGame(GameMode mode) {
-        String sessionId = UUID.randomUUID().toString();
         IChessGame game = mode.newGame();
 
         GameSessionData gameData = new GameSessionData(game);
         SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
-        gameManager.createSession(sessionId, gameData);
+        String sessionId = gameManager.createSession(gameData).sessionId;
 
         game.getEventManager().getEvent(RenderEvent.class).addPostEventListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
         logger.info("Starting new game. Mode '{}'. SessionId '{}'", mode, sessionId);
