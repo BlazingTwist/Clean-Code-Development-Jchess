@@ -51,7 +51,7 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
             WebSockets.sendText(message, channel, null);
             socketsNotified++;
         }
-        logger.info("Notified {} WebSockets of boardUpdate", socketsNotified);
+        logger.debug("Notified {} WebSockets of boardUpdate", socketsNotified);
     }
 
     @Override

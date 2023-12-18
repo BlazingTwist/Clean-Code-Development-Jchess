@@ -62,7 +62,7 @@ public class TileExpression {
                                     return neighbor(direction);
                                 }
                             }).toArray(TileExpression[]::new);
-                    return sequence(sequence);
+                    return sequence(aerial, sequence);
                 }).toArray(TileExpression[]::new);
 
         TileExpression baseMoves = or(orExpressions);
@@ -129,10 +129,43 @@ public class TileExpression {
     public static TileExpression repeat(TileExpression expression, int min, int max, boolean aerial) {
         if (min < 0) throw new IllegalArgumentException("argument 'min' may not be negative. Got '" + min + "'");
 
+        TileExpression noCollideExpression = aerial ? expression : filterCollisions(expression);
+
+        return new TileExpression(movingPiece -> stream -> {
+            Function<Stream<Entity>, Stream<Entity>> moveOp = noCollideExpression.operationBuilder.apply(movingPiece);
+
+            // apply the expression the minimum amount of times
+            Stream<Entity> startTiles = stream;
+            for (int i = 1; i <= min; i++) {
+                startTiles = moveOp.apply(startTiles);
+            }
+
+            int maxDepth = max >= 0 ? (max - min) : Integer.MAX_VALUE;
+            return recursiveMap(startTiles, moveOp, maxDepth);
+        });
+    }
+
+    public static TileExpression sequence(boolean aerial, TileExpression... sequence) {
+        if (!aerial) {
+            sequence = Arrays.stream(sequence).map(TileExpression::filterCollisions).toArray(TileExpression[]::new);
+        }
+        return new TileExpression(mergeOpTree(sequence, 0, sequence.length - 1, Function::andThen));
+    }
+
+    /**
+     * Converts the expression such that the move is discarded under either of these conditions
+     * <ul>
+     *     <li>the move starts on a tile occupied by an enemy</li>
+     *     <li>the move ends on a tile occupied by an ally</li>
+     * </ul>
+     * @param expression the expression to convert
+     * @return the converted expression
+     */
+    private static TileExpression filterCollisions(TileExpression expression) {
         return new TileExpression(movingPiece -> stream -> {
             final int moveOwner = movingPiece.ownerId();
             Function<Stream<Entity>, Stream<Entity>> expressionOp = expression.operationBuilder.apply(movingPiece);
-            Function<Stream<Entity>, Stream<Entity>> collisionOp = aerial ? expressionOp : stream2 -> {
+            Function<Stream<Entity>, Stream<Entity>> collisionOp = stream2 -> {
                 // if standing on an enemy tile, the previous move was a capture move -> stop repetition
                 Stream<Entity> tilesMovableFrom = stream2
                         .filter(tile -> tile.piece == null || tile.piece.identifier.ownerId() == moveOwner);
@@ -141,20 +174,8 @@ public class TileExpression {
                 return expressionOp.apply(tilesMovableFrom)
                         .filter(tile -> tile.piece == null || tile.piece.identifier.ownerId() != moveOwner);
             };
-
-            // apply the expression the minimum amount of times
-            Stream<Entity> startTiles = stream;
-            for (int i = 1; i <= min; i++) {
-                startTiles = collisionOp.apply(startTiles);
-            }
-
-            int maxDepth = max >= 0 ? (max - min) : Integer.MAX_VALUE;
-            return recursiveMap(startTiles, collisionOp, maxDepth);
+            return collisionOp.apply(stream);
         });
-    }
-
-    public static TileExpression sequence(TileExpression... sequence) {
-        return new TileExpression(mergeOpTree(sequence, 0, sequence.length - 1, Function::andThen));
     }
 
     public static TileExpression or(TileExpression... expressions) {
@@ -164,16 +185,6 @@ public class TileExpression {
                     .map(expression -> expression.operationBuilder.apply(movingPiece))
                     .flatMap(op -> op.apply(list.stream()));
         });
-    }
-
-    private final Function<PieceIdentifier, Function<Stream<Entity>, Stream<Entity>>> operationBuilder;
-
-    public TileExpression(Function<PieceIdentifier, Function<Stream<Entity>, Stream<Entity>>> operationBuilder) {
-        this.operationBuilder = operationBuilder;
-    }
-
-    public CompiledTileExpression compile(PieceIdentifier movingPiece) {
-        return new CompiledTileExpression(operationBuilder.apply(movingPiece));
     }
 
     /**
@@ -228,5 +239,15 @@ public class TileExpression {
                 zeroApplicationList.stream(),
                 recursiveMap(oneApplicationStream, mapper, numRecurse - 1)
         ).flatMap(s -> s);
+    }
+
+    private final Function<PieceIdentifier, Function<Stream<Entity>, Stream<Entity>>> operationBuilder;
+
+    public TileExpression(Function<PieceIdentifier, Function<Stream<Entity>, Stream<Entity>>> operationBuilder) {
+        this.operationBuilder = operationBuilder;
+    }
+
+    public CompiledTileExpression compile(PieceIdentifier movingPiece) {
+        return new CompiledTileExpression(operationBuilder.apply(movingPiece));
     }
 }

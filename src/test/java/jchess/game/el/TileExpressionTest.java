@@ -4,7 +4,7 @@ import jchess.ecs.Entity;
 import jchess.game.common.components.PieceComponent;
 import jchess.game.common.components.PieceIdentifier;
 import jchess.game.common.components.TileComponent;
-import jchess.game.layout.hex3p.PieceMoveRules;
+import jchess.game.layout.hex3p.PieceType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,14 +12,11 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
 public class TileExpressionTest {
-    private static Entity createPiece(PieceMoveRules.PieceType pieceType, int player) {
+    private static Entity createPiece(PieceType pieceType, int player) {
         PieceIdentifier identifier = new PieceIdentifier(pieceType.getId(), pieceType.getShortName(), null, player, 0);
 
-        PieceComponent pieceComponent = new PieceComponent();
-        pieceComponent.identifier = identifier;
-
         Entity entity = new Entity();
-        entity.piece = pieceComponent;
+        entity.piece = new PieceComponent(null, identifier, TileExpression.or());
         return entity;
     }
 
@@ -27,8 +24,8 @@ public class TileExpressionTest {
     public void test_filterCapture() {
         final int player1 = 0;
         final int player2 = 1;
-        PieceMoveRules.PieceType pawn = PieceMoveRules.PieceType.Pawn;
-        PieceMoveRules.PieceType rook = PieceMoveRules.PieceType.Rook;
+        PieceType pawn = PieceType.Pawn;
+        PieceType rook = PieceType.Rook;
 
         Entity piece_1a = createPiece(pawn, player1);
         Entity piece_1b = createPiece(rook, player1);
@@ -69,7 +66,7 @@ public class TileExpressionTest {
         Entity entity = new Entity();
         entity.tile = tile;
 
-        PieceMoveRules.PieceType pawn = PieceMoveRules.PieceType.Pawn;
+        PieceType pawn = PieceType.Pawn;
         PieceIdentifier pieceIdentifier = new PieceIdentifier(pawn.getId(), pawn.getShortName(), null, 0, forwardBasis);
 
         TileExpression.neighbor(neighborDirection).compile(pieceIdentifier).findTiles(entity).toList();

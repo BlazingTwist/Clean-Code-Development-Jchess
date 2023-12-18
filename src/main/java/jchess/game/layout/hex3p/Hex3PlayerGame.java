@@ -2,13 +2,12 @@ package jchess.game.layout.hex3p;
 
 import jchess.ecs.Entity;
 import jchess.game.common.BaseChessGame;
-import jchess.game.common.theme.IIconKey;
-import jchess.game.common.events.PieceMoveEvent;
-import jchess.game.common.events.RenderEvent;
 import jchess.game.common.components.MarkerType;
 import jchess.game.common.components.PieceComponent;
 import jchess.game.common.components.PieceIdentifier;
 import jchess.game.common.components.TileComponent;
+import jchess.game.common.events.PieceMoveEvent;
+import jchess.game.common.theme.IIconKey;
 import jchess.game.layout.GameMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +28,14 @@ public class Hex3PlayerGame extends BaseChessGame {
         super(GameMode.Hex3P.getNumPlayers());
 
         PieceMoveEvent pieceMoveEvent = eventManager.getEvent(PieceMoveEvent.class);
-        pieceMoveEvent.addPreEventListener(event -> {
+        pieceMoveEvent.addListener(event -> {
             // TODO erja, update the move history here.
         });
     }
 
     @Override
-    public void start() {
-        generateBoard();
-        eventManager.getEvent(RenderEvent.class).fire(null);
+    public int getKingTypeId() {
+        return PieceType.King.getId();
     }
 
     @Override
@@ -57,7 +55,8 @@ public class Hex3PlayerGame extends BaseChessGame {
         return tiles[y][x];
     }
 
-    private void generateBoard() {
+    @Override
+    protected void generateBoard() {
         // first pass: create entities
         for (int y = 0; y < numTilesVertical; y++) {
             Entity[] tileRow = tiles[y];
@@ -151,30 +150,30 @@ public class Hex3PlayerGame extends BaseChessGame {
     }
 
     private void placeRook(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Rook, Theme.PieceIcons.rook, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Rook, Theme.PieceIcons.rook, getPlayerColor(playerColor));
     }
 
     private void placeKnight(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Knight, Theme.PieceIcons.knight, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Knight, Theme.PieceIcons.knight, getPlayerColor(playerColor));
     }
 
     private void placeBishop(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Bishop, Theme.PieceIcons.bishop, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Bishop, Theme.PieceIcons.bishop, getPlayerColor(playerColor));
     }
 
     private void placeQueen(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Queen, Theme.PieceIcons.queen, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Queen, Theme.PieceIcons.queen, getPlayerColor(playerColor));
     }
 
     private void placeKing(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.King, Theme.PieceIcons.king, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.King, Theme.PieceIcons.king, getPlayerColor(playerColor));
     }
 
     private void placePawn(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceMoveRules.PieceType.Pawn, Theme.PieceIcons.pawn, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Pawn, Theme.PieceIcons.pawn, getPlayerColor(playerColor));
     }
 
-    private void placePiece(int x, int y, int playerColor, PieceMoveRules.PieceType pieceType, Theme.PieceIcons pieceIcon, Theme.PieceColor color) {
+    private void placePiece(int x, int y, int playerColor, PieceType pieceType, Theme.PieceIcons pieceIcon, Theme.PieceColor color) {
         Entity tile = getEntityAtPosition(x, y);
         if (tile == null) {
             logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
@@ -188,9 +187,8 @@ public class Hex3PlayerGame extends BaseChessGame {
                 playerColor,
                 ((playerColor - 3) * (-120)) % 360 // [0, 240, 120]
         );
-        PieceComponent piece = new PieceComponent();
-        piece.identifier = pieceId;
-        piece.moveSet = new PieceMoveRules(pieceType, pieceId);
+        PieceComponent piece = new PieceComponent(this, pieceId, pieceType.getBaseMoves());
+        piece.addSpecialMoves(pieceType.getSpecialRules());
         tile.piece = piece;
     }
 }

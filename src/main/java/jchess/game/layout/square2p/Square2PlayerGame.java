@@ -2,13 +2,12 @@ package jchess.game.layout.square2p;
 
 import jchess.ecs.Entity;
 import jchess.game.common.BaseChessGame;
-import jchess.game.common.theme.IIconKey;
-import jchess.game.common.events.PieceMoveEvent;
-import jchess.game.common.events.RenderEvent;
 import jchess.game.common.components.MarkerType;
 import jchess.game.common.components.PieceComponent;
 import jchess.game.common.components.PieceIdentifier;
 import jchess.game.common.components.TileComponent;
+import jchess.game.common.events.PieceMoveEvent;
+import jchess.game.common.theme.IIconKey;
 import jchess.game.layout.GameMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,15 +25,14 @@ public class Square2PlayerGame extends BaseChessGame {
         super(GameMode.Square2P.getNumPlayers());
 
         PieceMoveEvent pieceMoveEvent = eventManager.getEvent(PieceMoveEvent.class);
-        pieceMoveEvent.addPreEventListener(event -> {
+        pieceMoveEvent.addListener(event -> {
             // TODO erja, update the move history here.
         });
     }
 
     @Override
-    public void start() {
-        generateBoard();
-        eventManager.getEvent(RenderEvent.class).fire(null);
+    public int getKingTypeId() {
+        return PieceType.King.getId();
     }
 
     @Override
@@ -54,7 +52,8 @@ public class Square2PlayerGame extends BaseChessGame {
         return tiles[y][x];
     }
 
-    private void generateBoard() {
+    @Override
+    protected void generateBoard() {
         // first pass: create entities
         for (int y = 0; y < numTiles; y++) {
             Entity[] tileRow = tiles[y];
@@ -115,30 +114,30 @@ public class Square2PlayerGame extends BaseChessGame {
     }
 
     private void placeRook(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Rook, Theme.PieceIcons.rook, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Rook, Theme.PieceIcons.rook, getColor(isWhite));
     }
 
     private void placeKnight(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Knight, Theme.PieceIcons.knight, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Knight, Theme.PieceIcons.knight, getColor(isWhite));
     }
 
     private void placeBishop(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Bishop, Theme.PieceIcons.bishop, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Bishop, Theme.PieceIcons.bishop, getColor(isWhite));
     }
 
     private void placeQueen(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Queen, Theme.PieceIcons.queen, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Queen, Theme.PieceIcons.queen, getColor(isWhite));
     }
 
     private void placeKing(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.King, Theme.PieceIcons.king, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.King, Theme.PieceIcons.king, getColor(isWhite));
     }
 
     private void placePawn(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceMoveRules.PieceType.Pawn, Theme.PieceIcons.pawn, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Pawn, Theme.PieceIcons.pawn, getColor(isWhite));
     }
 
-    private void placePiece(int x, int y, boolean isWhite, PieceMoveRules.PieceType pieceType, Theme.PieceIcons pieceIcon, Theme.PieceColor pieceColor) {
+    private void placePiece(int x, int y, boolean isWhite, PieceType pieceType, Theme.PieceIcons pieceIcon, Theme.PieceColor pieceColor) {
         Entity tile = getEntityAtPosition(x, y);
         if (tile == null) {
             logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
@@ -153,9 +152,8 @@ public class Square2PlayerGame extends BaseChessGame {
                 isWhite ? 0 : 180
         );
 
-        PieceComponent piece = new PieceComponent();
-        piece.identifier = pieceIdentifier;
-        piece.moveSet = new PieceMoveRules(pieceType, pieceIdentifier);
+        PieceComponent piece = new PieceComponent(this, pieceIdentifier, pieceType.getBaseMoves());
+        piece.addSpecialMoves(pieceType.getSpecialRules());
         tile.piece = piece;
     }
 

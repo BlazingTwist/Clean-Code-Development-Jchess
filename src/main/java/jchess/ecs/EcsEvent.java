@@ -6,23 +6,15 @@ import java.util.function.Consumer;
 
 public abstract class EcsEvent<TData> {
 
-    private final List<Consumer<TData>> preListeners = new ArrayList<>();
-    private final List<Consumer<TData>> postListeners = new ArrayList<>();
+    private final List<Consumer<TData>> listeners = new ArrayList<>();
 
     public void fire(TData data) {
-        for (Consumer<TData> preListener : preListeners) {
-            preListener.accept(data);
-        }
-        for (Consumer<TData> postListener : postListeners) {
-            postListener.accept(data);
+        for (Consumer<TData> listener : listeners) {
+            listener.accept(data);
         }
     }
 
-    public void addPreEventListener(Consumer<TData> listener) {
-        preListeners.add(listener);
-    }
-
-    public void addPostEventListener(Consumer<TData> listener) {
-        postListeners.add(listener);
+    public void addListener(Consumer<TData> listener) {
+        listeners.add(listener);
     }
 }

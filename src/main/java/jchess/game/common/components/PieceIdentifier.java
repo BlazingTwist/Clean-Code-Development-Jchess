@@ -16,4 +16,14 @@ public record PieceIdentifier(
         int ownerId,
         int forwardBasis
 ) {
+    @Override
+    public String toString() {
+        return "PieceIdentifier{" +
+                "pieceTypeId=" + pieceTypeId +
+                ", shortName='" + shortName + '\'' +
+                ", iconKey=" + iconKey.getIconId() +
+                ", ownerId=" + ownerId +
+                ", forwardBasis=" + forwardBasis +
+                '}';
+    }
 }

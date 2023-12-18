@@ -59,7 +59,7 @@ public class WipExampleServer {
                 .addPrefixPath("/api/board/update", Handlers.websocket(boardUpdateWebsocket));
 
         Undertow server = Undertow.builder()
-                .addHttpListener(8880, "localhost")
+                .addHttpListener(8880, "127.0.0.1")
                 .setHandler(pathHandler)
                 .build();
         server.start();
@@ -73,7 +73,7 @@ public class WipExampleServer {
         SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
         String sessionId = gameManager.createSession(gameData).sessionId;
 
-        game.getEventManager().getEvent(RenderEvent.class).addPostEventListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
+        game.getEventManager().getEvent(RenderEvent.class).addListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
         logger.info("Starting new game. Mode '{}'. SessionId '{}'", mode, sessionId);
         game.start();
 

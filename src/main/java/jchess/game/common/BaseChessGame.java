@@ -3,11 +3,15 @@ package jchess.game.common;
 import jchess.ecs.EcsEventManager;
 import jchess.ecs.Entity;
 import jchess.ecs.EntityManager;
-import jchess.game.common.events.BoardClickedEvent;
-import jchess.game.common.events.PieceMoveEvent;
-import jchess.game.common.events.RenderEvent;
 import jchess.game.common.components.MarkerComponent;
 import jchess.game.common.components.MarkerType;
+import jchess.game.common.components.TileComponent;
+import jchess.game.common.events.BoardClickedEvent;
+import jchess.game.common.events.BoardInitializedEvent;
+import jchess.game.common.events.ComputeAttackInfoEvent;
+import jchess.game.common.events.PieceMoveEvent;
+import jchess.game.common.events.RenderEvent;
+import jchess.game.common.moveset.MoveIntention;
 import jchess.game.common.theme.IIconKey;
 
 public abstract class BaseChessGame implements IChessGame {
@@ -23,15 +27,19 @@ public abstract class BaseChessGame implements IChessGame {
         this.numPlayers = numPlayers;
 
         eventManager.registerEvent(new RenderEvent());
+        eventManager.registerEvent(new BoardInitializedEvent());
         eventManager.registerEvent(new PieceMoveEvent());
+
+        ComputeAttackInfoEvent computeAttackInfoEvent = new ComputeAttackInfoEvent();
+        eventManager.registerEvent(computeAttackInfoEvent);
+        computeAttackInfoEvent.addListener(_void -> TileComponent.updateAttackInfo(this));
 
         BoardClickedEvent boardClickedEvent = new BoardClickedEvent();
         eventManager.registerEvent(boardClickedEvent);
-        boardClickedEvent.addPostEventListener(vector -> onBoardClicked(vector.getX(), vector.getY()));
+        boardClickedEvent.addListener(vector -> onBoardClicked(vector.getX(), vector.getY()));
     }
 
-    @Override
-    public abstract void start();
+    protected abstract void generateBoard();
 
     protected abstract Entity getEntityAtPosition(int x, int y);
 
@@ -56,17 +64,13 @@ public abstract class BaseChessGame implements IChessGame {
         } else if (clickedEntity.piece != null) {
             // show the tiles this piece can move to
             boolean isActivePiece = clickedEntity.piece.identifier.ownerId() == activePlayerId;
-            clickedEntity.findValidMoves().forEach(validMove -> createMoveMarker(clickedEntity, validMove, isActivePiece));
+            clickedEntity.findValidMoves(true).forEach(move -> createMoveToMarker(move, isActivePiece));
             createSelectionMarker(clickedEntity);
         } else if (clickedEntity.tile != null) {
             // show which pieces can move to the selected tile
-            entityManager.getEntities().stream()
-                    .filter(entity -> entity.piece != null
-                            && entity.tile != null
-                            && entity.findValidMoves().anyMatch(move -> move == clickedEntity))
-                    .forEach(attacker -> {
-                        createMoveMarker(clickedEntity, attacker, false);
-                    });
+            for (Entity attacker : clickedEntity.tile.attackingPieces) {
+                createMoveFromMarker(attacker);
+            }
             createSelectionMarker(clickedEntity);
         }
 
@@ -87,19 +91,25 @@ public abstract class BaseChessGame implements IChessGame {
         selectedTile.marker = marker;
     }
 
-    protected void createMoveMarker(Entity fromTile, Entity toTile, boolean isActivePiece) {
+    protected void createMoveToMarker(MoveIntention moveIntention, boolean isActivePiece) {
         MarkerComponent marker = new MarkerComponent(this::getMarkerIcon);
-        marker.onMarkerClicked = isActivePiece ? () -> movePiece(fromTile, toTile) : null;
+        marker.onMarkerClicked = isActivePiece ? moveIntention.onClick() : null;
         marker.markerType = isActivePiece ? MarkerType.YesAction : MarkerType.NoAction;
-        toTile.marker = marker;
+        moveIntention.displayTile().marker = marker;
     }
 
-    protected void movePiece(Entity fromTile, Entity toTile) {
-        toTile.piece = fromTile.piece;
-        fromTile.piece = null;
+    protected void createMoveFromMarker(Entity fromTile) {
+        MarkerComponent marker = new MarkerComponent(this::getMarkerIcon);
+        marker.onMarkerClicked = null;
+        marker.markerType = MarkerType.NoAction;
+        fromTile.marker = marker;
+    }
 
-        // end turn
-        activePlayerId = (activePlayerId + 1) % numPlayers;
+    @Override
+    public void start() {
+        generateBoard();
+        eventManager.getEvent(BoardInitializedEvent.class).fire(null);
+        eventManager.getEvent(RenderEvent.class).fire(null);
     }
 
     @Override
@@ -115,5 +125,17 @@ public abstract class BaseChessGame implements IChessGame {
     @Override
     public int getActivePlayerId() {
         return activePlayerId;
+    }
+
+    @Override
+    public void movePiece(Entity fromTile, Entity toTile, Class<?> moveType) {
+        toTile.piece = fromTile.piece;
+        fromTile.piece = null;
+
+        eventManager.<PieceMoveEvent>getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(fromTile, toTile, moveType));
+        eventManager.getEvent(ComputeAttackInfoEvent.class).fire(null);
+
+        // end turn
+        activePlayerId = (activePlayerId + 1) % numPlayers;
     }
 }
