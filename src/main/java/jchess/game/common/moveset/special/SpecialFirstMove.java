@@ -2,6 +2,7 @@ package jchess.game.common.moveset.special;
 
 import jchess.ecs.Entity;
 import jchess.game.common.IChessGame;
+import jchess.game.common.components.PieceComponent;
 import jchess.game.common.components.PieceIdentifier;
 import jchess.game.common.events.PieceMoveEvent;
 import jchess.game.common.moveset.ISpecialRule;
@@ -37,7 +38,28 @@ public class SpecialFirstMove implements ISpecialRule {
         }
 
         return compiledFirstMove.findTiles(movingPiece)
-                .map(move -> new MoveIntention(move, () -> game.movePiece(movingPiece, move, SpecialFirstMove.class)))
+                .map(move -> new MoveIntention(
+                        move,
+                        () -> game.movePiece(movingPiece, move, SpecialFirstMove.class),
+                        new SpecialFirstMoveSimulator(move.piece, movingPiece, move)
+                ))
                 .toList();
+    }
+
+    private record SpecialFirstMoveSimulator(
+            PieceComponent capturedPiece, Entity fromTile, Entity toTile
+    ) implements MoveIntention.IMoveSimulator {
+
+        @Override
+        public void simulate() {
+            toTile.piece = fromTile.piece;
+            fromTile.piece = null;
+        }
+
+        @Override
+        public void revert() {
+            fromTile.piece = toTile.piece;
+            toTile.piece = capturedPiece;
+        }
     }
 }

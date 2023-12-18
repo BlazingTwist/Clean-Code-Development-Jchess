@@ -13,8 +13,11 @@ import jchess.game.common.events.PieceMoveEvent;
 import jchess.game.common.events.RenderEvent;
 import jchess.game.common.moveset.MoveIntention;
 import jchess.game.common.theme.IIconKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BaseChessGame implements IChessGame {
+    private static final Logger logger = LoggerFactory.getLogger(BaseChessGame.class);
     protected final EntityManager entityManager;
     protected final EcsEventManager eventManager;
     protected final int numPlayers;
@@ -62,10 +65,15 @@ public abstract class BaseChessGame implements IChessGame {
                 clickedMarker.onMarkerClicked.run();
             }
         } else if (clickedEntity.piece != null) {
+            long startTime = System.currentTimeMillis();
+
             // show the tiles this piece can move to
             boolean isActivePiece = clickedEntity.piece.identifier.ownerId() == activePlayerId;
             clickedEntity.findValidMoves(true).forEach(move -> createMoveToMarker(move, isActivePiece));
             createSelectionMarker(clickedEntity);
+
+            long endTime = System.currentTimeMillis();
+            logger.info("Computing valid moves with kingCheck took {} ms", endTime - startTime);
         } else if (clickedEntity.tile != null) {
             // show which pieces can move to the selected tile
             for (Entity attacker : clickedEntity.tile.attackingPieces) {

@@ -156,7 +156,7 @@ public class Castling implements ISpecialRule {
             rookEnd.piece = rookStart.piece;
             rookStart.piece = null;
             game.movePiece(kingStart, kingEnd, Castling.class);
-        });
+        }, new CastlingSimulator(rookStart, rookEnd, kingStart, kingEnd));
     }
 
     @Override
@@ -174,5 +174,26 @@ public class Castling implements ISpecialRule {
         if (rightCastle != null) moves.add(rightCastle);
 
         return moves;
+    }
+
+    private record CastlingSimulator(
+            Entity rookStartTile, Entity rookEndTile, Entity kingStartTile, Entity kingEndTile
+    ) implements MoveIntention.IMoveSimulator {
+
+        @Override
+        public void simulate() {
+            rookEndTile.piece = rookStartTile.piece;
+            rookStartTile.piece = null;
+            kingEndTile.piece = kingStartTile.piece;
+            kingStartTile.piece = null;
+        }
+
+        @Override
+        public void revert() {
+            rookStartTile.piece = rookEndTile.piece;
+            rookEndTile.piece = null;
+            kingStartTile.piece = kingEndTile.piece;
+            kingEndTile.piece = null;
+        }
     }
 }

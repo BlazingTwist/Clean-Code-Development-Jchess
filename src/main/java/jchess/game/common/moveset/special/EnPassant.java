@@ -45,10 +45,6 @@ public class EnPassant implements ISpecialRule {
             // opponent has made a move that can be attacked with EnPassant
             doubleMovesByPlayer.put(movedPiece.identifier.ownerId(), move);
         }
-
-        // TODO erja, when taking en passant: verify these:
-        // - the doubleMove targetTile is still occupied by the same opponentId
-        // - the enPassant targetTile is not occupied (enemy might have moved there)
     }
 
     @Override
@@ -112,6 +108,26 @@ public class EnPassant implements ISpecialRule {
         return new MoveIntention(thisPawnToTile, () -> {
             doubleMove.toTile().piece = null;
             game.movePiece(thisPawnFromTile, thisPawnToTile, EnPassant.class);
-        });
+        }, new EnPassantSimulator(doubleMove.toTile().piece, doubleMove.toTile(), thisPawnFromTile, thisPawnToTile));
+    }
+
+    private record EnPassantSimulator(
+            PieceComponent capturedPiece, Entity capturedPieceTile,
+            Entity moveFromTile, Entity moveToTile
+    ) implements MoveIntention.IMoveSimulator {
+
+        @Override
+        public void simulate() {
+            capturedPieceTile.piece = null;
+            moveToTile.piece = moveFromTile.piece;
+            moveFromTile.piece = null;
+        }
+
+        @Override
+        public void revert() {
+            capturedPieceTile.piece = capturedPiece;
+            moveFromTile.piece = moveToTile.piece;
+            moveToTile.piece = null;
+        }
     }
 }
