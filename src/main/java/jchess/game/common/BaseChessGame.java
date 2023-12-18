@@ -9,6 +9,7 @@ import jchess.game.common.components.TileComponent;
 import jchess.game.common.events.BoardClickedEvent;
 import jchess.game.common.events.BoardInitializedEvent;
 import jchess.game.common.events.ComputeAttackInfoEvent;
+import jchess.game.common.events.GameOverEvent;
 import jchess.game.common.events.PieceMoveEvent;
 import jchess.game.common.events.RenderEvent;
 import jchess.game.common.moveset.MoveIntention;
@@ -29,6 +30,7 @@ public abstract class BaseChessGame implements IChessGame {
         this.eventManager = new EcsEventManager();
         this.numPlayers = numPlayers;
 
+        eventManager.registerEvent(new GameOverEvent());
         eventManager.registerEvent(new RenderEvent());
         eventManager.registerEvent(new BoardInitializedEvent());
         eventManager.registerEvent(new PieceMoveEvent());
@@ -113,11 +115,27 @@ public abstract class BaseChessGame implements IChessGame {
         fromTile.marker = marker;
     }
 
+    protected void checkGameOver() {
+        boolean gameOver = entityManager.getEntities().stream()
+                .filter(entity -> entity.piece != null && entity.piece.identifier.ownerId() == activePlayerId)
+                .allMatch(entity -> entity.findValidMoves(true).findAny().isEmpty());
+
+        if (gameOver) {
+            logger.info("Game Over! Losing Player: {}", activePlayerId);
+            eventManager.getEvent(GameOverEvent.class).fire(null);
+
+            // TODO erja, compute player scores
+            // TODO erja, send game over event to frontend
+        }
+
+    }
+
     @Override
     public void start() {
         generateBoard();
         eventManager.getEvent(BoardInitializedEvent.class).fire(null);
         eventManager.getEvent(RenderEvent.class).fire(null);
+        checkGameOver();
     }
 
     @Override
@@ -145,5 +163,6 @@ public abstract class BaseChessGame implements IChessGame {
 
         // end turn
         activePlayerId = (activePlayerId + 1) % numPlayers;
+        checkGameOver();
     }
 }
