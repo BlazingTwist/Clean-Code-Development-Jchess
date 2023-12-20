@@ -39,9 +39,21 @@ channels:
         messageId: PieceSelectionSubscribe
         payload:
           oneOf:
-            - $ref: "./schema/message/PieceSelected.schema.json"
-            - enum:
-              - "subscribe"
+            - type: object
+              properties:
+                msgType:
+                  enum:
+                    - "subscribe"
+                sessionId:
+                  type: string
+                  description: the sessionId of the game instance to register with
+            - type: object
+              properties:
+                msgType:
+                  enum:
+                    - "pieceSelected"
+                data:
+                  $ref: "./schema/message/PieceSelected.schema.json"
     publish:
       summary: Used by the backend to notify the frontend that it should display a PieceSelection window
       operationId: onOfferPieceSelection
