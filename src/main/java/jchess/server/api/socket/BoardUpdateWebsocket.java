@@ -1,6 +1,5 @@
 package jchess.server.api.socket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dx.schema.message.GameUpdate;
@@ -18,11 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BoardUpdateWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
     private static final Logger logger = LoggerFactory.getLogger(BoardUpdateWebsocket.class);
@@ -65,7 +60,7 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
     protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
         String data = message.getData();
         logger.info("Received message '{}'", data);
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = JsonUtils.getMapper();
         JsonNode messageTree = mapper.readTree(data);
 
         String sessionId = messageTree.get("sessionId").textValue();
@@ -87,14 +82,6 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
                 .map(EntityAdapter.Instance::convert)
                 .toList());
 
-        ObjectMapper mapper = JsonUtils.getMapper();
-        String message;
-        try {
-            message = mapper.writeValueAsString(gameUpdateObject);
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to generate Json message", e);
-            return null;
-        }
-        return message;
+        return JsonUtils.serialize(gameUpdateObject);
     }
 }

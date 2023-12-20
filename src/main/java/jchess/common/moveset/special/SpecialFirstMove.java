@@ -4,14 +4,13 @@ import jchess.common.IChessGame;
 import jchess.common.components.PieceComponent;
 import jchess.common.components.PieceIdentifier;
 import jchess.common.events.PieceMoveEvent;
+import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
 import jchess.el.TileExpression;
-import jchess.common.moveset.ISpecialRule;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.stream.Stream;
 
 public class SpecialFirstMove implements ISpecialRule {
     private final IChessGame game;
@@ -32,18 +31,20 @@ public class SpecialFirstMove implements ISpecialRule {
     }
 
     @Override
-    public List<MoveIntention> getSpecialMoves(Entity movingPiece) {
+    public Stream<MoveIntention> getSpecialMoves(Entity movingPiece, Stream<MoveIntention> baseMoves) {
         if (hasMoved) {
-            return Collections.emptyList();
+            return baseMoves;
         }
 
-        return compiledFirstMove.findTiles(movingPiece)
-                .map(move -> new MoveIntention(
-                        move,
-                        () -> game.movePiece(movingPiece, move, SpecialFirstMove.class),
-                        new SpecialFirstMoveSimulator(move.piece, movingPiece, move)
-                ))
-                .toList();
+        return Stream.concat(
+                baseMoves,
+                compiledFirstMove.findTiles(movingPiece)
+                        .map(move -> new MoveIntention(
+                                move,
+                                () -> game.movePiece(movingPiece, move, SpecialFirstMove.class),
+                                new SpecialFirstMoveSimulator(move.piece, movingPiece, move)
+                        ))
+        );
     }
 
     private record SpecialFirstMoveSimulator(

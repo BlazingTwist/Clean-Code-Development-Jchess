@@ -3,16 +3,11 @@ package jchess.common;
 import jchess.common.components.MarkerComponent;
 import jchess.common.components.MarkerType;
 import jchess.common.components.TileComponent;
-import jchess.common.events.BoardClickedEvent;
-import jchess.common.events.GameOverEvent;
-import jchess.common.events.PieceMoveEvent;
-import jchess.common.events.RenderEvent;
+import jchess.common.events.*;
 import jchess.common.theme.IIconKey;
 import jchess.ecs.EcsEventManager;
 import jchess.ecs.Entity;
 import jchess.ecs.EntityManager;
-import jchess.common.events.BoardInitializedEvent;
-import jchess.common.events.ComputeAttackInfoEvent;
 import jchess.common.moveset.MoveIntention;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +37,9 @@ public abstract class BaseChessGame implements IChessGame {
         BoardClickedEvent boardClickedEvent = new BoardClickedEvent();
         eventManager.registerEvent(boardClickedEvent);
         boardClickedEvent.addListener(vector -> onBoardClicked(vector.getX(), vector.getY()));
+
+        eventManager.registerEvent(new OfferPieceSelectionEvent());
+        eventManager.registerEvent(new PieceOfferSelectedEvent());
     }
 
     protected abstract void generateBoard();
