@@ -102,12 +102,12 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
                 return;
             }
 
-            String payload = JsonUtils.traverse(messageTree).get("data").textValue();
-            if (payload == null || payload.isBlank()) {
+            JsonNode dataNode = messageTree.get("data");
+            if (dataNode == null) {
                 SocketUtils.close(channel, "property 'data' is missing.");
                 return;
             }
-            PieceSelected pieceSel = mapper.readValue(payload, PieceSelected.class);
+            PieceSelected pieceSel = mapper.treeToValue(dataNode, PieceSelected.class);
             game.getEventManager().<PieceOfferSelectedEvent>getEvent(PieceOfferSelectedEvent.class).fire(pieceSel);
         }
 
