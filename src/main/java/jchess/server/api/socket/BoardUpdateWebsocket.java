@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.util.*;
 
 public class BoardUpdateWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
@@ -63,7 +64,11 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
         ObjectMapper mapper = JsonUtils.getMapper();
         JsonNode messageTree = mapper.readTree(data);
 
-        String sessionId = messageTree.get("sessionId").textValue();
+        String sessionId = JsonUtils.traverse(messageTree).get("sessionId").textValue();
+        if (sessionId == null || sessionId.isBlank()) {
+            throw new InvalidObjectException("property 'sessionId' is missing.");
+        }
+
         List<WebSocketChannel> channels = channelsBySessionId.computeIfAbsent(sessionId, key -> new ArrayList<>());
         channels.add(channel);
 

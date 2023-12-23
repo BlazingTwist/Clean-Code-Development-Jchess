@@ -22,10 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class PieceSelectionWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
     private static final Logger logger = LoggerFactory.getLogger(PieceSelectionWebsocket.class);
@@ -56,7 +53,11 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
             throw new InvalidObjectException("expected property 'msgType' to be 'subscribe', but instead received: '" + msgType + "'");
         }
 
-        String sessionId = messageTree.get("sessionId").textValue();
+        String sessionId = JsonUtils.traverse(messageTree).get("sessionId").textValue();
+        if (sessionId == null || sessionId.isBlank()) {
+            throw new InvalidObjectException("property 'sessionId' is missing.");
+        }
+
         SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
         SessionManager.Session<GameSessionData> session = gameManager.getSession(sessionId);
 
@@ -66,7 +67,7 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
     }
 
     private static String getMessageType(JsonNode messageTree) throws IOException {
-        String msgType = messageTree.get("msgType").textValue();
+        String msgType = Optional.of(messageTree.get("msgType")).map(JsonNode::textValue).orElse(null);
         if (msgType == null || msgType.isBlank()) {
             throw new InvalidObjectException("property 'msgType' is missing");
         }
@@ -95,7 +96,11 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
                 throw new InvalidObjectException("expected property 'msgType' to be 'pieceSelected', but instead received: '" + msgType + "'");
             }
 
-            PieceSelected pieceSel = mapper.readValue(messageTree.get("data").textValue(), PieceSelected.class);
+            String payload = JsonUtils.traverse(messageTree).get("data").textValue();
+            if (payload == null || payload.isBlank()) {
+                throw new InvalidObjectException("property 'data' is missing.");
+            }
+            PieceSelected pieceSel = mapper.readValue(payload, PieceSelected.class);
             game.getEventManager().<PieceOfferSelectedEvent>getEvent(PieceOfferSelectedEvent.class).fire(pieceSel);
         }
 
