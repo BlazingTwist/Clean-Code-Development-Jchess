@@ -91,8 +91,10 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
 
         @Override
         protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
+            String data = message.getData();
+            logger.info("Received pieceSelection message '{}'", data);
             ObjectMapper mapper = JsonUtils.getMapper();
-            JsonNode messageTree = mapper.readTree(message.getData());
+            JsonNode messageTree = mapper.readTree(data);
 
             String msgType = JsonUtils.traverse(messageTree).get("msgType").textValue();
             if (!"pieceSelected".equalsIgnoreCase(msgType)) {
