@@ -10,14 +10,15 @@ import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import jchess.common.IChessGame;
+import jchess.server.GameSessionData;
 import jchess.server.adapter.EntityAdapter;
 import jchess.server.util.JsonUtils;
 import jchess.server.util.SessionUtils;
+import jchess.server.util.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InvalidObjectException;
 import java.util.*;
 
 public class BoardUpdateWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
@@ -66,15 +67,21 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
 
         String sessionId = JsonUtils.traverse(messageTree).get("sessionId").textValue();
         if (sessionId == null || sessionId.isBlank()) {
-            throw new InvalidObjectException("property 'sessionId' is missing.");
+            SocketUtils.close(channel, "property 'sessionId' is missing.");
+            return;
         }
 
         List<WebSocketChannel> channels = channelsBySessionId.computeIfAbsent(sessionId, key -> new ArrayList<>());
         channels.add(channel);
 
         // send the current board state to the newly registered WebSocket
-        IChessGame game = SessionUtils.findGame(sessionId);
-        String updateMessage = getUpdateMessage(game);
+        GameSessionData game = SessionUtils.findGame(sessionId);
+        if (game == null) {
+            SocketUtils.close(channel, "Requested Session (id='" + sessionId + "') does not exist");
+            return;
+        }
+
+        String updateMessage = getUpdateMessage(game.game());
         if (updateMessage != null) {
             WebSockets.sendText(updateMessage, channel, null);
         }

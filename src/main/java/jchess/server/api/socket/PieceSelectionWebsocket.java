@@ -14,24 +14,30 @@ import jchess.common.IChessGame;
 import jchess.common.events.OfferPieceSelectionEvent;
 import jchess.common.events.PieceOfferSelectedEvent;
 import jchess.server.GameSessionData;
-import jchess.server.session.SessionManager;
-import jchess.server.session.SessionMgrController;
 import jchess.server.util.JsonUtils;
+import jchess.server.util.SessionUtils;
+import jchess.server.util.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InvalidObjectException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 public class PieceSelectionWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
     private static final Logger logger = LoggerFactory.getLogger(PieceSelectionWebsocket.class);
 
     public void onOfferPieceSelectionEvent(String sessionId, OfferPieceSelectionEvent.PieceSelection pieceSelection) {
         logger.info("onOfferPieceSelectionEvent for session {}", sessionId);
-        SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
-        SessionManager.Session<GameSessionData> session = gameManager.getSession(sessionId);
-        session.sessionData.pieceSelectionHandler().offerPieceSelection(pieceSelection);
+        GameSessionData game = SessionUtils.findGame(sessionId);
+        if (game == null) {
+            logger.error("Unable to send offerPieceSelection. No session found.");
+            return;
+        }
+
+        game.pieceSelectionHandler().offerPieceSelection(pieceSelection);
     }
 
     @Override
@@ -48,30 +54,27 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
         ObjectMapper mapper = JsonUtils.getMapper();
         JsonNode messageTree = mapper.readTree(data);
 
-        String msgType = getMessageType(messageTree);
+        String msgType = JsonUtils.traverse(messageTree).get("msgType").textValue();
         if (!"subscribe".equalsIgnoreCase(msgType)) {
-            throw new InvalidObjectException("expected property 'msgType' to be 'subscribe', but instead received: '" + msgType + "'");
+            SocketUtils.close(channel, "expected property 'msgType' to be 'subscribe', but instead received: '" + msgType + "'");
+            return;
         }
 
         String sessionId = JsonUtils.traverse(messageTree).get("sessionId").textValue();
         if (sessionId == null || sessionId.isBlank()) {
-            throw new InvalidObjectException("property 'sessionId' is missing.");
+            SocketUtils.close(channel, "property 'sessionId' is missing.");
+            return;
         }
 
-        SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
-        SessionManager.Session<GameSessionData> session = gameManager.getSession(sessionId);
+        GameSessionData game = SessionUtils.findGame(sessionId);
+        if (game == null) {
+            SocketUtils.close(channel, "Session does not exist");
+            return;
+        }
 
-        PieceSelectionHandler handler = session.sessionData.pieceSelectionHandler();
+        PieceSelectionHandler handler = game.pieceSelectionHandler();
         handler.add(channel);
         channel.getReceiveSetter().set(handler);
-    }
-
-    private static String getMessageType(JsonNode messageTree) throws IOException {
-        String msgType = Optional.of(messageTree.get("msgType")).map(JsonNode::textValue).orElse(null);
-        if (msgType == null || msgType.isBlank()) {
-            throw new InvalidObjectException("property 'msgType' is missing");
-        }
-        return msgType;
     }
 
     public static class PieceSelectionHandler extends AbstractReceiveListener {
@@ -91,14 +94,16 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
             ObjectMapper mapper = JsonUtils.getMapper();
             JsonNode messageTree = mapper.readTree(message.getData());
 
-            String msgType = getMessageType(messageTree);
+            String msgType = JsonUtils.traverse(messageTree).get("msgType").textValue();
             if (!"pieceSelected".equalsIgnoreCase(msgType)) {
-                throw new InvalidObjectException("expected property 'msgType' to be 'pieceSelected', but instead received: '" + msgType + "'");
+                SocketUtils.close(channel, "expected property 'msgType' to be 'pieceSelected', but instead received: '" + msgType + "'");
+                return;
             }
 
             String payload = JsonUtils.traverse(messageTree).get("data").textValue();
             if (payload == null || payload.isBlank()) {
-                throw new InvalidObjectException("property 'data' is missing.");
+                SocketUtils.close(channel, "property 'data' is missing.");
+                return;
             }
             PieceSelected pieceSel = mapper.readValue(payload, PieceSelected.class);
             game.getEventManager().<PieceOfferSelectedEvent>getEvent(PieceOfferSelectedEvent.class).fire(pieceSel);
