@@ -4,6 +4,7 @@ import dx.schema.message.Piece;
 import jchess.common.IChessGame;
 import jchess.common.events.OfferPieceSelectionEvent;
 import jchess.common.events.PieceOfferSelectedEvent;
+import jchess.common.events.RenderEvent;
 import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
@@ -32,10 +33,10 @@ public class PawnPromotion implements ISpecialRule {
                 Entity promotedPiece = currentAwaitingPromotion.moveFrom();
                 int owner = promotedPiece.piece.identifier.ownerId();
                 game.createPiece(promotedPiece, pieceTypeId, owner);
-
                 game.movePiece(promotedPiece, currentAwaitingPromotion.moveTo(), PawnPromotion.class);
 
                 currentAwaitingPromotion = null;
+                game.getEventManager().getEvent(RenderEvent.class).fire(null);
             }
         });
     }
