@@ -36,8 +36,12 @@ This project uses [json-schema-to-typescript](https://github.com/bcherny/json-sc
 
 ```bash
 bun install -g json-schema-to-typescript
-cd src/main/resources/dx
-json2ts -i schema/ -o ../../jchess-web/models/ --cwd schema/types
+
+# execute this command in the root directory of the project
+json2ts -i src/main/resources/dx/schema/ -o src/main/jchess-web/models --cwd src/main/resources/dx/schema/types
+
+# or this command in the root directory of the frontend
+json2ts -i ../resources/dx/schema -o models --cwd ../resources/dx/schema/types
 ```
 
 ## Generate API Docs
