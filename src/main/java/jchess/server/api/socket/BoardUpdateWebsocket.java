@@ -23,7 +23,7 @@ import java.util.*;
 
 public class BoardUpdateWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
     private static final Logger logger = LoggerFactory.getLogger(BoardUpdateWebsocket.class);
-    private final Map<String, List<WebSocketChannel>> channelsBySessionId = new HashMap<>();
+    private final Map<String, List<WebSocketChannel>> channelsBySessionId = new HashMap<>(); // TODO erja - store channels in sessionData instead ?
 
     public void onGameRenderEvent(String sessionId, IChessGame game) {
         String message = getUpdateMessage(game);

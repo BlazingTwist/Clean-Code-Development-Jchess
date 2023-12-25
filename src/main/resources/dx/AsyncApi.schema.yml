@@ -30,3 +30,41 @@ channels:
         messageId: BoardUpdate
         payload:
           $ref: "./schema/message/GameUpdate.schema.json"
+  api/chat:
+    subscribe:
+      summary: Used by the frontend to (subscribe to the channel / and notify the backend of a new chat message)
+      operationId: onChatSubscribe
+      message:
+        name: ChatSubscribe
+        messageId: ChatSubscribe
+        payload:
+          oneOf:
+            - type: object
+              properties:
+                msgType:
+                  enum:
+                    - "subscribe"
+                sessionId:
+                  type: string
+                  description: the sessionId of the game instance to register with
+                userName:
+                  type: string
+                  description: userName associated with the registering player
+            - type: object
+              properties:
+                msgType:
+                  enum:
+                    - "submit"
+                data:
+                  type: string
+                  description: text content of the chat message
+    publish:
+      summary: Used by the backend to (send all "old" messages on first subscription / send newly received messages)
+      operationId: onChatSend
+      message:
+        name: ChatSend
+        messageId: ChatSend
+        payload:
+          type: array
+          items:
+            $ref: "./schema/message/ChatMessage.schema.json"

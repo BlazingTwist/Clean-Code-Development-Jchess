@@ -18,6 +18,7 @@ import jchess.server.api.servlet.GameCreateServlet;
 import jchess.server.api.servlet.GameModesServlet;
 import jchess.server.api.servlet.ThemesServlet;
 import jchess.server.api.socket.BoardUpdateWebsocket;
+import jchess.server.api.socket.ChatWebsocket;
 import jchess.server.session.SessionManager;
 import jchess.server.session.SessionMgrController;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ public class WipExampleServer {
 
     public static void main(String[] args) throws ServletException, URISyntaxException {
         boardUpdateWebsocket = new BoardUpdateWebsocket();
+        ChatWebsocket chatWebsocket = new ChatWebsocket();
 
         SessionMgrController.registerSessionManager(GameSessionData.class, 10, TimeUnit.MINUTES);
         SessionMgrController.startHeartbeat(1, TimeUnit.MINUTES);
@@ -56,7 +58,8 @@ public class WipExampleServer {
         HttpHandler handler = manager.start();
         PathHandler pathHandler = Handlers.path(handler)
                 .addPrefixPath(resourcePrefix, new ResourceHandler(resourceManager))
-                .addPrefixPath("/api/board/update", Handlers.websocket(boardUpdateWebsocket));
+                .addPrefixPath("/api/board/update", Handlers.websocket(boardUpdateWebsocket))
+                .addPrefixPath("/api/chat", Handlers.websocket(chatWebsocket));
 
         Undertow server = Undertow.builder()
                 .addHttpListener(8880, "127.0.0.1")
