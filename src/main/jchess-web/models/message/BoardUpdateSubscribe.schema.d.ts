@@ -5,16 +5,14 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface GameMode {
+export interface BoardUpdateSubscribe {
   /**
-   * Id of the Game-Mode
+   * the sessionId of the game instance to register with
    */
-  modeId: string;
-  displayName: string;
-  numPlayers: number;
+  sessionId: string;
   /**
-   * List of allowed themes for this Game-Mode
+   * Index of the player (>= 0) whose perspective to show
    */
-  themeIds: string[];
+  perspective: number;
   [k: string]: unknown;
 }

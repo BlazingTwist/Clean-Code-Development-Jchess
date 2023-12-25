@@ -15,7 +15,7 @@ export interface GameMode {
    */
   modeId: string;
   displayName: string;
-  numPlayers?: number;
+  numPlayers: number;
   /**
    * List of allowed themes for this Game-Mode
    */

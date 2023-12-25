@@ -5,16 +5,18 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface GameMode {
+export interface ChatMessage {
   /**
-   * Id of the Game-Mode
+   * userName of the message sender
    */
-  modeId: string;
-  displayName: string;
-  numPlayers: number;
+  userName: string;
   /**
-   * List of allowed themes for this Game-Mode
+   * the actual text content of the message
    */
-  themeIds: string[];
+  message: string;
+  /**
+   * the time of receipt of the message in milliseconds since the Unix epoch
+   */
+  timestamp: number;
   [k: string]: unknown;
 }
