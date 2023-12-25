@@ -10,6 +10,7 @@ import jchess.ecs.Entity;
 import jchess.el.TileExpression;
 
 import java.awt.*;
+import java.util.stream.Stream;
 
 public enum PieceType {
     Rook(
@@ -49,7 +50,7 @@ public enum PieceType {
                 int owner = pawnIdentifier.ownerId();
                 return new PawnPromotion(
                         game, PieceType::isPromotionTile,
-                        getPiece(Rook, owner), getPiece(Knight, owner), getPiece(Bishop, owner), getPiece(Queen, owner)
+                        Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(Piece[]::new)
                 );
             }
     );

@@ -9,7 +9,7 @@ import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -18,11 +18,11 @@ import java.util.stream.Stream;
  */
 public class PawnPromotion implements ISpecialRule {
     private final IChessGame game;
-    private final Function<Entity, Boolean> isPromotionTile;
+    private final Predicate<Entity> isPromotionTile;
     private final Piece[] pieces;
     private Promotion currentAwaitingPromotion;
 
-    public PawnPromotion(IChessGame game, Function<Entity, Boolean> isPromotionTile, Piece... pieces) {
+    public PawnPromotion(IChessGame game, Predicate<Entity> isPromotionTile, Piece... pieces) {
         this.game = game;
         this.isPromotionTile = isPromotionTile;
         this.pieces = pieces;
@@ -45,7 +45,7 @@ public class PawnPromotion implements ISpecialRule {
     public Stream<MoveIntention> getSpecialMoves(Entity movingPiece, Stream<MoveIntention> currentMoves) {
         return currentMoves.map(move -> {
             Entity targetTile = move.displayTile();
-            if (isPromotionTile.apply(targetTile)) {
+            if (isPromotionTile.test(targetTile)) {
                 return new MoveIntention(
                         targetTile,
                         () -> {

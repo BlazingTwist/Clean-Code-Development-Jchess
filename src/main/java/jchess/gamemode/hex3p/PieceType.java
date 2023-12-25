@@ -1,10 +1,17 @@
 package jchess.gamemode.hex3p;
 
-import jchess.common.moveset.special.Castling;
+import dx.schema.message.Piece;
 import jchess.common.moveset.ISpecialRuleProvider;
+import jchess.common.moveset.special.Castling;
 import jchess.common.moveset.special.EnPassant;
+import jchess.common.moveset.special.PawnPromotion;
 import jchess.common.moveset.special.SpecialFirstMove;
+import jchess.ecs.Entity;
+import jchess.el.CompiledTileExpression;
 import jchess.el.TileExpression;
+
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public enum PieceType {
     Rook(
@@ -39,7 +46,14 @@ public enum PieceType {
                     game, pawnIdentifier,
                     TileExpression.filter(TileExpression.regex("330.330 30.30", false), TileExpression.FILTER_EMPTY_TILE)
             ),
-            (game, pawnId) -> new EnPassant(game, pawnId, 5, new int[]{330, 30}, new int[]{300, 60})
+            (game, pawnId) -> new EnPassant(game, pawnId, 5, new int[]{330, 30}, new int[]{300, 60}),
+            (game, pawnId) -> {
+                int owner = pawnId.ownerId();
+                return new PawnPromotion(
+                        game, getPromotionTilePredicate(TileExpression.neighbor(330, 30).compile(pawnId)),
+                        Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(Piece[]::new)
+                );
+            }
     );
 
     private final int id;
@@ -74,5 +88,21 @@ public enum PieceType {
 
     public ISpecialRuleProvider[] getSpecialRules() {
         return specialRules;
+    }
+
+    private static Predicate<Entity> getPromotionTilePredicate(CompiledTileExpression forwardTiles) {
+        return tile -> {
+            if (tile.tile == null) return false;
+
+            // if both forward tiles exit the board bounds (= empty result) -> pawn can promote
+            return forwardTiles.findTiles(tile).findAny().isEmpty();
+        };
+    }
+
+    private static Piece getPiece(PieceType pieceType, int ownerId) {
+        Piece result = new Piece();
+        result.setPieceTypeId("" + pieceType.getId());
+        result.setIconId(pieceType.icon.getIconKey(ownerId == 0 ? Theme.PieceColor.light : Theme.PieceColor.dark));
+        return result;
     }
 }
