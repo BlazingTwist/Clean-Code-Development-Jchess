@@ -41,7 +41,7 @@ public abstract class BaseChessGame implements IChessGame {
 
         BoardClickedEvent boardClickedEvent = new BoardClickedEvent();
         eventManager.registerEvent(boardClickedEvent);
-        boardClickedEvent.addListener(vector -> onBoardClicked(vector.getX(), vector.getY()));
+        boardClickedEvent.addListener(point -> onBoardClicked(point.x, point.y));
     }
 
     protected abstract void generateBoard();

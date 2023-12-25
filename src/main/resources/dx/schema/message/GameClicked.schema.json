@@ -7,9 +7,10 @@
     "sessionId": {
       "type": "string"
     },
-    "clickPos": {
-      "$ref": "../types/Vector2I.schema.json"
+    "clickedTile": {
+      "description": "tileId of the clicked tile",
+      "type": "string"
     }
   },
-  "required": ["sessionId", "clickPos"]
+  "required": ["sessionId", "clickedTile"]
 }

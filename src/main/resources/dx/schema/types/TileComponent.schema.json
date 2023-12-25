@@ -4,12 +4,16 @@
   "type": "object",
   "javaType": "dx.schema.types.TileComponent",
   "properties": {
-    "position": {
+    "tileId": {
+      "type": "string",
+      "description": "id that uniquely identifies this tile"
+    },
+    "displayPos": {
       "$ref": "Vector2I.schema.json"
     },
     "iconId": {
       "type": "string"
     }
   },
-  "required": ["position", "iconId"]
+  "required": ["tileId", "displayPos", "iconId"]
 }

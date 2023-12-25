@@ -9,6 +9,7 @@ import { useGameUpdateContext } from "@/app/context/game_update_context";
 import Config from "@/utils/config";
 import { useThemeContext } from "@/app/context/theme_context";
 import { fetchThemes } from "@/services/rest_api_service";
+import {BoardUpdateSubscribe} from "@/models/message/BoardUpdateSubscribe.schema";
 
 /**
  * Represents the main body component for the JChess application.
@@ -30,6 +31,11 @@ export default function Body({ sessionId }: { sessionId: string | undefined }) {
             const serverUri = Config.socketServerUri;
             const socketEndpoint = `${serverUri}/api/board/update`;
 
+            const subscribeMessage: BoardUpdateSubscribe = {
+                sessionId: sessionId,
+                perspective: 1 // TODO #23 perspektive hier eingeben (Spieler-Index in [0,n) ), ersetzt 'White on top'
+            }
+
             const ws = new WebSocket(socketEndpoint);
             setWs(ws);
             ws.onopen = () => {
@@ -44,7 +50,7 @@ export default function Body({ sessionId }: { sessionId: string | undefined }) {
                         setTheme(selectedTheme || "default");
                     });
                 }
-                ws.send(JSON.stringify({ sessionId: sessionId }));
+                ws.send(JSON.stringify(subscribeMessage));
             };
             ws.onmessage = (event) => {
                 let data = JSON.parse(event.data);

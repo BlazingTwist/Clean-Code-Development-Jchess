@@ -6,7 +6,8 @@
  */
 
 export interface TileComponent {
-  position: Vector2I;
+  tileId: string;
+  displayPos: Vector2I;
   iconId: string;
   [k: string]: unknown;
 }

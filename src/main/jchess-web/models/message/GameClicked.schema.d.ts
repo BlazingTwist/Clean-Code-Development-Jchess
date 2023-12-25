@@ -7,7 +7,7 @@
 
 export interface GameClicked {
   sessionId: string;
-  clickPos: Vector2I;
+  clickedTile: string;
   [k: string]: unknown;
 }
 export interface Vector2I {

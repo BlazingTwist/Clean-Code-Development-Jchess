@@ -37,11 +37,11 @@ public class Square2PlayerGame extends BaseChessGame {
             throw new IllegalArgumentException("playerIndex must be 0 or 1, but was " + playerIndex);
         }
         if (playerIndex == 0) return tile;
-        if (tile == null || tile.getTile() == null || tile.getTile().getPosition() == null) return tile;
+        if (tile == null || tile.getTile() == null || tile.getTile().getDisplayPos() == null) return tile;
 
-        Vector2I tilePos = tile.getTile().getPosition();
-        tilePos.setX(numTiles - tilePos.getX());
-        tilePos.setY(numTiles - tilePos.getY());
+        Vector2I displayPos = tile.getTile().getDisplayPos();
+        displayPos.setX(numTiles - displayPos.getX());
+        displayPos.setY(numTiles - displayPos.getY());
         return tile;
     }
 
