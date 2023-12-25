@@ -1,5 +1,6 @@
 package jchess.gamemode.hex3p;
 
+import dx.schema.types.Vector2I;
 import jchess.common.BaseChessGame;
 import jchess.common.components.MarkerType;
 import jchess.common.components.PieceComponent;
@@ -31,6 +32,29 @@ public class Hex3PlayerGame extends BaseChessGame {
         pieceMoveEvent.addListener(event -> {
             // TODO erja, update the move history here.
         });
+    }
+
+    @Override
+    public dx.schema.types.Entity applyPerspective(dx.schema.types.Entity tile, int playerIndex) {
+        if (playerIndex < 0 || playerIndex > 2) {
+            throw new IllegalArgumentException("playerIndex must be 0, 1 or 2, but was " + playerIndex);
+        }
+        if (playerIndex == 0) return tile;
+        if (tile == null || tile.getTile() == null || tile.getTile().getPosition() == null) return tile;
+
+        final double strideX = 1.73205;
+        final double strideY = 3;
+        final double cosine = -0.5;
+        final double sine = (playerIndex == 1 ? 1 : -1) * 0.8660254;
+
+        Vector2I tilePos = tile.getTile().getPosition();
+        double scaledX = (tilePos.getX() - 16) * strideX;
+        double scaledY = (tilePos.getY() - 8) * strideY;
+        double rotatedX = (scaledX * cosine) - (scaledY * sine);
+        double rotatedY = (scaledX * sine) + (scaledY * cosine);
+        tilePos.setX((int) Math.round(rotatedX / strideX) + 16);
+        tilePos.setY((int) Math.round(rotatedY / strideY) + 8);
+        return tile;
     }
 
     @Override

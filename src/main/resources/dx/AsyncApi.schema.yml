@@ -17,11 +17,7 @@ channels:
         name: BoardUpdateSubscribe
         messageId: BoardUpdateSubscribe
         payload:
-          type: object
-          properties:
-            sessionId:
-              type: string
-              description: the sessionId of the game instance to register with
+          $ref: "./schema/message/BoardUpdateSubscribe.schema.json"
     publish:
       summary: Used by the backend to push game state changes to the clients
       operationId: onBoardUpdate

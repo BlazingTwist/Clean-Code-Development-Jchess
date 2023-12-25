@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jchess.gamemode.GameMode;
 import jchess.server.WipExampleServer;
+import jchess.server.util.HttpUtils;
 import jchess.server.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ public class GameCreateServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         GameCreate createInfo = JsonUtils.getMapper().readValue(req.getReader(), GameCreate.class);
 
-        GameMode gameMode;
+        final GameMode gameMode;
         try {
             gameMode = GameMode.valueOf(createInfo.getModeId());
         } catch (Exception e) {
@@ -35,12 +36,16 @@ public class GameCreateServlet extends HttpServlet {
             return;
         }
 
-        String sessionId = WipExampleServer.startNewGame(gameMode);
+        final String sessionId;
+        try {
+            sessionId = WipExampleServer.startNewGame(gameMode);
+        } catch (Exception e) {
+            logger.warn("Failed to start new game.", e);
+            HttpUtils.error(resp, StatusCodes.INTERNAL_SERVER_ERROR, "Failed to start new game. Exception: " + e.getMessage());
+            return;
+        }
 
-        resp.setStatus(StatusCodes.CREATED);
-        PrintWriter writer = resp.getWriter();
-        writer.write(sessionId);
-        writer.flush();
-        writer.close();
+        // TODO erja, rename 'error' method
+        HttpUtils.error(resp, StatusCodes.CREATED, sessionId);
     }
 }
