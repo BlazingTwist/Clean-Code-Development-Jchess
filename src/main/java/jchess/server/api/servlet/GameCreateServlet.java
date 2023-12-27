@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jchess.gamemode.GameMode;
 import jchess.server.WipExampleServer;
+import jchess.server.util.HttpUtils;
 import jchess.server.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +28,7 @@ public class GameCreateServlet extends HttpServlet {
             gameMode = GameMode.valueOf(createInfo.getModeId());
         } catch (Exception e) {
             logger.warn("Failed to find GameMode with id: '{}'", createInfo.getModeId());
-            resp.setStatus(StatusCodes.BAD_REQUEST);
-            PrintWriter writer = resp.getWriter();
-            writer.write("Invalid Game-Mode Id");
-            writer.flush();
-            writer.close();
+            HttpUtils.error(resp, StatusCodes.BAD_REQUEST, "Invalid Game-Mode Id");
             return;
         }
 

@@ -15,5 +15,7 @@ public interface IChessGame {
 
     void start();
 
+    void createPiece(Entity targetTile, int pieceTypeId, int ownerId);
+
     void movePiece(Entity fromTile, Entity toTile, Class<?> moveType);
 }

@@ -51,10 +51,9 @@ public class PieceComponent {
                     baseMoveSet.findTiles(thisTile).map(toTile -> NormalMove.getMove(game, thisTile, toTile))
             );
         }
-        moves = Stream.concat(
-                moves,
-                specialMoveSet.stream().flatMap(rule -> rule.getSpecialMoves(thisTile).stream())
-        );
+        for (ISpecialRule specialRule : specialMoveSet) {
+            moves = specialRule.getSpecialMoves(thisTile, moves);
+        }
 
         if (verifyKingSafe) {
             moves = verifyKingSafe(moves);

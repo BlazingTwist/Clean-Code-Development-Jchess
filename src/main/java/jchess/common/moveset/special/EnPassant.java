@@ -4,16 +4,13 @@ import jchess.common.IChessGame;
 import jchess.common.components.PieceComponent;
 import jchess.common.components.PieceIdentifier;
 import jchess.common.events.PieceMoveEvent;
+import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
 import jchess.el.TileExpression;
-import jchess.common.moveset.ISpecialRule;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class EnPassant implements ISpecialRule {
     private final IChessGame game;
@@ -48,9 +45,9 @@ public class EnPassant implements ISpecialRule {
     }
 
     @Override
-    public List<MoveIntention> getSpecialMoves(Entity thisPawn) {
+    public Stream<MoveIntention> getSpecialMoves(Entity thisPawn, Stream<MoveIntention> baseMoves) {
         if (doubleMovesByPlayer.isEmpty()) {
-            return Collections.emptyList();
+            return baseMoves;
         }
 
         List<MoveIntention> result = new ArrayList<>();
@@ -72,7 +69,7 @@ public class EnPassant implements ISpecialRule {
                 result.add(getEnPassantMove(moveInfo, thisPawn, targetTile));
             }
         }
-        return result;
+        return Stream.concat(baseMoves, result.stream());
     }
 
     private Entity findEnPassantTargetTile(PieceMoveEvent.PieceMove doubleMove, PieceIdentifier doubleMovedPawn, Entity thisPawn) {

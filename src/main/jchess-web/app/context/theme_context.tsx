@@ -13,6 +13,7 @@ interface ThemeContextProps {
     setTheme: Dispatch<SetStateAction<string>>;
     themeMap: Map<string, Theme>;
     getCurrentTheme: () => Theme | undefined;
+    getCurrentIconMap: () => { [key: string]: string };
     gameModeMap: Map<string, GameMode>;
 }
 
@@ -27,6 +28,7 @@ const ThemeContext = createContext<ThemeContextProps>({
     setTheme: () => {},
     themeMap: new Map<string, Theme>(),
     getCurrentTheme: () => undefined,
+    getCurrentIconMap: () => ({}),
     gameModeMap: new Map<string, GameMode>(),
 });
 
@@ -107,8 +109,28 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         return themeMap.get(theme);
     };
 
+    const getCurrentIconMap = (): { [key: string]: string } => {
+        const theme = getCurrentTheme();
+        if (theme === undefined) {
+            return {};
+        }
+        // create a map for the theme icons
+        const iconMap: { [key: string]: string } = theme.icons.reduce((map: { [key: string]: string }, icon: any) => {
+            map[icon.iconId] = icon.iconPath;
+            return map;
+        }, {});
+        return iconMap;
+    };
+
     // Create the context value to be provided
-    const contextValue: ThemeContextProps = { theme, setTheme, themeMap, getCurrentTheme, gameModeMap };
+    const contextValue: ThemeContextProps = {
+        theme,
+        setTheme,
+        themeMap,
+        getCurrentTheme,
+        getCurrentIconMap,
+        gameModeMap,
+    };
 
     // Provide the context to the children components
     return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;

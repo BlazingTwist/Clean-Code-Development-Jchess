@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OfferPieceSelection",
+  "type": "object",
+  "javaType": "dx.schema.message.OfferPieceSelection",
+  "properties": {
+    "title": {
+      "description": "Title for the Selection Window",
+      "type": "string"
+    },
+    "pieces": {
+      "type": "array",
+      "items": {
+        "properties": {
+          "pieceTypeId": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": ["title", "pieces"]
+}

@@ -1,6 +1,5 @@
 package jchess.server.api.socket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dx.schema.message.GameUpdate;
@@ -11,18 +10,16 @@ import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import jchess.common.IChessGame;
+import jchess.server.GameSessionData;
 import jchess.server.adapter.EntityAdapter;
 import jchess.server.util.JsonUtils;
 import jchess.server.util.SessionUtils;
+import jchess.server.util.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BoardUpdateWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
     private static final Logger logger = LoggerFactory.getLogger(BoardUpdateWebsocket.class);
@@ -65,16 +62,26 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
     protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
         String data = message.getData();
         logger.info("Received message '{}'", data);
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = JsonUtils.getMapper();
         JsonNode messageTree = mapper.readTree(data);
 
-        String sessionId = messageTree.get("sessionId").textValue();
+        String sessionId = JsonUtils.traverse(messageTree).get("sessionId").textValue();
+        if (sessionId == null || sessionId.isBlank()) {
+            SocketUtils.close(channel, "property 'sessionId' is missing.");
+            return;
+        }
+
         List<WebSocketChannel> channels = channelsBySessionId.computeIfAbsent(sessionId, key -> new ArrayList<>());
         channels.add(channel);
 
         // send the current board state to the newly registered WebSocket
-        IChessGame game = SessionUtils.findGame(sessionId);
-        String updateMessage = getUpdateMessage(game);
+        GameSessionData game = SessionUtils.findGame(sessionId);
+        if (game == null) {
+            SocketUtils.close(channel, "Requested Session (id='" + sessionId + "') does not exist");
+            return;
+        }
+
+        String updateMessage = getUpdateMessage(game.game());
         if (updateMessage != null) {
             WebSockets.sendText(updateMessage, channel, null);
         }
@@ -87,14 +94,6 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
                 .map(EntityAdapter.Instance::convert)
                 .toList());
 
-        ObjectMapper mapper = JsonUtils.getMapper();
-        String message;
-        try {
-            message = mapper.writeValueAsString(gameUpdateObject);
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to generate Json message", e);
-            return null;
-        }
-        return message;
+        return JsonUtils.serialize(gameUpdateObject);
     }
 }

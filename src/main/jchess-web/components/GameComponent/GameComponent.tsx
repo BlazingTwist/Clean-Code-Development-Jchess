@@ -9,6 +9,7 @@ import TimeGameComponent from "./TimeGameComponent";
 import HistoryComponent from "./HistoryComponent";
 import { postClick } from "@/services/rest_api_service";
 import PlayerOverviewComponent from "./PlayerOverviewComponent";
+import PieceSelectionComponent from "./PieceSelectionComponent";
 
 export default function GameComponment({ sessionId }: { sessionId: string }) {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
@@ -16,13 +17,14 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
     // Contexts
     const { gameOptions } = useGameContext(); // old code for client side state, later it probably will be removed
     const { gameUpdate } = useGameUpdateContext(); // this is the current game state comming from the server
-    const { getCurrentTheme } = useThemeContext(); // this is the current theme selected by the user
+    const { getCurrentTheme, getCurrentIconMap } = useThemeContext(); // this is the current theme selected by the user
 
     // State
     const canvasRef = useRef<HTMLInputElement>(null);
     const [board, setBoard] = useState<JSX.Element[]>([]);
 
     const theme = getCurrentTheme();
+    const iconMap = getCurrentIconMap();
 
     /**
      * @function calculateMinMaxTilePosition
@@ -55,15 +57,6 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
      */
     const renderBoard = () => {
         if (gameUpdate && theme?.tileAspectRatio && theme?.tileStride) {
-            // create a map for the theme icons
-            const iconMap: { [key: string]: string } = theme.icons.reduce(
-                (map: { [key: string]: string }, icon: any) => {
-                    map[icon.iconId] = icon.iconPath;
-                    return map;
-                },
-                {}
-            );
-
             // get the tiles, pieces and markers arrays from the gameUpdate
             const { tiles, pieces, markers } = getEntityArrays();
             // calculate the min and max tile positions
@@ -81,7 +74,6 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                 maxTilePos,
                 minTilePos,
                 tiles,
-                iconMap,
                 pieces,
                 markers,
                 pieceSizeAdjustment,
@@ -103,7 +95,6 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
      * @param {number[]} maxTilePos - The maximum tile position.
      * @param {number[]} minTilePos - The minimum tile position.
      * @param {any[]} tiles - The tiles array.
-     * @param {Map<string, string>} iconMap - The icon map.
      * @param {any[]} pieces - The pieces array.
      * @param {any[]} markers - The markers array.
      * @param {number} pieceSizeAdjustment - The piece size adjustment.
@@ -113,7 +104,6 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
         maxTilePos: number[],
         minTilePos: number[],
         tiles: { position: number[]; iconId: string }[],
-        iconMap: { [key: string]: string },
         pieces: {
             identifier: import("@/models/message/GameUpdate.schema").PieceIdentifier;
             tile: { position: number[]; iconId: string };
@@ -297,6 +287,8 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                 ref={canvasRef}
                 className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-[100%] min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative"
             >
+                <PieceSelectionComponent sessionId={sessionId} iconMap={iconMap} />
+
                 {board}
             </div>
 

@@ -56,6 +56,18 @@ public class Hex3PlayerGame extends BaseChessGame {
     }
 
     @Override
+    public void createPiece(Entity targetTile, int pieceTypeId, int ownerId) {
+        for (PieceType pieceType : PieceType.values()) {
+            if (pieceType.getId() == pieceTypeId) {
+                int direction = ((ownerId - 3) * (-120)) % 360; // [0, 240, 120]
+                placePiece(targetTile, ownerId, direction, pieceType, getPlayerColor(ownerId));
+                return;
+            }
+        }
+        logger.error("unable to place piece with pieceTypeId '" + pieceTypeId + "'. PieceType does not exist.");
+    }
+
+    @Override
     protected void generateBoard() {
         // first pass: create entities
         for (int y = 0; y < numTilesVertical; y++) {
@@ -150,44 +162,50 @@ public class Hex3PlayerGame extends BaseChessGame {
     }
 
     private void placeRook(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceType.Rook, Theme.PieceIcons.rook, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Rook, getPlayerColor(playerColor));
     }
 
     private void placeKnight(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceType.Knight, Theme.PieceIcons.knight, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Knight, getPlayerColor(playerColor));
     }
 
     private void placeBishop(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceType.Bishop, Theme.PieceIcons.bishop, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Bishop, getPlayerColor(playerColor));
     }
 
     private void placeQueen(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceType.Queen, Theme.PieceIcons.queen, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Queen, getPlayerColor(playerColor));
     }
 
     private void placeKing(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceType.King, Theme.PieceIcons.king, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.King, getPlayerColor(playerColor));
     }
 
     private void placePawn(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, PieceType.Pawn, Theme.PieceIcons.pawn, getPlayerColor(playerColor));
+        placePiece(x, y, playerColor, PieceType.Pawn, getPlayerColor(playerColor));
     }
 
-    private void placePiece(int x, int y, int playerColor, PieceType pieceType, Theme.PieceIcons pieceIcon, Theme.PieceColor color) {
+    private void placePiece(int x, int y, int playerColor, PieceType pieceType, Theme.PieceColor color) {
         Entity tile = getEntityAtPosition(x, y);
         if (tile == null) {
             logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
             return;
         }
 
-        PieceIdentifier pieceId = new PieceIdentifier(
+        int direction = ((playerColor - 3) * (-120)) % 360; // [0, 240, 120]
+        placePiece(tile, playerColor, direction, pieceType, color);
+    }
+
+    private void placePiece(Entity tile, int ownerId, int direction, PieceType pieceType, Theme.PieceColor pieceColor) {
+        PieceIdentifier pieceIdentifier = new PieceIdentifier(
                 pieceType.getId(),
                 pieceType.getShortName(),
-                pieceIcon.asIconKey(color),
-                playerColor,
-                ((playerColor - 3) * (-120)) % 360 // [0, 240, 120]
+                pieceType.getIcon().asIconKey(pieceColor),
+                ownerId,
+                direction
         );
-        PieceComponent piece = new PieceComponent(this, pieceId, pieceType.getBaseMoves());
+
+        PieceComponent piece = new PieceComponent(this, pieceIdentifier, pieceType.getBaseMoves());
         piece.addSpecialMoves(pieceType.getSpecialRules());
         tile.piece = piece;
     }
