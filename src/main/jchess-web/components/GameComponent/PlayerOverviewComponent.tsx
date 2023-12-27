@@ -3,17 +3,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { useGameContext } from "@/app/context/game_context";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
+import { cn } from "@/utils/tailwindMergeUtils";
 
 /**
  * Represents the PlayerOverviewComponent that displays player information
  * @returns {JSX.Element} The rendered PlayerOverviewComponent.
  */
-export default function PlayerOverviewComponent() {
+export default function PlayerOverviewComponent({ className }: { className?: string }) {
     // Extracting game options and player state using the custom hook.
     const { gameOptions, playerState } = useGameContext();
     const { gameUpdate } = useGameUpdateContext();
     return (
-        <Card className="self-start mb-6 max-w-[500px]">
+        <Card className={cn("self-start max-w-[500px]", className)}>
             <CardHeader>
                 <CardTitle>Player Overiew</CardTitle>
             </CardHeader>

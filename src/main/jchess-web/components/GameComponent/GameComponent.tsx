@@ -9,6 +9,7 @@ import TimeGameComponent from "./TimeGameComponent";
 import HistoryComponent from "./HistoryComponent";
 import { postClick } from "@/services/rest_api_service";
 import PlayerOverviewComponent from "./PlayerOverviewComponent";
+import ChatComponent from "./ChatComponent";
 
 export default function GameComponment({ sessionId }: { sessionId: string }) {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
@@ -292,17 +293,28 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
     }, [gameUpdate, getCurrentTheme()]);
 
     return (
-        <div className="grid grid-cols-1 gap-2 p-12 items-center sm:grid-cols-2 lg:grid-cols-3  sm:grid-row-2 max-w-[2000px] mx-auto">
+        <div className="p-12 max-w-[2000px] mx-auto flex flex-col lg:flex-row items-center md:items-start md:justify-center">
             <div
                 ref={canvasRef}
-                className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-[100%] min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative"
+                className="w-[80vw] h-[80vw] lg:w-[50vw] md:h-[55vw] min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh] justify-self-center relative"
             >
                 {board}
             </div>
 
-            {gameOptions.isTimeGame && <TimeGameComponent />}
-            {!gameOptions.isTimeGame && <PlayerOverviewComponent />}
-            {<HistoryComponent />}
+            <div className="grid gap-2 sm:grid-cols-2 md:ml-[5vw] ">
+                <div className="grid gap-2  sm:col-start-1 sm:col-end-2">
+                    {gameOptions.isTimeGame && <TimeGameComponent className="w-full" />}
+                    {!gameOptions.isTimeGame && <PlayerOverviewComponent className="w-full" />}
+                    {<HistoryComponent className="w-full" />}
+                </div>
+
+                {
+                    <ChatComponent
+                        sessionId={sessionId}
+                        className="w-full sm:col-start-2 sm:col-end-3 sm:row-span-2 sm:row-start-1"
+                    />
+                }
+            </div>
         </div>
     );
 }

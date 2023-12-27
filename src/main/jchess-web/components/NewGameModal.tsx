@@ -31,6 +31,8 @@ export function NewGameModal() {
     const [isTimeGame, setTimeGame] = useState(false);
     const [timeGameAmount, setTimeGameAmount] = useState("0");
 
+    const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
+
     const { setGameOptions, setPlayerState } = useGameContext(); // old code for client side state, later it probably will be removed
     const { gameModeMap, setTheme } = useThemeContext();
 
@@ -45,6 +47,11 @@ export function NewGameModal() {
         console.log("fetch possible time game amounts from server");
         setTimeGameValues(["1", "3", "5", "8", "10", "15", "20", "25", "30", "60", "120"]);
     }, []);
+
+    useEffect(() => {
+        // Reset selected theme when gameMode changes
+        setSelectedTheme(undefined);
+    }, [gameMode]);
 
     /**
      * @function renderNameInputs
@@ -75,13 +82,6 @@ export function NewGameModal() {
      * @returns {JSX.Element} JSX Element representing the time select dropdown.
      */
     const renderThemeSelect = () => {
-        const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
-
-        useEffect(() => {
-            // Reset selected theme when gameMode changes
-            setSelectedTheme(undefined);
-        }, [gameMode]);
-
         if (!gameMode) {
             return [];
         }

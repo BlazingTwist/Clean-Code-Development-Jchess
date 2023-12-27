@@ -3,17 +3,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { useGameContext } from "@/app/context/game_context";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
+import { cn } from "@/utils/tailwindMergeUtils";
 
 /**
  * Represents the TimeGameComponent that displays player information and time left.
  * @returns {JSX.Element} The rendered TimeGameComponent.
  */
-export default function TimeGameComponent() {
+export default function TimeGameComponent({ className }: { className?: string }) {
     // Extracting game options and player state using the custom hook.
     const { gameOptions, playerState } = useGameContext();
     const { gameUpdate } = useGameUpdateContext();
     return (
-        <Card className="self-start mb-6 max-w-[500px]">
+        <Card className={cn("self-start max-w-[500px]", className)}>
             <CardHeader>
                 <CardTitle>Time Game</CardTitle>
             </CardHeader>

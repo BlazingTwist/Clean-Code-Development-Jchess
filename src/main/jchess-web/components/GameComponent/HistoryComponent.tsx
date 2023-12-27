@@ -2,18 +2,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { useGameContext } from "@/app/context/game_context";
+import { cn } from "@/utils/tailwindMergeUtils";
 
 /**
  * HistoryComponent displays the game history in a card format.
  * It shows the moves of each player in a table.
  */
-export default function HistoryComponent() {
+export default function HistoryComponent({ className }: { className?: string }) {
     // Extract game options and player state using the game context hook.
     const { gameOptions, playerState } = useGameContext();
     // Determine the number of moves made in the game.
     const numMoves = playerState.playerHistory.get(0)?.length;
     return (
-        <Card className={`self-start  max-w-[500px]`}>
+        <Card className={cn("self-start max-w-[500px]", className)}>
             <CardHeader>
                 <CardTitle>History</CardTitle>
             </CardHeader>
