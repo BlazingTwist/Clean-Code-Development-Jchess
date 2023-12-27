@@ -65,7 +65,7 @@ export default function PieceSelectionComponent({
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-20 z-30">
-            <Card className="w-3/4 md:w-2/3 lg:1/3 max-w-[400px] min-w-[200px]">
+            <Card className="w-3/4 md:w-2/3 lg:1/3 max-w-[300px] min-w-[200px]">
                 <CardHeader>
                     <CardTitle>Select a piece</CardTitle>
                 </CardHeader>
@@ -78,9 +78,8 @@ export default function PieceSelectionComponent({
                                     <CarouselItem key={piece.pieceTypeId}>
                                         <div className="flex flex-col justify-center items-center ">
                                             <div
-                                                className="hover:cursor-pointer flex-col justify-center items-center flex px-2"
+                                                className="hover:cursor-pointer hover:animate-pulse flex-col justify-center items-center flex px-2"
                                                 onClick={() => {
-                                                    console.log(`Selected piece ${piece.pieceTypeId}`);
                                                     if (pieceSelectionSocket?.readyState === WebSocket.OPEN) {
                                                         try {
                                                             pieceSelectionSocket.send(
@@ -91,6 +90,7 @@ export default function PieceSelectionComponent({
                                                                     },
                                                                 })
                                                             );
+                                                            setPieceSelectionOffer(undefined);
                                                         } catch (error) {
                                                             console.error("Failed to send message:", error);
                                                         }
@@ -100,7 +100,6 @@ export default function PieceSelectionComponent({
                                                 }}
                                             >
                                                 <img src={serverUri + iconPath} />
-                                                {piece.pieceTypeId}
                                             </div>
                                         </div>
                                     </CarouselItem>
