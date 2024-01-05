@@ -6,6 +6,9 @@
  */
 
 export interface TileComponent {
+  /**
+   * id that uniquely identifies this tile
+   */
   tileId: string;
   displayPos: Vector2I;
   iconId: string;

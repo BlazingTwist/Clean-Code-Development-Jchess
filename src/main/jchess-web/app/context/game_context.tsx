@@ -10,7 +10,7 @@ import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNod
  */
 type GameOptions = {
     playerNames: Array<string>;
-    isWhiteOnTop: boolean;
+    playerPerspective: number;
     isTimeGame: boolean;
     timeGameAmountInSeconds: number;
 };
@@ -84,8 +84,8 @@ const GameContext = createContext<ContextProps>({
     },
     setPlayerState: () => {},
     gameOptions: {
+        playerPerspective: 0,
         playerNames: [],
-        isWhiteOnTop: false,
         isTimeGame: false,
         timeGameAmountInSeconds: 0,
     },
@@ -159,8 +159,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     const resetGame = () => {
         console.log("resetting game");
         setGameOptions({
+            playerPerspective: 0,
             playerNames: [],
-            isWhiteOnTop: false,
             isTimeGame: false,
             timeGameAmountInSeconds: 0,
         });
