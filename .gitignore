@@ -79,3 +79,6 @@ fabric.properties
 target
 /logs/
 /src/main/jchess-web/api-docs
+jchess.iml
+src/main/jchess-web/package-lock.json
+src/main/jchess-web/.idea
