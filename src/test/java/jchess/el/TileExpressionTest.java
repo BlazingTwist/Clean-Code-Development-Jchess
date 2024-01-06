@@ -4,7 +4,8 @@ import jchess.common.components.PieceComponent;
 import jchess.common.components.PieceIdentifier;
 import jchess.common.components.TileComponent;
 import jchess.ecs.Entity;
-import jchess.gamemode.hex3p.PieceType;
+import jchess.gamemode.PieceStore;
+import jchess.gamemode.hex3p.Hex3pPieces;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,8 +13,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
 public class TileExpressionTest {
-    private static Entity createPiece(PieceType pieceType, int player) {
-        PieceIdentifier identifier = new PieceIdentifier(pieceType.getId(), pieceType.getShortName(), null, player, 0);
+    private static Entity createPiece(Hex3pPieces pieceType, int player) {
+        PieceStore.PieceDefinition pieceDef = pieceType.getPieceDefinition();
+        PieceIdentifier identifier = new PieceIdentifier(pieceDef.pieceTypeId(), pieceDef.shortName(), null, player, 0);
 
         Entity entity = new Entity();
         entity.piece = new PieceComponent(null, identifier, TileExpression.or());
@@ -24,8 +26,8 @@ public class TileExpressionTest {
     public void test_filterCapture() {
         final int player1 = 0;
         final int player2 = 1;
-        PieceType pawn = PieceType.Pawn;
-        PieceType rook = PieceType.Rook;
+        Hex3pPieces pawn = Hex3pPieces.Pawn;
+        Hex3pPieces rook = Hex3pPieces.Rook;
 
         Entity piece_1a = createPiece(pawn, player1);
         Entity piece_1b = createPiece(rook, player1);
@@ -66,8 +68,9 @@ public class TileExpressionTest {
         Entity entity = new Entity();
         entity.tile = tile;
 
-        PieceType pawn = PieceType.Pawn;
-        PieceIdentifier pieceIdentifier = new PieceIdentifier(pawn.getId(), pawn.getShortName(), null, 0, forwardBasis);
+        Hex3pPieces pawn = Hex3pPieces.Pawn;
+        PieceStore.PieceDefinition pawnDef = pawn.getPieceDefinition();
+        PieceIdentifier pieceIdentifier = new PieceIdentifier(pawnDef.pieceTypeId(), pawnDef.shortName(), null, 0, forwardBasis);
 
         TileExpression.neighbor(neighborDirection).compile(pieceIdentifier).findTiles(entity).toList();
         Mockito.verify(tile, Mockito.atLeastOnce()).getTile(expectedDirection);

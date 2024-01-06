@@ -1,0 +1,50 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "LayoutTheme",
+    "type": "object",
+    "javaType": "dx.schema.conf.LayoutTheme",
+    "properties": {
+        "layoutId": {
+            "enum": ["hex3p", "square2p"]
+        },
+        "tileSize": {
+            "$ref": "../types/Vector2I.schema.json"
+        },
+        "tiles": {
+            "description": "array of available tile colors",
+            "type": "array",
+            "items": {
+                "description": "path to the colored tile icon",
+                "type": "string"
+            }
+        },
+        "markers": {
+            "type": "object",
+            "properties": {
+                "yesAction": {
+                    "description": "icon to show if an action is possible on a tile",
+                    "type": "string"
+                },
+                "noAction": {
+                    "description": "icon to show if an action is currently unavailable on a tile",
+                    "type": "string"
+                },
+                "selected": {
+                    "description": "icon to show on the currently selected tile",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "yesAction",
+                "noAction",
+                "selected"
+            ]
+        }
+    },
+    "required": [
+        "layoutId",
+        "tileSize",
+        "tiles",
+        "markers"
+    ]
+}

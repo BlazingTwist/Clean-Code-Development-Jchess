@@ -1,0 +1,13 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "PieceType",
+    "javaType": "dx.schema.types.PieceType",
+    "enum": [
+        "Rook",
+        "Knight",
+        "Bishop",
+        "Queen",
+        "King",
+        "Pawn"
+    ]
+}

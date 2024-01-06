@@ -8,11 +8,10 @@ import jchess.common.components.TileComponent;
 import jchess.common.events.PieceMoveEvent;
 import jchess.common.theme.IIconKey;
 import jchess.ecs.Entity;
-import jchess.gamemode.GameMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
+import java.awt.Point;
 
 public class Square2PlayerGame extends BaseChessGame {
     private static final Logger logger = LoggerFactory.getLogger(Square2PlayerGame.class);
@@ -22,7 +21,7 @@ public class Square2PlayerGame extends BaseChessGame {
 
 
     public Square2PlayerGame() {
-        super(GameMode.Square2P.getNumPlayers());
+        super(2);
 
         PieceMoveEvent pieceMoveEvent = eventManager.getEvent(PieceMoveEvent.class);
         pieceMoveEvent.addListener(event -> {
@@ -65,7 +64,7 @@ public class Square2PlayerGame extends BaseChessGame {
                 return;
             }
         }
-        logger.error("unable to place piece with pieceTypeId '" + pieceTypeId + "'. PieceType does not exist.");
+        logger.error("unable to place piece with pieceType '" + pieceTypeId + "'. PieceType does not exist.");
     }
 
     @Override

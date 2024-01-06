@@ -38,7 +38,7 @@ public class EnPassant implements ISpecialRule {
             return;
         }
 
-        if (movedPiece.identifier.pieceTypeId() == pawnTypeId && move.moveType() == SpecialFirstMove.class) {
+        if (movedPiece.identifier.pieceType() == pawnTypeId && move.moveType() == SpecialFirstMove.class) {
             // opponent has made a move that can be attacked with EnPassant
             doubleMovesByPlayer.put(movedPiece.identifier.ownerId(), move);
         }

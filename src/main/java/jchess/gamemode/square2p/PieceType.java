@@ -12,6 +12,7 @@ import jchess.el.TileExpression;
 import java.awt.*;
 import java.util.stream.Stream;
 
+// TODO erja, dx.schema.conf.Piece.PieceType wiederverwenden?
 public enum PieceType {
     Rook(
             0, "R", Theme.PieceIcons.rook,

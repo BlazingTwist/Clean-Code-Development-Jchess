@@ -1,7 +1,6 @@
 package jchess.gamemode.hex3p;
 
-import dx.schema.message.Piece;
-import jchess.common.moveset.ISpecialRuleProvider;
+import dx.schema.conf.Piece;
 import jchess.common.moveset.special.Castling;
 import jchess.common.moveset.special.EnPassant;
 import jchess.common.moveset.special.PawnPromotion;
@@ -9,35 +8,36 @@ import jchess.common.moveset.special.SpecialFirstMove;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
 import jchess.el.TileExpression;
+import jchess.gamemode.PieceStore;
 
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public enum PieceType {
-    Rook(
-            0, "R", Theme.PieceIcons.rook,
+public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
+    Rook(Piece.PieceType.ROOK, new PieceStore.PieceDefinition(
+            "R",
             TileExpression.regex("30+ 90+ 150+ 210+ 270+ 330+", false)
-    ),
-    Knight(
-            1, "N", Theme.PieceIcons.knight,
+    )),
+    Knight(Piece.PieceType.KNIGHT, new PieceStore.PieceDefinition(
+            "N",
             TileExpression.regex("30.0 30.60 90.60 90.120 150.120 150.180 210.180 210.240 270.240 270.300 330.300 330.0", true)
-    ),
-    Bishop(
-            2, "B", Theme.PieceIcons.bishop,
+    )),
+    Bishop(Piece.PieceType.BISHOP, new PieceStore.PieceDefinition(
+            "B",
             TileExpression.regex("0+ 60+ 120+ 180+ 240+ 300+", false)
-    ),
-    Queen(
-            3, "Q", Theme.PieceIcons.queen,
-            TileExpression.or(Rook.baseMoves, Bishop.baseMoves)
-    ),
-    King(
-            4, "K", Theme.PieceIcons.king,
+    )),
+    Queen(Piece.PieceType.QUEEN, new PieceStore.PieceDefinition(
+            "Q",
+            TileExpression.or(Rook.pieceDefinition.baseMoves(), Bishop.pieceDefinition.baseMoves())
+    )),
+    King(Piece.PieceType.KING, new PieceStore.PieceDefinition(
+            "K",
             TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330", false),
-            (game, kingIdentifier) -> new Castling(game, kingIdentifier, Rook.id, 90, 270,
+            (game, kingIdentifier) -> new Castling(game, kingIdentifier, Rook.pieceType, 90, 270,
                     TileExpression.regex("270.270.270", true), TileExpression.regex("90.90", true))
-    ),
-    Pawn(
-            5, "", Theme.PieceIcons.pawn,
+    )),
+    Pawn(Piece.PieceType.PAWN, new PieceStore.PieceDefinition(
+            "",
             TileExpression.or(
                     TileExpression.filter(TileExpression.neighbor(330, 30), TileExpression.FILTER_EMPTY_TILE),
                     TileExpression.filter(TileExpression.neighbor(300, 60), TileExpression.FILTER_CAPTURE)
@@ -51,43 +51,17 @@ public enum PieceType {
                 int owner = pawnId.ownerId();
                 return new PawnPromotion(
                         game, getPromotionTilePredicate(TileExpression.neighbor(330, 30).compile(pawnId)),
-                        Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(Piece[]::new)
+                        Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(dx.schema.message.Piece[]::new)
                 );
             }
-    );
+    ));
 
-    private final int id;
-    private final String shortName;
-    private final Theme.PieceIcons icon;
-    private final TileExpression baseMoves;
-    private final ISpecialRuleProvider[] specialRules;
+    private final Piece.PieceType pieceType;
+    private final PieceStore.PieceDefinition pieceDefinition;
 
-    PieceType(int id, String shortName, Theme.PieceIcons icon, TileExpression baseMoves, ISpecialRuleProvider... specialRules) {
-        this.id = id;
-        this.shortName = shortName;
-        this.icon = icon;
-        this.baseMoves = baseMoves;
-        this.specialRules = specialRules;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public Theme.PieceIcons getIcon() {
-        return icon;
-    }
-
-    public TileExpression getBaseMoves() {
-        return baseMoves;
-    }
-
-    public ISpecialRuleProvider[] getSpecialRules() {
-        return specialRules;
+    Hex3pPieces(Piece.PieceType pieceType, PieceStore.PieceDefinition pieceDefinition) {
+        this.pieceType = pieceType;
+        this.pieceDefinition = pieceDefinition;
     }
 
     private static Predicate<Entity> getPromotionTilePredicate(CompiledTileExpression forwardTiles) {
@@ -99,10 +73,21 @@ public enum PieceType {
         };
     }
 
-    private static Piece getPiece(PieceType pieceType, int ownerId) {
-        Piece result = new Piece();
-        result.setPieceTypeId("" + pieceType.getId());
-        result.setIconId(pieceType.icon.getIconKey(ownerId == 0 ? Theme.PieceColor.light : Theme.PieceColor.dark));
+    private static dx.schema.message.Piece getPiece(Hex3pPieces pieceType, int ownerId) {
+        dx.schema.message.Piece result = new dx.schema.message.Piece();
+        result.setPieceTypeId("" + pieceType.pieceDefinition.pieceTypeId());
+        // TODO erja, obtain themeProvider from game??
+        //result.setIconId(pieceType.icon.getIconKey(ownerId == 0 ? Theme.PieceColor.light : Theme.PieceColor.dark));
         return result;
+    }
+
+    @Override
+    public Piece.PieceType getPieceType() {
+        return pieceType;
+    }
+
+    @Override
+    public PieceStore.PieceDefinition getPieceDefinition() {
+        return pieceDefinition;
     }
 }

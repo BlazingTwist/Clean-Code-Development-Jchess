@@ -1,0 +1,57 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "PiecesTheme",
+    "type": "object",
+    "javaType": "dx.schema.conf.PiecesTheme",
+    "properties": {
+        "playerColors": {
+            "description": "contains the player colors by player index. Length defines the maximum amount of players",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "colorCode": {
+                        "description": "hex-code of the player's color",
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "fileSuffix": {
+                        "description": "suffix that is attached to the icon file name (e.g. 'Rook.png' -> 'Rook-W.png')",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "colorCode",
+                    "fileSuffix"
+                ]
+            }
+        },
+        "pieces": {
+            "description": "defines which piece types are supported by this theme",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "pieceType": {
+                        "$ref": "../types/PieceType.schema.json"
+                    },
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "fileExt": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "pieceType",
+                    "fileName",
+                    "fileExt"
+                ]
+            }
+        }
+    },
+    "required": [
+        "playerColors",
+        "pieces"
+    ]
+}

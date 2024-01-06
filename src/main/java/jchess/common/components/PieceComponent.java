@@ -95,7 +95,7 @@ public class PieceComponent {
                     if (entity.piece == null) return false;
 
                     PieceIdentifier pieceId = entity.piece.identifier;
-                    return pieceId.ownerId() == playerId && pieceId.pieceTypeId() == kingTypeId;
+                    return pieceId.ownerId() == playerId && pieceId.pieceType() == kingTypeId;
                 })
                 .findFirst().orElse(null);
     }
