@@ -100,9 +100,15 @@ public enum PieceType {
     }
 
     private static Piece getPiece(PieceType pieceType, int ownerId) {
+        Theme.PieceColor ownerColor = switch (ownerId) {
+            case 1 -> Theme.PieceColor.medium;
+            case 2 -> Theme.PieceColor.dark;
+            default -> Theme.PieceColor.light;
+        };
+
         Piece result = new Piece();
         result.setPieceTypeId("" + pieceType.getId());
-        result.setIconId(pieceType.icon.getIconKey(ownerId == 0 ? Theme.PieceColor.light : Theme.PieceColor.dark));
+        result.setIconId(pieceType.icon.getIconKey(ownerColor));
         return result;
     }
 }
