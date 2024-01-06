@@ -26,6 +26,38 @@ channels:
         messageId: BoardUpdate
         payload:
           $ref: "./schema/message/GameUpdate.schema.json"
+  api/pieceSelection:
+    subscribe:
+      summary: Used by the frontend to subscribe to the channel / and notify the backend of a selected piece
+      operationId: onPieceSelectionSubscribe
+      message:
+        name: PieceSelectionSubscribe
+        messageId: PieceSelectionSubscribe
+        payload:
+          oneOf:
+            - type: object
+              properties:
+                msgType:
+                  enum:
+                    - "subscribe"
+                sessionId:
+                  type: string
+                  description: the sessionId of the game instance to register with
+            - type: object
+              properties:
+                msgType:
+                  enum:
+                    - "pieceSelected"
+                data:
+                  $ref: "./schema/message/PieceSelected.schema.json"
+    publish:
+      summary: Used by the backend to notify the frontend that it should display a PieceSelection window
+      operationId: onOfferPieceSelection
+      message:
+        name: OfferPieceSelection
+        messageId: OfferPieceSelection
+        payload:
+          $ref: "./schema/message/OfferPieceSelection.schema.json"
   api/chat:
     subscribe:
       summary: Used by the frontend to (subscribe to the channel / and notify the backend of a new chat message)

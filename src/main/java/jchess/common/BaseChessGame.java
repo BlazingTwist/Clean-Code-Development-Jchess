@@ -5,7 +5,9 @@ import jchess.common.components.MarkerType;
 import jchess.common.components.TileComponent;
 import jchess.common.events.BoardClickedEvent;
 import jchess.common.events.GameOverEvent;
+import jchess.common.events.OfferPieceSelectionEvent;
 import jchess.common.events.PieceMoveEvent;
+import jchess.common.events.PieceOfferSelectedEvent;
 import jchess.common.events.RenderEvent;
 import jchess.common.theme.IIconKey;
 import jchess.ecs.EcsEventManager;
@@ -42,6 +44,9 @@ public abstract class BaseChessGame implements IChessGame {
         BoardClickedEvent boardClickedEvent = new BoardClickedEvent();
         eventManager.registerEvent(boardClickedEvent);
         boardClickedEvent.addListener(point -> onBoardClicked(point.x, point.y));
+
+        eventManager.registerEvent(new OfferPieceSelectionEvent());
+        eventManager.registerEvent(new PieceOfferSelectedEvent());
     }
 
     protected abstract void generateBoard();

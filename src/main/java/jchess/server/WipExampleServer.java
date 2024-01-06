@@ -11,6 +11,7 @@ import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import jakarta.servlet.ServletException;
 import jchess.common.IChessGame;
+import jchess.common.events.OfferPieceSelectionEvent;
 import jchess.common.events.RenderEvent;
 import jchess.gamemode.GameMode;
 import jchess.server.api.servlet.BoardClickedServlet;
@@ -18,6 +19,7 @@ import jchess.server.api.servlet.GameCreateServlet;
 import jchess.server.api.servlet.GameModesServlet;
 import jchess.server.api.servlet.ThemesServlet;
 import jchess.server.api.socket.BoardUpdateWebsocket;
+import jchess.server.api.socket.PieceSelectionWebsocket;
 import jchess.server.api.socket.ChatWebsocket;
 import jchess.server.session.SessionManager;
 import jchess.server.session.SessionMgrController;
@@ -33,9 +35,11 @@ public class WipExampleServer {
     public static final String resourcePrefix = "resources";
 
     public static BoardUpdateWebsocket boardUpdateWebsocket;
+    public static PieceSelectionWebsocket pieceSelectionWebsocket;
 
     public static void main(String[] args) throws ServletException, URISyntaxException {
         boardUpdateWebsocket = new BoardUpdateWebsocket();
+        pieceSelectionWebsocket = new PieceSelectionWebsocket();
         ChatWebsocket chatWebsocket = new ChatWebsocket();
 
         SessionMgrController.registerSessionManager(GameSessionData.class, 10, TimeUnit.MINUTES);
@@ -59,6 +63,7 @@ public class WipExampleServer {
         PathHandler pathHandler = Handlers.path(handler)
                 .addPrefixPath(resourcePrefix, new ResourceHandler(resourceManager))
                 .addPrefixPath("/api/board/update", Handlers.websocket(boardUpdateWebsocket))
+                .addPrefixPath("/api/pieceSelection", Handlers.websocket(pieceSelectionWebsocket))
                 .addPrefixPath("/api/chat", Handlers.websocket(chatWebsocket));
 
         Undertow server = Undertow.builder()
@@ -77,6 +82,7 @@ public class WipExampleServer {
         String sessionId = gameManager.createSession(gameData).sessionId;
 
         game.getEventManager().getEvent(RenderEvent.class).addListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
+        game.getEventManager().<OfferPieceSelectionEvent>getEvent(OfferPieceSelectionEvent.class).addListener(x -> pieceSelectionWebsocket.onOfferPieceSelectionEvent(sessionId, x));
         logger.info("Starting new game. Mode '{}'. SessionId '{}'", mode, sessionId);
         game.start();
 

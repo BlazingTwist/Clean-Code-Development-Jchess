@@ -2,7 +2,7 @@ package jchess.common.moveset;
 
 import jchess.ecs.Entity;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * This interface can be used to define special rules.
@@ -16,6 +16,6 @@ import java.util.List;
  */
 public interface ISpecialRule {
 
-    List<MoveIntention> getSpecialMoves(Entity movingPiece);
+    Stream<MoveIntention> getSpecialMoves(Entity movingPiece, Stream<MoveIntention> currentMoves);
 
 }

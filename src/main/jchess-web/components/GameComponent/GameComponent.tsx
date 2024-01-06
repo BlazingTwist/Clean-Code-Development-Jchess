@@ -9,6 +9,7 @@ import TimeGameComponent from "./TimeGameComponent";
 import HistoryComponent from "./HistoryComponent";
 import { postClick } from "@/services/rest_api_service";
 import PlayerOverviewComponent from "./PlayerOverviewComponent";
+import PieceSelectionComponent from "./PieceSelectionComponent";
 
 export default function GameComponment({ sessionId }: { sessionId: string }) {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
@@ -16,13 +17,14 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
     // Contexts
     const { gameOptions } = useGameContext(); // old code for client side state, later it probably will be removed
     const { gameUpdate } = useGameUpdateContext(); // this is the current game state comming from the server
-    const { getCurrentTheme } = useThemeContext(); // this is the current theme selected by the user
+    const { getCurrentTheme, getCurrentIconMap } = useThemeContext(); // this is the current theme selected by the user
 
     // State
     const canvasRef = useRef<HTMLInputElement>(null);
     const [board, setBoard] = useState<JSX.Element[]>([]);
 
     const theme = getCurrentTheme();
+    const iconMap = getCurrentIconMap();
 
     /**
      * @function calculateMinMaxTilePosition
@@ -238,6 +240,8 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                 ref={canvasRef}
                 className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-[100%] min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative"
             >
+                <PieceSelectionComponent sessionId={sessionId} iconMap={iconMap} />
+
                 {board}
             </div>
 

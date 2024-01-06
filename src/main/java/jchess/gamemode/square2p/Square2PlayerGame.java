@@ -13,7 +13,7 @@ import jchess.gamemode.GameMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Point;
+import java.awt.*;
 
 public class Square2PlayerGame extends BaseChessGame {
     private static final Logger logger = LoggerFactory.getLogger(Square2PlayerGame.class);
@@ -65,6 +65,22 @@ public class Square2PlayerGame extends BaseChessGame {
         if (y < 0 || y >= numTiles) return null;
 
         return tiles[y][x];
+    }
+
+    @Override
+    public void createPiece(Entity targetTile, int pieceTypeId, int ownerId) {
+        for (PieceType pieceType : PieceType.values()) {
+            if (pieceType.getId() == pieceTypeId) {
+                placePiece(
+                        targetTile, ownerId,
+                        ownerId == 0 ? 0 : 180,
+                        pieceType,
+                        ownerId == 0 ? Theme.PieceColor.light : Theme.PieceColor.dark
+                );
+                return;
+            }
+        }
+        logger.error("unable to place piece with pieceTypeId '" + pieceTypeId + "'. PieceType does not exist.");
     }
 
     @Override
@@ -129,42 +145,46 @@ public class Square2PlayerGame extends BaseChessGame {
     }
 
     private void placeRook(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Rook, Theme.PieceIcons.rook, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Rook, getColor(isWhite));
     }
 
     private void placeKnight(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Knight, Theme.PieceIcons.knight, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Knight, getColor(isWhite));
     }
 
     private void placeBishop(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Bishop, Theme.PieceIcons.bishop, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Bishop, getColor(isWhite));
     }
 
     private void placeQueen(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Queen, Theme.PieceIcons.queen, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Queen, getColor(isWhite));
     }
 
     private void placeKing(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.King, Theme.PieceIcons.king, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.King, getColor(isWhite));
     }
 
     private void placePawn(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Pawn, Theme.PieceIcons.pawn, getColor(isWhite));
+        placePiece(x, y, isWhite, PieceType.Pawn, getColor(isWhite));
     }
 
-    private void placePiece(int x, int y, boolean isWhite, PieceType pieceType, Theme.PieceIcons pieceIcon, Theme.PieceColor pieceColor) {
+    private void placePiece(int x, int y, boolean isWhite, PieceType pieceType, Theme.PieceColor pieceColor) {
         Entity tile = getEntityAtPosition(x, y);
         if (tile == null) {
             logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
             return;
         }
 
+        placePiece(tile, isWhite ? 0 : 1, isWhite ? 0 : 180, pieceType, pieceColor);
+    }
+
+    private void placePiece(Entity tile, int ownerId, int direction, PieceType pieceType, Theme.PieceColor pieceColor) {
         PieceIdentifier pieceIdentifier = new PieceIdentifier(
                 pieceType.getId(),
                 pieceType.getShortName(),
-                pieceIcon.asIconKey(pieceColor),
-                isWhite ? 0 : 1,
-                isWhite ? 0 : 180
+                pieceType.getIcon().asIconKey(pieceColor),
+                ownerId,
+                direction
         );
 
         PieceComponent piece = new PieceComponent(this, pieceIdentifier, pieceType.getBaseMoves());
