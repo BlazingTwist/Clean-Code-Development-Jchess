@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ChatMessage",
+  "type": "object",
+  "javaType": "dx.schema.message.ChatMessage",
+  "properties": {
+    "userName": {
+      "description": "userName of the message sender",
+      "type": "string"
+    },
+    "message": {
+      "description": "the actual text content of the message",
+      "type": "string"
+    },
+    "timestamp": {
+      "description": "the time of receipt of the message in milliseconds since the Unix epoch",
+      "type": "integer",
+      "format": "int64"
+    }
+  },
+  "required": ["userName", "message", "timestamp"]
+}

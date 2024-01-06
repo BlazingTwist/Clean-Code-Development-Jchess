@@ -44,21 +44,6 @@ export default function PieceSelectionComponent({
         };
     }, []);
 
-    // TODO Remove
-    /*
-    useEffect(() => {
-        setPieceSelectionOffer({
-            title: "Select a piece to promote",
-            pieces: [
-                { pieceTypeId: "queen", iconId: "piece.queen.light" },
-                { pieceTypeId: "rook", iconId: "piece.rook.light" },
-                { pieceTypeId: "bishop", iconId: "piece.bishop.light" },
-                { pieceTypeId: "knight", iconId: "piece.knight.light" },
-            ],
-        });
-    }, []);
-    */
-
     if (pieceSelectionOffer === undefined) {
         return <></>;
     }

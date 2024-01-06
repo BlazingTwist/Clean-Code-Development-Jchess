@@ -36,4 +36,17 @@ public class TileComponent {
     public Entity getTile(int direction) {
         return neighborsByDirection.get(direction);
     }
+
+    public static String getTileId(TileComponent tile) {
+        return tile.position.x + ";" + tile.position.y;
+    }
+
+    public static Point getTilePosition(String tileId) {
+        String[] posSplit = tileId.split(";");
+        if (posSplit.length != 2) {
+            throw new IllegalArgumentException("Invalid tileId: '" + tileId + "'");
+        }
+
+        return new Point(Integer.parseInt(posSplit[0]), Integer.parseInt(posSplit[1]));
+    }
 }

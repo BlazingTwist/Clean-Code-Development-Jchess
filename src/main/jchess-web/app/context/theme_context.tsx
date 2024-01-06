@@ -1,9 +1,9 @@
 "use client";
-import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect, ReactNode } from "react";
-import { Theme } from "@/models/message/Themes.schema";
-import { fetchGameModes, fetchThemes } from "@/services/rest_api_service";
+import {createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState} from "react";
+import {Theme} from "@/models/message/Themes.schema";
+import {fetchGameModes, fetchThemes} from "@/services/rest_api_service";
 import Config from "@/utils/config";
-import { GameMode, GameModes } from "@/models/message/GameModes.schema";
+import {GameMode} from "@/models/message/GameModes.schema";
 
 /**
  * The properties provided by the ThemeContext.
@@ -115,11 +115,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
             return {};
         }
         // create a map for the theme icons
-        const iconMap: { [key: string]: string } = theme.icons.reduce((map: { [key: string]: string }, icon: any) => {
+        return theme.icons.reduce((map: { [key: string]: string }, icon: any) => {
             map[icon.iconId] = icon.iconPath;
             return map;
         }, {});
-        return iconMap;
     };
 
     // Create the context value to be provided

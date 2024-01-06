@@ -10,7 +10,8 @@ public enum TileComponentAdapter implements IAdapter<TileComponent, dx.schema.ty
         if (data == null) return null;
 
         dx.schema.types.TileComponent result = new dx.schema.types.TileComponent();
-        result.setPosition(Vector2IAdapter.Instance.convert(data.position));
+        result.setTileId(TileComponent.getTileId(data));
+        result.setDisplayPos(Vector2IAdapter.Instance.convert(data.position));
         result.setIconId(data.iconKey.getIconId());
         return result;
     }

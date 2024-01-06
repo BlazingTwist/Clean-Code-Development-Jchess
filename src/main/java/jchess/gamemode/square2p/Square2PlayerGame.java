@@ -1,5 +1,6 @@
 package jchess.gamemode.square2p;
 
+import dx.schema.types.Vector2I;
 import jchess.common.BaseChessGame;
 import jchess.common.components.MarkerType;
 import jchess.common.components.PieceComponent;
@@ -28,6 +29,20 @@ public class Square2PlayerGame extends BaseChessGame {
         pieceMoveEvent.addListener(event -> {
             // TODO erja, update the move history here.
         });
+    }
+
+    @Override
+    public dx.schema.types.Entity applyPerspective(dx.schema.types.Entity tile, int playerIndex) {
+        if (playerIndex < 0 || playerIndex > 1) {
+            throw new IllegalArgumentException("playerIndex must be 0 or 1, but was " + playerIndex);
+        }
+        if (playerIndex == 0) return tile;
+        if (tile == null || tile.getTile() == null || tile.getTile().getDisplayPos() == null) return tile;
+
+        Vector2I displayPos = tile.getTile().getDisplayPos();
+        displayPos.setX(numTiles - displayPos.getX());
+        displayPos.setY(numTiles - displayPos.getY());
+        return tile;
     }
 
     @Override

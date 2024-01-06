@@ -7,11 +7,9 @@
 
 export interface GameClicked {
   sessionId: string;
-  clickPos: Vector2I;
-  [k: string]: unknown;
-}
-export interface Vector2I {
-  x: number;
-  y: number;
+  /**
+   * tileId of the clicked tile
+   */
+  clickedTile: string;
   [k: string]: unknown;
 }

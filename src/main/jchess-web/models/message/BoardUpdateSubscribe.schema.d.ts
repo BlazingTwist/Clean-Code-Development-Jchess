@@ -5,17 +5,14 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface TileComponent {
+export interface BoardUpdateSubscribe {
   /**
-   * id that uniquely identifies this tile
+   * the sessionId of the game instance to register with
    */
-  tileId: string;
-  displayPos: Vector2I;
-  iconId: string;
-  [k: string]: unknown;
-}
-export interface Vector2I {
-  x: number;
-  y: number;
+  sessionId: string;
+  /**
+   * Index of the player (>= 0) whose perspective to show
+   */
+  perspective: number;
   [k: string]: unknown;
 }
