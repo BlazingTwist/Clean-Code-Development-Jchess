@@ -63,12 +63,12 @@ public class Square2PlayerGame extends BaseChessGame {
 
     @Override
     public void createPiece(Entity targetTile, dx.schema.types.PieceType pieceType, int ownerId) {
-        for (Square2pPieces pieceType : Square2pPieces.values()) {
-            if (pieceType.getId() == pieceType) {
+        for (Square2pPieces piece : Square2pPieces.values()) {
+            if (piece.getPieceType() == pieceType) {
                 placePiece(
                         targetTile, ownerId,
                         ownerId == 0 ? 0 : 180,
-                        pieceType,
+                        piece,
                         ownerId == 0 ? Theme.PieceColor.light : Theme.PieceColor.dark
                 );
                 return;
@@ -181,8 +181,8 @@ public class Square2PlayerGame extends BaseChessGame {
                 direction
         );
 
-        PieceComponent piece = new PieceComponent(this, pieceIdentifier, pieceType.getBaseMoves());
-        piece.addSpecialMoves(pieceType.getSpecialRules());
+        PieceComponent piece = new PieceComponent(this, pieceIdentifier, pieceType.getPieceDefinition().baseMoves());
+        piece.addSpecialMoves(pieceType.getPieceDefinition().specialRules());
         tile.piece = piece;
     }
 
