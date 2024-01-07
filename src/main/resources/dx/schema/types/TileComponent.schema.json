@@ -11,9 +11,10 @@
     "displayPos": {
       "$ref": "Vector2I.schema.json"
     },
-    "iconId": {
-      "type": "string"
+    "tileColorIndex": {
+      "description": "index of the corresponding tile color, configured in the LayoutTheme",
+      "type": "integer"
     }
   },
-  "required": ["tileId", "displayPos", "iconId"]
+  "required": ["tileId", "displayPos", "tileColorIndex"]
 }

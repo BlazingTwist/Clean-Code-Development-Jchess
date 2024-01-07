@@ -35,17 +35,17 @@
                     "pieceType": {
                         "$ref": "../types/PieceType.schema.json"
                     },
-                    "fileName": {
-                        "type": "string"
+                    "pathPrefix": {
+                        "$ref": "#/definitions/path"
                     },
-                    "fileExt": {
+                    "pathSuffix": {
                         "type": "string"
                     }
                 },
                 "required": [
                     "pieceType",
-                    "fileName",
-                    "fileExt"
+                    "pathPrefix",
+                    "pathSuffix"
                 ]
             }
         }
@@ -53,5 +53,11 @@
     "required": [
         "playerColors",
         "pieces"
-    ]
+    ],
+    "definitions": {
+        "path": {
+            "type": "string",
+            "pattern": "^\\.?/"
+        }
+    }
 }

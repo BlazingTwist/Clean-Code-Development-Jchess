@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 public class TileExpressionTest {
     private static Entity createPiece(Hex3pPieces pieceType, int player) {
         PieceStore.PieceDefinition pieceDef = pieceType.getPieceDefinition();
-        PieceIdentifier identifier = new PieceIdentifier(pieceDef.pieceTypeId(), pieceDef.shortName(), null, player, 0);
+        PieceIdentifier identifier = new PieceIdentifier(pieceType.getPieceType(), pieceDef.shortName(), player, 0);
 
         Entity entity = new Entity();
         entity.piece = new PieceComponent(null, identifier, TileExpression.or());
@@ -70,8 +70,9 @@ public class TileExpressionTest {
 
         Hex3pPieces pawn = Hex3pPieces.Pawn;
         PieceStore.PieceDefinition pawnDef = pawn.getPieceDefinition();
-        PieceIdentifier pieceIdentifier = new PieceIdentifier(pawnDef.pieceTypeId(), pawnDef.shortName(), null, 0, forwardBasis);
+        PieceIdentifier pieceIdentifier = new PieceIdentifier(pawn.getPieceType(), pawnDef.shortName(), 0, forwardBasis);
 
+        //noinspection ResultOfMethodCallIgnored
         TileExpression.neighbor(neighborDirection).compile(pieceIdentifier).findTiles(entity).toList();
         Mockito.verify(tile, Mockito.atLeastOnce()).getTile(expectedDirection);
         Mockito.verify(tile, Mockito.never()).getTile(unexpectedDirection);

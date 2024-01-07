@@ -74,16 +74,9 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
     }
 
     private static dx.schema.message.Piece getPiece(Hex3pPieces pieceType, int ownerId) {
-        Theme.PieceColor ownerColor = switch (ownerId) {
-            case 1 -> Theme.PieceColor.medium;
-            case 2 -> Theme.PieceColor.dark;
-            default -> Theme.PieceColor.light;
-        };
-
         dx.schema.message.Piece result = new dx.schema.message.Piece();
         result.setPieceTypeId(pieceType.pieceType);
-        // TODO erja, obtain themeProvider from game??
-        // result.setIconId(pieceType.icon.getIconKey(ownerColor));
+        result.setPlayerIdx(ownerId);
         return result;
     }
 

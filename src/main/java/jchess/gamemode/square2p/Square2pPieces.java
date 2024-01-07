@@ -74,8 +74,7 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
     private static Piece getPiece(Square2pPieces pieceType, int ownerId) {
         Piece result = new Piece();
         result.setPieceTypeId(pieceType.pieceType);
-        // TODO erja, obtain themeProvider from game??
-        //result.setIconId(pieceType.icon.getIconKey(ownerId == 0 ? Theme.PieceColor.light : Theme.PieceColor.dark));
+        result.setPlayerIdx(ownerId);
         return result;
     }
 

@@ -5,9 +5,15 @@
     "javaType": "dx.schema.conf.LayoutTheme",
     "properties": {
         "layoutId": {
-            "enum": ["hex3p", "square2p"]
+            "enum": [
+                "hex3p",
+                "square2p"
+            ]
         },
         "tileSize": {
+            "$ref": "../types/Vector2I.schema.json"
+        },
+        "tileStride": {
             "$ref": "../types/Vector2I.schema.json"
         },
         "tiles": {
@@ -15,36 +21,39 @@
             "type": "array",
             "items": {
                 "description": "path to the colored tile icon",
-                "type": "string"
+                "$ref": "#/definitions/path"
             }
         },
         "markers": {
-            "type": "object",
-            "properties": {
-                "yesAction": {
-                    "description": "icon to show if an action is possible on a tile",
-                    "type": "string"
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "markerType": {
+                        "$ref": "../types/MarkerType.schema.json"
+                    },
+                    "icon": {
+                        "$ref": "#/definitions/path"
+                    }
                 },
-                "noAction": {
-                    "description": "icon to show if an action is currently unavailable on a tile",
-                    "type": "string"
-                },
-                "selected": {
-                    "description": "icon to show on the currently selected tile",
-                    "type": "string"
-                }
-            },
-            "required": [
-                "yesAction",
-                "noAction",
-                "selected"
-            ]
+                "required": [
+                    "markerType",
+                    "icon"
+                ]
+            }
         }
     },
     "required": [
         "layoutId",
         "tileSize",
+        "tileStride",
         "tiles",
         "markers"
-    ]
+    ],
+    "definitions": {
+        "path": {
+            "type": "string",
+            "pattern": "^\\.?/"
+        }
+    }
 }

@@ -6,6 +6,7 @@ import jchess.el.TileExpression;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public final class PieceStore {
 
@@ -19,6 +20,10 @@ public final class PieceStore {
 
     public IPieceDefinitionProvider getPiece(PieceType pieceType) {
         return pieceDefinitions.get(pieceType);
+    }
+
+    public Set<PieceType> getPieces() {
+        return pieceDefinitions.keySet();
     }
 
     public record PieceDefinition(String shortName, TileExpression baseMoves, ISpecialRuleProvider... specialRules) {

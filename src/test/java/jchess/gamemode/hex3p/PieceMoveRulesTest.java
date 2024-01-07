@@ -129,7 +129,7 @@ public class PieceMoveRulesTest {
 
     private void MoveTestNoOtherPieces(Hex3pPieces pieceType, int tileToTest, int[] expectedTiles) {
         PieceStore.PieceDefinition pieceDefinition = pieceType.getPieceDefinition();
-        PieceIdentifier identifier = new PieceIdentifier(pieceDefinition.pieceTypeId(), pieceDefinition.shortName(), null, 0, 0);
+        PieceIdentifier identifier = new PieceIdentifier(pieceType.getPieceType(), pieceDefinition.shortName(), 0, 0);
         PieceComponent piece = new PieceComponent(null, identifier, pieceDefinition.baseMoves());
 
         List<Entity> moves = piece.findValidMoves(testField[tileToTest], false).map(MoveIntention::displayTile).toList();
