@@ -5,6 +5,7 @@ import jchess.common.IChessGame;
 import jchess.gamemode.hex3p.Hex3PlayerGame;
 import jchess.gamemode.hex3p.Hex3pPieces;
 import jchess.gamemode.square2p.Square2PlayerGame;
+import jchess.gamemode.square2p.Square2pPieces;
 
 import java.util.HashMap;
 import java.util.Map;

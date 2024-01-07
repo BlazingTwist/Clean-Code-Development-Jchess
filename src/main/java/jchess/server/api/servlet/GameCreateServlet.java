@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 public class GameCreateServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(GameCreateServlet.class);
@@ -22,21 +21,24 @@ public class GameCreateServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         GameCreate createInfo = JsonUtils.getMapper().readValue(req.getReader(), GameCreate.class);
 
-        LayoutTheme.LayoutId layoutId;
+        final LayoutTheme.LayoutId layoutId;
         try {
             layoutId = LayoutTheme.LayoutId.fromValue(createInfo.getModeId());
         } catch (Exception e) {
             logger.warn("Failed to find GameMode with id: '{}'", createInfo.getModeId());
-            HttpUtils.error(resp, StatusCodes.BAD_REQUEST, "Invalid Game-Mode Id");
+            HttpUtils.respond(resp, StatusCodes.BAD_REQUEST, "Invalid Game-Mode Id");
             return;
         }
 
-        String sessionId = WipExampleServer.startNewGame(layoutId);
+        final String sessionId;
+        try {
+            sessionId = WipExampleServer.startNewGame(layoutId);
+        } catch (Exception e) {
+            logger.warn("Failed to start new game.", e);
+            HttpUtils.respond(resp, StatusCodes.INTERNAL_SERVER_ERROR, "Failed to start new game. Exception: " + e.getMessage());
+            return;
+        }
 
-        resp.setStatus(StatusCodes.CREATED);
-        PrintWriter writer = resp.getWriter();
-        writer.write(sessionId);
-        writer.flush();
-        writer.close();
+        HttpUtils.respond(resp, StatusCodes.CREATED, sessionId);
     }
 }

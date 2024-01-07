@@ -21,6 +21,7 @@ import jchess.server.api.servlet.GameModesServlet;
 import jchess.server.api.servlet.ThemesServlet;
 import jchess.server.api.socket.BoardUpdateWebsocket;
 import jchess.server.api.socket.PieceSelectionWebsocket;
+import jchess.server.api.socket.ChatWebsocket;
 import jchess.server.session.SessionManager;
 import jchess.server.session.SessionMgrController;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class WipExampleServer {
     public static void main(String[] args) throws ServletException, URISyntaxException {
         boardUpdateWebsocket = new BoardUpdateWebsocket();
         pieceSelectionWebsocket = new PieceSelectionWebsocket();
+        ChatWebsocket chatWebsocket = new ChatWebsocket();
 
         SessionMgrController.registerSessionManager(GameSessionData.class, 10, TimeUnit.MINUTES);
         SessionMgrController.startHeartbeat(1, TimeUnit.MINUTES);
@@ -62,7 +64,8 @@ public class WipExampleServer {
         PathHandler pathHandler = Handlers.path(handler)
                 .addPrefixPath(resourcePrefix, new ResourceHandler(resourceManager))
                 .addPrefixPath("/api/board/update", Handlers.websocket(boardUpdateWebsocket))
-                .addPrefixPath("/api/pieceSelection", Handlers.websocket(pieceSelectionWebsocket));
+                .addPrefixPath("/api/pieceSelection", Handlers.websocket(pieceSelectionWebsocket))
+                .addPrefixPath("/api/chat", Handlers.websocket(chatWebsocket));
 
         Undertow server = Undertow.builder()
                 .addHttpListener(8880, "127.0.0.1")
@@ -75,7 +78,7 @@ public class WipExampleServer {
     public static String startNewGame(LayoutTheme.LayoutId layoutId) {
         IChessGame game = GameModeStore.getGameMode(layoutId).newGame();
 
-        GameSessionData gameData = new GameSessionData(game, new PieceSelectionWebsocket.PieceSelectionHandler(game));
+        GameSessionData gameData = new GameSessionData(game);
         SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
         String sessionId = gameManager.createSession(gameData).sessionId;
 

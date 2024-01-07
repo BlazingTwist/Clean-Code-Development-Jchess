@@ -1,6 +1,6 @@
 package jchess.gamemode;
 
-import dx.schema.conf.Piece;
+import dx.schema.types.PieceType;
 import jchess.common.moveset.ISpecialRuleProvider;
 import jchess.el.TileExpression;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public final class PieceStore {
 
-    private final Map<Piece.PieceType, IPieceDefinitionProvider> pieceDefinitions = new HashMap<>();
+    private final Map<PieceType, IPieceDefinitionProvider> pieceDefinitions = new HashMap<>();
 
     public PieceStore(IPieceDefinitionProvider... pieceDefinitions) {
         for (IPieceDefinitionProvider piece : pieceDefinitions) {
@@ -17,7 +17,7 @@ public final class PieceStore {
         }
     }
 
-    public IPieceDefinitionProvider getPiece(Piece.PieceType pieceType) {
+    public IPieceDefinitionProvider getPiece(PieceType pieceType) {
         return pieceDefinitions.get(pieceType);
     }
 
@@ -25,7 +25,7 @@ public final class PieceStore {
     }
 
     public interface IPieceDefinitionProvider {
-        Piece.PieceType getPieceType();
+        PieceType getPieceType();
 
         PieceDefinition getPieceDefinition();
     }

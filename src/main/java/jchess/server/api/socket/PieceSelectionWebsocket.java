@@ -37,7 +37,7 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
             return;
         }
 
-        game.pieceSelectionHandler().offerPieceSelection(pieceSelection);
+        game.pieceSelectionHandler.offerPieceSelection(pieceSelection);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
             return;
         }
 
-        PieceSelectionHandler handler = game.pieceSelectionHandler();
+        PieceSelectionHandler handler = game.pieceSelectionHandler;
         handler.add(channel);
         channel.getReceiveSetter().set(handler);
     }
@@ -80,7 +80,6 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
     public static class PieceSelectionHandler extends AbstractReceiveListener {
         private final IChessGame game;
         private final List<WebSocketChannel> channels = new ArrayList<>();
-
         public PieceSelectionHandler(IChessGame game) {
             this.game = game;
         }

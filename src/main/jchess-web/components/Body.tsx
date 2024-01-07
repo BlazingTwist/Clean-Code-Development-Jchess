@@ -9,6 +9,7 @@ import { useGameUpdateContext } from "@/app/context/game_update_context";
 import Config from "@/utils/config";
 import { useThemeContext } from "@/app/context/theme_context";
 import { fetchThemes } from "@/services/rest_api_service";
+import { BoardUpdateSubscribe } from "@/models/message/BoardUpdateSubscribe.schema";
 
 /**
  * Represents the main body component for the JChess application.
@@ -17,6 +18,7 @@ import { fetchThemes } from "@/services/rest_api_service";
 export default function Body({ sessionId }: { sessionId: string | undefined }) {
     // Retrieve the game state from the context
     const { setGameUpdate } = useGameUpdateContext();
+    const { gameOptions } = useGameContext();
     const { getCurrentTheme, setTheme } = useThemeContext();
 
     const [ws, setWs] = useState<WebSocket | undefined>(undefined);
@@ -29,6 +31,11 @@ export default function Body({ sessionId }: { sessionId: string | undefined }) {
             console.log("Opening WebSocket connection");
             const serverUri = Config.socketServerUri;
             const socketEndpoint = `${serverUri}/api/board/update`;
+
+            const subscribeMessage: BoardUpdateSubscribe = {
+                sessionId: sessionId,
+                perspective: gameOptions.playerPerspective,
+            };
 
             const ws = new WebSocket(socketEndpoint);
             setWs(ws);
@@ -44,7 +51,7 @@ export default function Body({ sessionId }: { sessionId: string | undefined }) {
                         setTheme(selectedTheme || "default");
                     });
                 }
-                ws.send(JSON.stringify({ sessionId: sessionId }));
+                ws.send(JSON.stringify(subscribeMessage));
             };
             ws.onmessage = (event) => {
                 let data = JSON.parse(event.data);

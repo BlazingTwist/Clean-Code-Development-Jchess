@@ -27,7 +27,7 @@ export function NewGameModal() {
     // State variables for player information and game settings
     // values for the select elements
     const [timeGameValues, setTimeGameValues] = useState<string[]>([]);
-    const [isWhiteOnTop, setWhiteOnTop] = useState(false);
+    const [playerPerspective, setPlayerPerspective] = useState(0);
     const [isTimeGame, setTimeGame] = useState(false);
     const [timeGameAmount, setTimeGameAmount] = useState("0");
 
@@ -45,6 +45,13 @@ export function NewGameModal() {
         console.log("fetch possible time game amounts from server");
         setTimeGameValues(["1", "3", "5", "8", "10", "15", "20", "25", "30", "60", "120"]);
     }, []);
+
+    const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        // Reset selected theme when gameMode changes
+        setSelectedTheme(undefined);
+    }, [gameMode]);
 
     /**
      * @function renderNameInputs
@@ -75,13 +82,6 @@ export function NewGameModal() {
      * @returns {JSX.Element} JSX Element representing the time select dropdown.
      */
     const renderThemeSelect = () => {
-        const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
-
-        useEffect(() => {
-            // Reset selected theme when gameMode changes
-            setSelectedTheme(undefined);
-        }, [gameMode]);
-
         if (!gameMode) {
             return [];
         }
@@ -102,6 +102,48 @@ export function NewGameModal() {
                     {Array.from(gameMode.themeIds).map((value) => (
                         <SelectItem key={value} value={value}>
                             {value}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        );
+    };
+
+    function getPerspectiveString(perspective: number): string {
+        return "Player " + (perspective + 1);
+    }
+
+    function getPerspectiveFromPerspectiveString(perspectiveString: string): number {
+        // magic number 7 is the length of "Player "
+        return parseInt(perspectiveString.substring(7)) - 1;
+    }
+
+    /**
+     * @function renderPerspectiveSelect
+     * @description Renders a dropdown for selecting the players perspective.
+     * @returns {JSX.Element} JSX Element representing the perspective select dropdown.
+     */
+    const renderPerspectiveSelect = () => {
+        if (!gameMode) {
+            return [];
+        }
+
+        return (
+            <Select
+                onValueChange={(playerPerspective) => {
+                    setPlayerPerspective(getPerspectiveFromPerspectiveString(playerPerspective));
+                }}
+                value={getPerspectiveString(playerPerspective)}
+                required
+            >
+                <Label htmlFor={"player-perspective"}>Perspective</Label>
+                <SelectTrigger id="perspective-selection">
+                    <SelectValue placeholder="Select Perspective" />
+                </SelectTrigger>
+                <SelectContent position="popper" id="player-perspective">
+                    {Array.from(Array(gameMode.numPlayers).keys()).map((value) => (
+                        <SelectItem key={value} value={getPerspectiveString(value)}>
+                            {getPerspectiveString(value)}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -193,7 +235,7 @@ export function NewGameModal() {
             console.log("sessionId:" + sessionId);
             setGameOptions({
                 playerNames,
-                isWhiteOnTop,
+                playerPerspective,
                 isTimeGame,
                 timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
             });
@@ -234,19 +276,8 @@ export function NewGameModal() {
                         </div>
 
                         <div className="flex flex-col space-y-1.5 mb-4">{renderNameInputs()}</div>
+                        <div className="flex flex-col space-y-1.5 mb-4">{renderPerspectiveSelect()}</div>
                         <div className="flex items-center space-x-2 mb-4 ">
-                            <Checkbox
-                                disabled // TODO implement
-                                id="white-on-top"
-                                onCheckedChange={(checked: boolean) => setWhiteOnTop(checked)}
-                            />
-                            <label
-                                htmlFor="white-on-top"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                White on top
-                            </label>
-
                             <Checkbox id="time-game" onCheckedChange={(checked: boolean) => setTimeGame(checked)} />
                             <label
                                 htmlFor="time-game"

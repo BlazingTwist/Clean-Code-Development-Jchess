@@ -1,6 +1,6 @@
 package jchess.common.moveset.special;
 
-import dx.schema.conf.Piece;
+import dx.schema.types.PieceType;
 import jchess.common.IChessGame;
 import jchess.common.components.PieceIdentifier;
 import jchess.common.events.BoardInitializedEvent;
@@ -24,7 +24,7 @@ public class Castling implements ISpecialRule {
     private final TileExpression kingMoveLeft;
     private final TileExpression kingMoveRight;
     private final PieceIdentifier kingId;
-    private final Piece.PieceType rookTypeId;
+    private final PieceType rookTypeId;
     private final int rightRookDirection;
     private final int leftRookDirection;
 
@@ -35,7 +35,7 @@ public class Castling implements ISpecialRule {
     private boolean rightRookMoved = false;
 
     public Castling(
-            IChessGame game, PieceIdentifier kingId, Piece.PieceType rookTypeId, int rightRookDirection, int leftRookDirection,
+            IChessGame game, PieceIdentifier kingId, PieceType rookTypeId, int rightRookDirection, int leftRookDirection,
             TileExpression kingMoveLeft, TileExpression kingMoveRight
     ) {
         this.game = game;

@@ -1,5 +1,6 @@
 package jchess.gamemode.square2p;
 
+import dx.schema.types.Vector2I;
 import jchess.common.BaseChessGame;
 import jchess.common.components.MarkerType;
 import jchess.common.components.PieceComponent;
@@ -30,8 +31,17 @@ public class Square2PlayerGame extends BaseChessGame {
     }
 
     @Override
-    public int getKingTypeId() {
-        return PieceType.King.getId();
+    public dx.schema.types.Entity applyPerspective(dx.schema.types.Entity tile, int playerIndex) {
+        if (playerIndex < 0 || playerIndex > 1) {
+            throw new IllegalArgumentException("playerIndex must be 0 or 1, but was " + playerIndex);
+        }
+        if (playerIndex == 0) return tile;
+        if (tile == null || tile.getTile() == null || tile.getTile().getDisplayPos() == null) return tile;
+
+        Vector2I displayPos = tile.getTile().getDisplayPos();
+        displayPos.setX(numTiles - displayPos.getX());
+        displayPos.setY(numTiles - displayPos.getY());
+        return tile;
     }
 
     @Override
@@ -52,9 +62,9 @@ public class Square2PlayerGame extends BaseChessGame {
     }
 
     @Override
-    public void createPiece(Entity targetTile, int pieceTypeId, int ownerId) {
-        for (PieceType pieceType : PieceType.values()) {
-            if (pieceType.getId() == pieceTypeId) {
+    public void createPiece(Entity targetTile, dx.schema.types.PieceType pieceType, int ownerId) {
+        for (Square2pPieces pieceType : Square2pPieces.values()) {
+            if (pieceType.getId() == pieceType) {
                 placePiece(
                         targetTile, ownerId,
                         ownerId == 0 ? 0 : 180,
@@ -64,7 +74,7 @@ public class Square2PlayerGame extends BaseChessGame {
                 return;
             }
         }
-        logger.error("unable to place piece with pieceType '" + pieceTypeId + "'. PieceType does not exist.");
+        logger.error("unable to place piece with pieceType '" + pieceType + "'. PieceType does not exist.");
     }
 
     @Override
@@ -129,30 +139,30 @@ public class Square2PlayerGame extends BaseChessGame {
     }
 
     private void placeRook(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Rook, getColor(isWhite));
+        placePiece(x, y, isWhite, Square2pPieces.Rook, getColor(isWhite));
     }
 
     private void placeKnight(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Knight, getColor(isWhite));
+        placePiece(x, y, isWhite, Square2pPieces.Knight, getColor(isWhite));
     }
 
     private void placeBishop(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Bishop, getColor(isWhite));
+        placePiece(x, y, isWhite, Square2pPieces.Bishop, getColor(isWhite));
     }
 
     private void placeQueen(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Queen, getColor(isWhite));
+        placePiece(x, y, isWhite, Square2pPieces.Queen, getColor(isWhite));
     }
 
     private void placeKing(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.King, getColor(isWhite));
+        placePiece(x, y, isWhite, Square2pPieces.King, getColor(isWhite));
     }
 
     private void placePawn(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, PieceType.Pawn, getColor(isWhite));
+        placePiece(x, y, isWhite, Square2pPieces.Pawn, getColor(isWhite));
     }
 
-    private void placePiece(int x, int y, boolean isWhite, PieceType pieceType, Theme.PieceColor pieceColor) {
+    private void placePiece(int x, int y, boolean isWhite, Square2pPieces pieceType, Theme.PieceColor pieceColor) {
         Entity tile = getEntityAtPosition(x, y);
         if (tile == null) {
             logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
@@ -162,11 +172,11 @@ public class Square2PlayerGame extends BaseChessGame {
         placePiece(tile, isWhite ? 0 : 1, isWhite ? 0 : 180, pieceType, pieceColor);
     }
 
-    private void placePiece(Entity tile, int ownerId, int direction, PieceType pieceType, Theme.PieceColor pieceColor) {
+    private void placePiece(Entity tile, int ownerId, int direction, Square2pPieces pieceType, Theme.PieceColor pieceColor) {
         PieceIdentifier pieceIdentifier = new PieceIdentifier(
-                pieceType.getId(),
-                pieceType.getShortName(),
-                pieceType.getIcon().asIconKey(pieceColor),
+                pieceType.getPieceType(),
+                pieceType.getPieceDefinition().shortName(),
+                pieceType.getIcon().asIconKey(pieceColor), // TODO erja
                 ownerId,
                 direction
         );

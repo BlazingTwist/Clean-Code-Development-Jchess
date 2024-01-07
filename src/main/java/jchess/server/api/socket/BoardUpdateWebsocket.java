@@ -1,7 +1,6 @@
 package jchess.server.api.socket;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import dx.schema.message.BoardUpdateSubscribe;
 import dx.schema.message.GameUpdate;
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.core.AbstractReceiveListener;
@@ -18,37 +17,23 @@ import jchess.server.util.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BoardUpdateWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
     private static final Logger logger = LoggerFactory.getLogger(BoardUpdateWebsocket.class);
-    private final Map<String, List<WebSocketChannel>> channelsBySessionId = new HashMap<>();
 
     public void onGameRenderEvent(String sessionId, IChessGame game) {
-        String message = getUpdateMessage(game);
-        if (message == null) {
+        GameSessionData session = SessionUtils.findGame(sessionId);
+        if (session == null) {
             return;
         }
 
-        List<WebSocketChannel> channels = channelsBySessionId.get(sessionId);
-        if (channels == null || channels.isEmpty()) {
-            return;
-        }
-
-        int socketsNotified = 0;
-        Iterator<WebSocketChannel> iterator = channels.iterator();
-        while (iterator.hasNext()) {
-            WebSocketChannel channel = iterator.next();
-            if (channel.getCloseCode() >= 0) {
-                iterator.remove();
-                continue;
-            }
-
-            WebSockets.sendText(message, channel, null);
-            socketsNotified++;
-        }
-        logger.debug("Notified {} WebSockets of boardUpdate", socketsNotified);
+        session.boardUpdateHandler.sendGameUpdate(game);
     }
 
     @Override
@@ -62,17 +47,13 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
     protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
         String data = message.getData();
         logger.info("Received message '{}'", data);
-        ObjectMapper mapper = JsonUtils.getMapper();
-        JsonNode messageTree = mapper.readTree(data);
+        BoardUpdateSubscribe messageObj = JsonUtils.getMapper().readValue(data, BoardUpdateSubscribe.class);
 
-        String sessionId = JsonUtils.traverse(messageTree).get("sessionId").textValue();
+        String sessionId = messageObj.getSessionId();
         if (sessionId == null || sessionId.isBlank()) {
             SocketUtils.close(channel, "property 'sessionId' is missing.");
             return;
         }
-
-        List<WebSocketChannel> channels = channelsBySessionId.computeIfAbsent(sessionId, key -> new ArrayList<>());
-        channels.add(channel);
 
         // send the current board state to the newly registered WebSocket
         GameSessionData game = SessionUtils.findGame(sessionId);
@@ -81,19 +62,67 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
             return;
         }
 
-        String updateMessage = getUpdateMessage(game.game());
+        game.boardUpdateHandler.subscribe(channel, messageObj.getPerspective());
+
+        String updateMessage = getUpdateMessage(game.game, messageObj.getPerspective());
         if (updateMessage != null) {
             WebSockets.sendText(updateMessage, channel, null);
         }
     }
 
-    private String getUpdateMessage(IChessGame game) {
+    private static String getUpdateMessage(IChessGame game, int perspective) {
         GameUpdate gameUpdateObject = new GameUpdate();
         gameUpdateObject.setActivePlayerId(game.getActivePlayerId());
         gameUpdateObject.setBoardState(game.getEntityManager().getEntities().stream()
                 .map(EntityAdapter.Instance::convert)
+                .map(entity -> game.applyPerspective(entity, perspective))
                 .toList());
 
         return JsonUtils.serialize(gameUpdateObject);
+    }
+
+    public static class Handler implements Closeable {
+        private final Map<Integer, List<WebSocketChannel>> channelsByPerspective = new HashMap<>();
+
+        public void subscribe(WebSocketChannel channel, int perspective) {
+            List<WebSocketChannel> channels = channelsByPerspective.computeIfAbsent(perspective, x -> new ArrayList<>());
+            channels.add(channel);
+        }
+
+        public void sendGameUpdate(IChessGame game) {
+            int channelsNotified = 0;
+            for (Map.Entry<Integer, List<WebSocketChannel>> entry : channelsByPerspective.entrySet()) {
+                int perspective = entry.getKey();
+                List<WebSocketChannel> channels = entry.getValue();
+
+                channels.removeIf(channel -> channel.getCloseCode() >= 0);
+                if (channels.isEmpty()) {
+                    continue;
+                }
+
+                String message = getUpdateMessage(game, perspective);
+                if (message == null) {
+                    continue;
+                }
+
+                for (WebSocketChannel channel : channels) {
+                    WebSockets.sendText(message, channel, null);
+                    channelsNotified++;
+                }
+            }
+            logger.debug("Notified {} WebSockets of boardUpdate", channelsNotified);
+
+            channelsByPerspective.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+        }
+
+        @Override
+        public void close() throws IOException {
+            for (List<WebSocketChannel> channels : channelsByPerspective.values()) {
+                for (WebSocketChannel channel : channels) {
+                    SocketUtils.close(channel, "session has expired");
+                }
+            }
+            channelsByPerspective.clear();
+        }
     }
 }

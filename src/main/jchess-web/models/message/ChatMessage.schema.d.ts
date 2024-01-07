@@ -5,17 +5,18 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface TileComponent {
+export interface ChatMessage {
   /**
-   * id that uniquely identifies this tile
+   * userName of the message sender
    */
-  tileId: string;
-  displayPos: Vector2I;
-  iconId: string;
-  [k: string]: unknown;
-}
-export interface Vector2I {
-  x: number;
-  y: number;
+  userName: string;
+  /**
+   * the actual text content of the message
+   */
+  message: string;
+  /**
+   * the time of receipt of the message in milliseconds since the Unix epoch
+   */
+  timestamp: number;
   [k: string]: unknown;
 }

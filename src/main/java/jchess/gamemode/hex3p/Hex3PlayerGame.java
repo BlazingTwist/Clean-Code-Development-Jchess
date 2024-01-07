@@ -1,5 +1,7 @@
 package jchess.gamemode.hex3p;
 
+import dx.schema.types.PieceType;
+import dx.schema.types.Vector2I;
 import jchess.common.BaseChessGame;
 import jchess.common.components.MarkerType;
 import jchess.common.components.PieceComponent;
@@ -34,8 +36,26 @@ public class Hex3PlayerGame extends BaseChessGame {
     }
 
     @Override
-    public int getKingTypeId() {
-        return Hex3pPieces.King.getPieceDefinition().pieceTypeId();
+    public dx.schema.types.Entity applyPerspective(dx.schema.types.Entity tile, int playerIndex) {
+        if (playerIndex < 0 || playerIndex > 2) {
+            throw new IllegalArgumentException("playerIndex must be 0, 1 or 2, but was " + playerIndex);
+        }
+        if (playerIndex == 0) return tile;
+        if (tile == null || tile.getTile() == null || tile.getTile().getDisplayPos() == null) return tile;
+
+        final double strideX = 1.73205;
+        final double strideY = 3;
+        final double cosine = -0.5;
+        final double sine = (playerIndex == 1 ? 1 : -1) * 0.8660254;
+
+        Vector2I displayPos = tile.getTile().getDisplayPos();
+        double scaledX = (displayPos.getX() - 16) * strideX;
+        double scaledY = (displayPos.getY() - 8) * strideY;
+        double rotatedX = (scaledX * cosine) - (scaledY * sine);
+        double rotatedY = (scaledX * sine) + (scaledY * cosine);
+        displayPos.setX((int) Math.round(rotatedX / strideX) + 16);
+        displayPos.setY((int) Math.round(rotatedY / strideY) + 8);
+        return tile;
     }
 
     @Override
@@ -56,15 +76,15 @@ public class Hex3PlayerGame extends BaseChessGame {
     }
 
     @Override
-    public void createPiece(Entity targetTile, int pieceTypeId, int ownerId) {
+    public void createPiece(Entity targetTile, PieceType pieceType, int ownerId) {
         for (Hex3pPieces piece : Hex3pPieces.values()) {
-            if (piece.getPieceDefinition().pieceTypeId() == pieceTypeId) {
+            if (piece.getPieceType() == pieceType) {
                 int direction = ((ownerId - 3) * (-120)) % 360; // [0, 240, 120]
                 placePiece(targetTile, ownerId, direction, piece, getPlayerColor(ownerId));
                 return;
             }
         }
-        logger.error("unable to place piece with pieceType '" + pieceTypeId + "'. PieceType does not exist.");
+        logger.error("unable to place piece with pieceType '" + pieceType + "'. PieceType does not exist.");
     }
 
     @Override
@@ -199,7 +219,7 @@ public class Hex3PlayerGame extends BaseChessGame {
     private void placePiece(Entity tile, int ownerId, int direction, Hex3pPieces piece, Theme.PieceColor pieceColor) {
         PieceStore.PieceDefinition pieceDefinition = piece.getPieceDefinition();
         PieceIdentifier pieceIdentifier = new PieceIdentifier(
-                pieceDefinition.pieceTypeId(),
+                piece.getPieceType(),
                 pieceDefinition.shortName(),
                 pieceType.getIcon().asIconKey(pieceColor), // TODO erja
                 ownerId,

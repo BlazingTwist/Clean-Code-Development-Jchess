@@ -1,6 +1,6 @@
 package jchess.common.components;
 
-import dx.schema.conf.Piece;
+import dx.schema.types.PieceType;
 import jchess.common.theme.IIconKey;
 
 /**
@@ -11,7 +11,7 @@ import jchess.common.theme.IIconKey;
  * @param forwardBasis A number in range [0, 360) indicating the forwards-direction of this piece. (With 0 being 'North')
  */
 public record PieceIdentifier(
-        Piece.PieceType pieceType,
+        PieceType pieceType,
         String shortName,
         IIconKey iconKey,
         int ownerId,

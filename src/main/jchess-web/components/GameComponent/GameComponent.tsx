@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useGameContext } from "@/app/context/game_context";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
 import { useThemeContext } from "@/app/context/theme_context";
-import { Vector2I } from "@/models/message/GameUpdate.schema";
+import {Entity} from "@/models/message/GameUpdate.schema";
 import Config from "@/utils/config";
 import TimeGameComponent from "./TimeGameComponent";
 import HistoryComponent from "./HistoryComponent";
@@ -29,9 +29,9 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
     /**
      * @function calculateMinMaxTilePosition
      * @description Calculates the min and max tile positions from a tiles array.
-     * @param {any[]}
+     * @param {Entity[]} entities
      */
-    function calculateMinMaxTilePosition(tiles: { position: number[]; iconId: string }[]) {
+    function calculateMinMaxTilePosition(entities: Entity[]) {
         let minTilePos;
         let maxTilePos;
         {
@@ -39,11 +39,13 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
             let minY = Number.POSITIVE_INFINITY;
             let maxX = Number.NEGATIVE_INFINITY;
             let maxY = Number.NEGATIVE_INFINITY;
-            for (let tile of tiles) {
-                minX = Math.min(minX, tile.position[0]);
-                maxX = Math.max(maxX, tile.position[0]);
-                minY = Math.min(minY, tile.position[1]);
-                maxY = Math.max(maxY, tile.position[1]);
+            for (let entity of entities) {
+                if(!entity.tile) continue;
+
+                minX = Math.min(minX, entity.tile.displayPos.x);
+                maxX = Math.max(maxX, entity.tile.displayPos.x);
+                minY = Math.min(minY, entity.tile.displayPos.y);
+                maxY = Math.max(maxY, entity.tile.displayPos.y);
             }
             minTilePos = [minX, minY];
             maxTilePos = [maxX, maxY];
@@ -57,10 +59,17 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
      */
     const renderBoard = () => {
         if (gameUpdate && theme?.tileAspectRatio && theme?.tileStride) {
-            // get the tiles, pieces and markers arrays from the gameUpdate
-            const { tiles, pieces, markers } = getEntityArrays();
+            // create a map for the theme icons
+            const iconMap: { [key: string]: string } = theme.icons.reduce(
+                (map: { [key: string]: string }, icon: any) => {
+                    map[icon.iconId] = icon.iconPath;
+                    return map;
+                },
+                {}
+            );
+
             // calculate the min and max tile positions
-            const { maxTilePos, minTilePos } = calculateMinMaxTilePosition(tiles);
+            const { maxTilePos, minTilePos } = calculateMinMaxTilePosition(gameUpdate.boardState);
 
             // calculate the piece size adjustment and translation offset to ensure clickability of the pieces
             const pieceSizeAdjustment = 0.7; // this is needed so the bounding box of the piece is not overlapping with other pieces
@@ -73,9 +82,8 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
             const canvas: JSX.Element[] = getBoardCanvas(
                 maxTilePos,
                 minTilePos,
-                tiles,
-                pieces,
-                markers,
+                gameUpdate.boardState,
+                iconMap,
                 pieceSizeAdjustment,
                 translationString
             );
@@ -94,44 +102,33 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
      * @description Creates the canvas for the board. Populates the canvas with images for tiles, pieces and markers.
      * @param {number[]} maxTilePos - The maximum tile position.
      * @param {number[]} minTilePos - The minimum tile position.
-     * @param {any[]} tiles - The tiles array.
-     * @param {any[]} pieces - The pieces array.
-     * @param {any[]} markers - The markers array.
+     * @param {Entity[]} entities - The tiles array.
+     * @param {Map<string, string>} iconMap - The icon map.
      * @param {number} pieceSizeAdjustment - The piece size adjustment.
      * @param {string} translationString - The translation string.
      */
     function getBoardCanvas(
         maxTilePos: number[],
         minTilePos: number[],
-        tiles: { position: number[]; iconId: string }[],
-        pieces: {
-            identifier: import("@/models/message/GameUpdate.schema").PieceIdentifier;
-            tile: { position: number[]; iconId: string };
-        }[],
-        markers: {
-            markerType: import("@/models/message/GameUpdate.schema").MarkerType;
-            tile: { position: number[]; iconId: string };
-            iconId: string;
-        }[],
+        entities: Entity[],
+        iconMap: { [key: string]: string },
         pieceSizeAdjustment: number,
         translationString: string
     ) {
         const canvas: JSX.Element[] = [];
         const serverUri = Config.clientUri + "/api/";
         const offsetWidthFromCanvasRef = canvasRef.current?.offsetWidth || 1;
-        const offsetHeightFromCanvasRef = canvasRef.current?.offsetHeight || 1;
         const rawBoardWidth = theme!.tileAspectRatio!.x + theme!.tileStride!.x * (maxTilePos[0] - minTilePos[0]);
-        const rawBoardHeight = theme!.tileAspectRatio!.y + theme!.tileStride!.y * (maxTilePos[1] - minTilePos[0]);
-
         let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
 
-        for (const tile of tiles) {
-            const tileX = tile.position[0] - minTilePos[0];
+        entities.filter(e => e.tile).forEach(entity => {
+            const tile = entity.tile!;
+            const tileX = tile.displayPos.x - minTilePos[0];
             const offsetX = tileX * theme!.tileStride!.x * scaleFactor;
-            const tileY = tile.position[1] - minTilePos[1];
+            const tileY = tile.displayPos.y - minTilePos[1];
             const offsetY = tileY * theme!.tileStride!.y * scaleFactor;
             const iconPath = iconMap[tile.iconId];
-            const tileKey = `tile-${tile.iconId}-${tile.position[0]}-${tile.position[1]}`;
+            const tileKey = `tile-${tile.iconId}-${tile.displayPos.x}-${tile.displayPos.y}`;
             canvas.push(
                 <div
                     key={tileKey}
@@ -151,30 +148,28 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
 
                             postClick({
                                 sessionId: sessionId,
-                                clickPos: {
-                                    x: tile.position[0],
-                                    y: tile.position[1],
-                                },
+                                clickedTile: tile.tileId,
                             });
                         }}
                     />
                     {showCoordinates && (
                         <span className="absolute inset-0 flex items-center justify-center">
-                            {tile.position[0] + ":" + tile.position[1]}
+                            {tile.displayPos.x + ":" + tile.displayPos.y}
                         </span>
                     )}
                 </div>
             );
-        }
+        });
 
-        for (const piece of pieces) {
-            const tilePos = piece.tile.position;
-            const x = tilePos[0] - minTilePos[0];
+        entities.filter(e => e.tile && e.piece).forEach(entity => {
+            const tilePos = entity.tile!.displayPos;
+            const piece = entity.piece!;
+            const x = tilePos.x - minTilePos[0];
             const offsetX = x * theme!.tileStride!.x * scaleFactor;
-            const y = tilePos[1] - minTilePos[1];
+            const y = tilePos.y - minTilePos[1];
             const offsetY = y * theme!.tileStride!.y * scaleFactor;
             const iconPath = iconMap[piece.identifier.iconId];
-            const pieceKey = `piece-${piece.identifier.iconId}-${tilePos[0]}-${tilePos[1]}`;
+            const pieceKey = `piece-${piece.identifier.iconId}-${tilePos.x}-${tilePos.y}`;
 
             const pieceWidth = theme!.tileAspectRatio!.x * scaleFactor * pieceSizeAdjustment;
             const pieceHeight = theme!.tileAspectRatio!.y * scaleFactor * pieceSizeAdjustment;
@@ -195,15 +190,16 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                     />
                 </div>
             );
-        }
+        });
 
-        for (const marker of markers) {
-            const markerPos = marker.tile.position;
-            const x = markerPos[0] - minTilePos[0];
+        entities.filter(e => e.tile && e.marker).forEach(entity => {
+            const marker = entity.marker!;
+            const markerPos = entity.tile!.displayPos;
+            const x = markerPos.x - minTilePos[0];
             const offsetX = x * theme!.tileStride!.x * scaleFactor;
-            const y = markerPos[1] - minTilePos[1];
+            const y = markerPos.y - minTilePos[1];
             const offsetY = y * theme!.tileStride!.y * scaleFactor;
-            const markerKey = `marker-${marker.iconId}-${markerPos[0]}-${markerPos[1]}`;
+            const markerKey = `marker-${marker.iconId}-${markerPos.x}-${markerPos.y}`;
             const iconPath = iconMap[marker.iconId];
 
             canvas.push(
@@ -221,52 +217,9 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                     ></img>
                 </div>
             );
-        }
+        });
 
         return canvas;
-    }
-
-    /**
-     * @function getEntityArrays
-     * @description Creates the tiles, pieces and markers arrays from the gameUpdate.
-     */
-    function getEntityArrays() {
-        const tiles = [];
-        const pieces = [];
-        const markers = [];
-        // populate the tiles, pieces and markers arrays
-        for (const entity of gameUpdate!.boardState) {
-            const tile = entity.tile;
-            const piece = entity.piece;
-            const marker = entity.marker;
-
-            let tileObject = null;
-            if (tile) {
-                tileObject = {
-                    position: readVector2I(tile.position),
-                    iconId: tile.iconId,
-                };
-                tiles.push(tileObject);
-            }
-            if (piece && tileObject) {
-                pieces.push({
-                    identifier: piece.identifier,
-                    tile: tileObject,
-                });
-            }
-            if (marker && tileObject) {
-                markers.push({
-                    markerType: marker.markerType,
-                    iconId: marker.iconId,
-                    tile: tileObject,
-                });
-            }
-        }
-        return { tiles, pieces, markers };
-    }
-
-    function readVector2I(vector: Vector2I) {
-        return [vector.x, vector.y];
     }
 
     useEffect(() => {
