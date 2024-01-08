@@ -18,10 +18,6 @@ public final class PieceStore {
         }
     }
 
-    public IPieceDefinitionProvider getPiece(PieceType pieceType) {
-        return pieceDefinitions.get(pieceType);
-    }
-
     public Set<PieceType> getPieces() {
         return pieceDefinitions.keySet();
     }

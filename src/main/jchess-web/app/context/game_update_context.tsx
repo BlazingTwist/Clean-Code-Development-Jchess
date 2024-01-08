@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect, ReactNode } from "react";
-import { GameUpdate } from "@/models/message/GameUpdate.schema";
+import { GameUpdate } from "@/models/GameUpdate.schema";
 import Config from "@/utils/config";
 
 /**

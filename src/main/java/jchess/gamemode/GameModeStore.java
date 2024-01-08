@@ -1,6 +1,6 @@
 package jchess.gamemode;
 
-import dx.schema.conf.LayoutTheme;
+import dx.schema.types.LayoutId;
 import jchess.common.IChessGame;
 import jchess.gamemode.hex3p.Hex3PlayerGame;
 import jchess.gamemode.hex3p.Hex3pPieces;
@@ -13,18 +13,18 @@ import java.util.function.Supplier;
 
 public class GameModeStore {
 
-    private static final Map<LayoutTheme.LayoutId, GameModeProvider> gameModeProviders = new HashMap<>();
+    private static final Map<LayoutId, GameModeProvider> gameModeProviders = new HashMap<>();
 
     static {
-        gameModeProviders.put(LayoutTheme.LayoutId.HEX_3_P, new GameModeProvider(
+        gameModeProviders.put(LayoutId.HEX_3_P, new GameModeProvider(
                 Hex3PlayerGame::new, "3 Player Hexagonal Chess", 3, new PieceStore(Hex3pPieces.values())
         ));
-        gameModeProviders.put(LayoutTheme.LayoutId.SQUARE_2_P, new GameModeProvider(
+        gameModeProviders.put(LayoutId.SQUARE_2_P, new GameModeProvider(
                 Square2PlayerGame::new, "2 Player Classic Chess", 2, new PieceStore(Square2pPieces.values())
         ));
     }
 
-    public static GameModeProvider getGameMode(LayoutTheme.LayoutId layout) {
+    public static GameModeProvider getGameMode(LayoutId layout) {
         return gameModeProviders.get(layout);
     }
 

@@ -2,8 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useGameContext } from "@/app/context/game_context";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
-import { useThemeContext } from "@/app/context/theme_context";
-import {Entity} from "@/models/message/GameUpdate.schema";
+import { useThemeContext, ThemeHelper } from "@/app/context/theme_context";
+import {Entity} from "@/models/GameUpdate.schema";
 import Config from "@/utils/config";
 import TimeGameComponent from "./TimeGameComponent";
 import HistoryComponent from "./HistoryComponent";
@@ -17,14 +17,14 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
     // Contexts
     const { gameOptions } = useGameContext(); // old code for client side state, later it probably will be removed
     const { gameUpdate } = useGameUpdateContext(); // this is the current game state comming from the server
-    const { getCurrentTheme, getCurrentIconMap } = useThemeContext(); // this is the current theme selected by the user
+    const { getCurrentTheme, getThemeHelper } = useThemeContext(); // this is the current theme selected by the user
 
     // State
     const canvasRef = useRef<HTMLInputElement>(null);
     const [board, setBoard] = useState<JSX.Element[]>([]);
 
     const theme = getCurrentTheme();
-    const iconMap = getCurrentIconMap();
+    const themeHelper = getThemeHelper();
 
     /**
      * @function calculateMinMaxTilePosition
@@ -58,16 +58,7 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
      * @description Renders the board based on the current gameUpdate state and theme.
      */
     const renderBoard = () => {
-        if (gameUpdate && theme?.tileAspectRatio && theme?.tileStride) {
-            // create a map for the theme icons
-            const iconMap: { [key: string]: string } = theme.icons.reduce(
-                (map: { [key: string]: string }, icon: any) => {
-                    map[icon.iconId] = icon.iconPath;
-                    return map;
-                },
-                {}
-            );
-
+        if(themeHelper && gameUpdate) {
             // calculate the min and max tile positions
             const { maxTilePos, minTilePos } = calculateMinMaxTilePosition(gameUpdate.boardState);
 
@@ -83,7 +74,7 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                 maxTilePos,
                 minTilePos,
                 gameUpdate.boardState,
-                iconMap,
+                themeHelper,
                 pieceSizeAdjustment,
                 translationString
             );
@@ -103,7 +94,7 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
      * @param {number[]} maxTilePos - The maximum tile position.
      * @param {number[]} minTilePos - The minimum tile position.
      * @param {Entity[]} entities - The tiles array.
-     * @param {Map<string, string>} iconMap - The icon map.
+     * @param {ThemeHelper} themeHelper - The themeProvider (icon utility).
      * @param {number} pieceSizeAdjustment - The piece size adjustment.
      * @param {string} translationString - The translation string.
      */
@@ -111,24 +102,26 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
         maxTilePos: number[],
         minTilePos: number[],
         entities: Entity[],
-        iconMap: { [key: string]: string },
+        themeHelper: ThemeHelper,
         pieceSizeAdjustment: number,
         translationString: string
     ) {
         const canvas: JSX.Element[] = [];
         const serverUri = Config.clientUri + "/api/";
         const offsetWidthFromCanvasRef = canvasRef.current?.offsetWidth || 1;
-        const rawBoardWidth = theme!.tileAspectRatio!.x + theme!.tileStride!.x * (maxTilePos[0] - minTilePos[0]);
+        const tileSize = themeHelper.getTileSize();
+        const tileStride = themeHelper.getTileStride();
+        const rawBoardWidth = tileSize!.x + tileStride.x * (maxTilePos[0] - minTilePos[0]);
         let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
 
         entities.filter(e => e.tile).forEach(entity => {
             const tile = entity.tile!;
             const tileX = tile.displayPos.x - minTilePos[0];
-            const offsetX = tileX * theme!.tileStride!.x * scaleFactor;
+            const offsetX = tileX * tileStride!.x * scaleFactor;
             const tileY = tile.displayPos.y - minTilePos[1];
-            const offsetY = tileY * theme!.tileStride!.y * scaleFactor;
-            const iconPath = iconMap[tile.iconId];
-            const tileKey = `tile-${tile.iconId}-${tile.displayPos.x}-${tile.displayPos.y}`;
+            const offsetY = tileY * tileStride!.y * scaleFactor;
+            const iconPath = themeHelper.getTileIcon(tile);
+            const tileKey = `tile-${tile.tileColorIndex}-${tile.displayPos.x}-${tile.displayPos.y}`;
             canvas.push(
                 <div
                     key={tileKey}
@@ -136,8 +129,8 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                     style={{
                         left: offsetX,
                         top: offsetY,
-                        width: theme!.tileAspectRatio!.x * scaleFactor,
-                        height: theme!.tileAspectRatio!.y * scaleFactor,
+                        width: tileSize!.x * scaleFactor,
+                        height: tileSize!.y * scaleFactor,
                     }}
                 >
                     <img
@@ -165,14 +158,14 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
             const tilePos = entity.tile!.displayPos;
             const piece = entity.piece!;
             const x = tilePos.x - minTilePos[0];
-            const offsetX = x * theme!.tileStride!.x * scaleFactor;
+            const offsetX = x * tileStride!.x * scaleFactor;
             const y = tilePos.y - minTilePos[1];
-            const offsetY = y * theme!.tileStride!.y * scaleFactor;
-            const iconPath = iconMap[piece.identifier.iconId];
-            const pieceKey = `piece-${piece.identifier.iconId}-${tilePos.x}-${tilePos.y}`;
+            const offsetY = y * tileStride!.y * scaleFactor;
+            const iconPath = themeHelper.getPieceIcon(piece);
+            const pieceKey = `piece-${piece.identifier.pieceTypeId}${piece.identifier.ownerId}-${tilePos.x}-${tilePos.y}`;
 
-            const pieceWidth = theme!.tileAspectRatio!.x * scaleFactor * pieceSizeAdjustment;
-            const pieceHeight = theme!.tileAspectRatio!.y * scaleFactor * pieceSizeAdjustment;
+            const pieceWidth = tileSize!.x * scaleFactor * pieceSizeAdjustment;
+            const pieceHeight = tileSize!.y * scaleFactor * pieceSizeAdjustment;
 
             canvas.push(
                 <div key={pieceKey} className="">
@@ -196,11 +189,11 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
             const marker = entity.marker!;
             const markerPos = entity.tile!.displayPos;
             const x = markerPos.x - minTilePos[0];
-            const offsetX = x * theme!.tileStride!.x * scaleFactor;
+            const offsetX = x * tileStride!.x * scaleFactor;
             const y = markerPos.y - minTilePos[1];
-            const offsetY = y * theme!.tileStride!.y * scaleFactor;
-            const markerKey = `marker-${marker.iconId}-${markerPos.x}-${markerPos.y}`;
-            const iconPath = iconMap[marker.iconId];
+            const offsetY = y * tileStride!.y * scaleFactor;
+            const markerKey = `marker-${marker.markerType}-${markerPos.x}-${markerPos.y}`;
+            const iconPath = themeHelper.getMarkerIcon(marker);
 
             canvas.push(
                 <div key={markerKey} className="">
@@ -209,8 +202,8 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                             top: offsetY,
                             left: offsetX,
                             position: "absolute",
-                            width: theme!.tileAspectRatio!.x * scaleFactor,
-                            height: theme!.tileAspectRatio!.y * scaleFactor,
+                            width: tileSize!.x * scaleFactor,
+                            height: tileSize!.y * scaleFactor,
                             pointerEvents: "none",
                         }}
                         src={serverUri + iconPath}
@@ -240,7 +233,7 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                 ref={canvasRef}
                 className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-[100%] min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative"
             >
-                <PieceSelectionComponent sessionId={sessionId} iconMap={iconMap} />
+                <PieceSelectionComponent sessionId={sessionId} themeHelper={themeHelper!} />
 
                 {board}
             </div>

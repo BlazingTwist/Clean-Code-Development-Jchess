@@ -8,6 +8,7 @@ import dx.schema.conf.Marker;
 import dx.schema.conf.Piece;
 import dx.schema.conf.PiecesTheme;
 import dx.schema.conf.Theme;
+import dx.schema.types.LayoutId;
 import dx.schema.types.PieceType;
 import jchess.gamemode.GameModeStore;
 import jchess.server.util.JsonUtils;
@@ -92,7 +93,7 @@ public enum ThemeStore {
         return themes;
     }
 
-    public List<Theme> getThemes(LayoutTheme.LayoutId layoutId) {
+    public List<Theme> getThemes(LayoutId layoutId) {
         GameModeStore.GameModeProvider gameMode = GameModeStore.getGameMode(layoutId);
 
         return themes.stream()

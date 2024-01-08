@@ -1,9 +1,9 @@
 package jchess.server.api.servlet;
 
-import dx.schema.conf.LayoutTheme;
 import dx.schema.conf.Theme;
 import dx.schema.message.GameModes;
 import dx.schema.types.GameMode;
+import dx.schema.types.LayoutId;
 import io.undertow.util.StatusCodes;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +23,7 @@ public class GameModesServlet extends HttpServlet {
         resp.setContentType("text/json");
 
         List<GameMode> gameModes = new ArrayList<>();
-        for (LayoutTheme.LayoutId layout : LayoutTheme.LayoutId.values()) {
+        for (LayoutId layout : LayoutId.values()) {
             GameModeStore.GameModeProvider provider = GameModeStore.getGameMode(layout);
             if (provider == null) {
                 continue;
@@ -34,9 +34,10 @@ public class GameModesServlet extends HttpServlet {
                     .collect(Collectors.toList());
 
             GameMode gameMode = new GameMode();
-            gameMode.setModeId(layout.name());
+            gameMode.setModeId(layout.value());
             gameMode.setDisplayName(provider.getDisplayName());
             gameMode.setNumPlayers(provider.getNumPlayers());
+            gameMode.setLayoutId(layout);
             gameMode.setThemeIds(supportedThemes);
             gameModes.add(gameMode);
         }

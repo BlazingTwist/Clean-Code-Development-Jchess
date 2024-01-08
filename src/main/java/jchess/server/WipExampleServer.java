@@ -1,6 +1,6 @@
 package jchess.server;
 
-import dx.schema.conf.LayoutTheme;
+import dx.schema.types.LayoutId;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -20,8 +20,8 @@ import jchess.server.api.servlet.GameCreateServlet;
 import jchess.server.api.servlet.GameModesServlet;
 import jchess.server.api.servlet.ThemesServlet;
 import jchess.server.api.socket.BoardUpdateWebsocket;
-import jchess.server.api.socket.PieceSelectionWebsocket;
 import jchess.server.api.socket.ChatWebsocket;
+import jchess.server.api.socket.PieceSelectionWebsocket;
 import jchess.server.session.SessionManager;
 import jchess.server.session.SessionMgrController;
 import org.slf4j.Logger;
@@ -75,7 +75,7 @@ public class WipExampleServer {
         logger.info("Server started");
     }
 
-    public static String startNewGame(LayoutTheme.LayoutId layoutId) {
+    public static String startNewGame(LayoutId layoutId) {
         IChessGame game = GameModeStore.getGameMode(layoutId).newGame();
 
         GameSessionData gameData = new GameSessionData(game);
