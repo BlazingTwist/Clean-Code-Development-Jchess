@@ -1,5 +1,6 @@
 package jchess.common.moveset.special;
 
+import dx.schema.types.PieceType;
 import jchess.common.IChessGame;
 import jchess.common.components.PieceComponent;
 import jchess.common.components.PieceIdentifier;
@@ -15,12 +16,12 @@ import java.util.stream.Stream;
 public class EnPassant implements ISpecialRule {
     private final IChessGame game;
     private final PieceIdentifier thisPawnId;
-    private final int pawnTypeId;
+    private final PieceType pawnTypeId;
     private final int[] pawnDoubleMoveDirections;
     private final int[] pawnCaptureDirections;
     private final Map<Integer, PieceMoveEvent.PieceMove> doubleMovesByPlayer = new HashMap<>();
 
-    public EnPassant(IChessGame game, PieceIdentifier thisPawnId, int pawnTypeId, int[] pawnDoubleMoveDirections, int[] pawnCaptureDirections) {
+    public EnPassant(IChessGame game, PieceIdentifier thisPawnId, PieceType pawnTypeId, int[] pawnDoubleMoveDirections, int[] pawnCaptureDirections) {
         this.game = game;
         this.thisPawnId = thisPawnId;
         this.pawnTypeId = pawnTypeId;
@@ -38,7 +39,7 @@ public class EnPassant implements ISpecialRule {
             return;
         }
 
-        if (movedPiece.identifier.pieceTypeId() == pawnTypeId && move.moveType() == SpecialFirstMove.class) {
+        if (movedPiece.identifier.pieceType() == pawnTypeId && move.moveType() == SpecialFirstMove.class) {
             // opponent has made a move that can be attacked with EnPassant
             doubleMovesByPlayer.put(movedPiece.identifier.ownerId(), move);
         }

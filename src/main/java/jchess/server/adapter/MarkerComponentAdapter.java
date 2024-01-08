@@ -10,8 +10,7 @@ public enum MarkerComponentAdapter implements IAdapter<MarkerComponent, dx.schem
         if (data == null) return null;
 
         dx.schema.types.MarkerComponent result = new dx.schema.types.MarkerComponent();
-        result.setMarkerType(dx.schema.types.MarkerComponent.MarkerType.fromValue(data.markerType.name()));
-        result.setIconId(data.getIconKey().getIconId());
+        result.setMarkerType(data.markerType);
         return result;
     }
 }

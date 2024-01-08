@@ -8,5 +8,6 @@
       "$ref": "PieceIdentifier.schema.json"
     }
   },
-  "required": ["identifier"]
+  "required": ["identifier"],
+  "additionalProperties": false
 }

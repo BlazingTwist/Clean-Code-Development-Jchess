@@ -1,0 +1,58 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "LayoutTheme",
+    "type": "object",
+    "javaType": "dx.schema.conf.LayoutTheme",
+    "properties": {
+        "layoutId": {
+            "$ref": "../types/LayoutId.schema.json"
+        },
+        "tileSize": {
+            "$ref": "../types/Vector2I.schema.json"
+        },
+        "tileStride": {
+            "$ref": "../types/Vector2I.schema.json"
+        },
+        "tiles": {
+            "description": "array of available tile colors",
+            "type": "array",
+            "items": {
+                "description": "path to the colored tile icon",
+                "$ref": "#/definitions/path"
+            }
+        },
+        "markers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "markerType": {
+                        "$ref": "../types/MarkerType.schema.json"
+                    },
+                    "icon": {
+                        "$ref": "#/definitions/path"
+                    }
+                },
+                "required": [
+                    "markerType",
+                    "icon"
+                ],
+                "additionalProperties": false
+            }
+        }
+    },
+    "required": [
+        "layoutId",
+        "tileSize",
+        "tileStride",
+        "tiles",
+        "markers"
+    ],
+    "definitions": {
+        "path": {
+            "type": "string",
+            "pattern": "^\\.?/"
+        }
+    },
+    "additionalProperties": false
+}

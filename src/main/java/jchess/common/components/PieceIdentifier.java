@@ -1,27 +1,24 @@
 package jchess.common.components;
 
-import jchess.common.theme.IIconKey;
+import dx.schema.types.PieceType;
 
 /**
- * @param pieceTypeId
+ * @param pieceType
  * @param shortName
- * @param iconKey
  * @param ownerId
  * @param forwardBasis A number in range [0, 360) indicating the forwards-direction of this piece. (With 0 being 'North')
  */
 public record PieceIdentifier(
-        int pieceTypeId,
+        PieceType pieceType,
         String shortName,
-        IIconKey iconKey,
         int ownerId,
         int forwardBasis
 ) {
     @Override
     public String toString() {
         return "PieceIdentifier{" +
-                "pieceTypeId=" + pieceTypeId +
+                "pieceType=" + pieceType +
                 ", shortName='" + shortName + '\'' +
-                ", iconKey=" + iconKey.getIconId() +
                 ", ownerId=" + ownerId +
                 ", forwardBasis=" + forwardBasis +
                 '}';

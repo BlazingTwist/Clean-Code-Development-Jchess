@@ -1,5 +1,6 @@
 package jchess.server;
 
+import dx.schema.types.LayoutId;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -13,14 +14,14 @@ import jakarta.servlet.ServletException;
 import jchess.common.IChessGame;
 import jchess.common.events.OfferPieceSelectionEvent;
 import jchess.common.events.RenderEvent;
-import jchess.gamemode.GameMode;
+import jchess.gamemode.GameModeStore;
 import jchess.server.api.servlet.BoardClickedServlet;
 import jchess.server.api.servlet.GameCreateServlet;
 import jchess.server.api.servlet.GameModesServlet;
 import jchess.server.api.servlet.ThemesServlet;
 import jchess.server.api.socket.BoardUpdateWebsocket;
-import jchess.server.api.socket.PieceSelectionWebsocket;
 import jchess.server.api.socket.ChatWebsocket;
+import jchess.server.api.socket.PieceSelectionWebsocket;
 import jchess.server.session.SessionManager;
 import jchess.server.session.SessionMgrController;
 import org.slf4j.Logger;
@@ -74,8 +75,8 @@ public class WipExampleServer {
         logger.info("Server started");
     }
 
-    public static String startNewGame(GameMode mode) {
-        IChessGame game = mode.newGame();
+    public static String startNewGame(LayoutId layoutId) {
+        IChessGame game = GameModeStore.getGameMode(layoutId).newGame();
 
         GameSessionData gameData = new GameSessionData(game);
         SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
@@ -83,7 +84,7 @@ public class WipExampleServer {
 
         game.getEventManager().getEvent(RenderEvent.class).addListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
         game.getEventManager().<OfferPieceSelectionEvent>getEvent(OfferPieceSelectionEvent.class).addListener(x -> pieceSelectionWebsocket.onOfferPieceSelectionEvent(sessionId, x));
-        logger.info("Starting new game. Mode '{}'. SessionId '{}'", mode, sessionId);
+        logger.info("Starting new game. Mode '{}'. SessionId '{}'", layoutId, sessionId);
         game.start();
 
         return sessionId;

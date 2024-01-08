@@ -1,17 +1,21 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "BoardUpdateSubscribe",
-  "type": "object",
-  "javaType": "dx.schema.message.BoardUpdateSubscribe",
-  "properties": {
-    "sessionId": {
-      "type": "string",
-      "description": "the sessionId of the game instance to register with"
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "BoardUpdateSubscribe",
+    "type": "object",
+    "javaType": "dx.schema.message.BoardUpdateSubscribe",
+    "properties": {
+        "sessionId": {
+            "type": "string",
+            "description": "the sessionId of the game instance to register with"
+        },
+        "perspective": {
+            "type": "integer",
+            "description": "Index of the player (>= 0) whose perspective to show"
+        }
     },
-    "perspective": {
-      "type": "integer",
-      "description": "Index of the player (>= 0) whose perspective to show"
-    }
-  },
-  "required": ["sessionId", "perspective"]
+    "required": [
+        "sessionId",
+        "perspective"
+    ],
+    "additionalProperties": false
 }

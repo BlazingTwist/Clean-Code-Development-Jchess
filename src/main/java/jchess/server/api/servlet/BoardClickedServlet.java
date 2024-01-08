@@ -22,7 +22,7 @@ public class BoardClickedServlet extends HttpServlet {
         GameClicked clickInfo = JsonUtils.getMapper().readValue(req.getReader(), GameClicked.class);
         GameSessionData game = SessionUtils.findGame(clickInfo.getSessionId());
         if (game == null) {
-            HttpUtils.error(resp, StatusCodes.NOT_FOUND, "Session does not exist");
+            HttpUtils.respond(resp, StatusCodes.NOT_FOUND, "Session does not exist");
             return;
         }
 

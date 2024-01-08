@@ -1,26 +1,37 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "OfferPieceSelection",
-  "type": "object",
-  "javaType": "dx.schema.message.OfferPieceSelection",
-  "properties": {
-    "title": {
-      "description": "Title for the Selection Window",
-      "type": "string"
-    },
-    "pieces": {
-      "type": "array",
-      "items": {
-        "properties": {
-          "pieceTypeId": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "OfferPieceSelection",
+    "type": "object",
+    "javaType": "dx.schema.message.OfferPieceSelection",
+    "properties": {
+        "title": {
+            "description": "Title for the Selection Window",
             "type": "string"
-          },
-          "iconId": {
-            "type": "string"
-          }
+        },
+        "pieces": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "pieceTypeId": {
+                        "$ref": "../types/PieceType.schema.json"
+                    },
+                    "playerIdx": {
+                        "description": "index of the player to use for coloring the piece icon",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "pieceTypeId",
+                    "playerIdx"
+                ],
+                "additionalProperties": false
+            }
         }
-      }
-    }
-  },
-  "required": ["title", "pieces"]
+    },
+    "required": [
+        "title",
+        "pieces"
+    ],
+    "additionalProperties": false
 }

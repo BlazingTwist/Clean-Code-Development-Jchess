@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class BoardUpdateWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
     private static final Logger logger = LoggerFactory.getLogger(BoardUpdateWebsocket.class);
@@ -62,9 +63,10 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
             return;
         }
 
-        game.boardUpdateHandler.subscribe(channel, messageObj.getPerspective());
+        int perspective = Optional.ofNullable(messageObj.getPerspective()).orElse(0);
+        game.boardUpdateHandler.subscribe(channel, perspective);
 
-        String updateMessage = getUpdateMessage(game.game, messageObj.getPerspective());
+        String updateMessage = getUpdateMessage(game.game, perspective);
         if (updateMessage != null) {
             WebSockets.sendText(updateMessage, channel, null);
         }

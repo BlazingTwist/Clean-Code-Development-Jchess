@@ -11,5 +11,6 @@
       "type": "integer"
     }
   },
-  "required": ["x", "y"]
+  "required": ["x", "y"],
+  "additionalProperties": false
 }

@@ -10,9 +10,8 @@ public enum PieceIdentifierAdapter implements IAdapter<PieceIdentifier, dx.schem
         if (data == null) return null;
 
         dx.schema.types.PieceIdentifier result = new dx.schema.types.PieceIdentifier();
-        result.setPieceTypeId("" + data.pieceTypeId());
+        result.setPieceTypeId("" + data.pieceType());
         result.setShortName(data.shortName());
-        result.setIconId(data.iconKey().getIconId());
         result.setOwnerId(data.ownerId());
         result.setForwardBasis(data.forwardBasis());
         return result;

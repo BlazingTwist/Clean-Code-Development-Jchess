@@ -1,8 +1,7 @@
-import { GameClicked } from "@/models/message/GameClicked.schema";
-import { GameCreate } from "@/models/message/GameCreate.schema";
-import { GameModes } from "@/models/message/GameModes.schema";
-import { Themes } from "@/models/message/Themes.schema";
-import { Theme } from "@/models/types/Theme.schema";
+import { GameClicked } from "@/models/GameClicked.schema";
+import { GameCreate } from "@/models/GameCreate.schema";
+import { GameModes } from "@/models/GameModes.schema";
+import { Themes } from "@/models/Themes.schema";
 import Config from "@/utils/config";
 
 /**
@@ -23,8 +22,7 @@ export async function postCreateGame(gameCreateBody: GameCreate): Promise<string
         throw new Error(`Error fetching ${serverUri}/api/game/create: ${response.status} ${response.statusText}`);
     }
     try {
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
         console.error(`Error fetching ${serverUri}/api/game/create:`, error);
         throw error;
@@ -80,8 +78,7 @@ export async function fetchData<T>(endpoint: string): Promise<T> {
         throw new Error(`Error fetching ${endpoint}: ${response.status} ${response.statusText}`);
     }
     try {
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
         console.error(`Error fetching ${endpoint}:`, error);
         throw error;
