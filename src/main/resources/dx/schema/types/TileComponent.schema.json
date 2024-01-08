@@ -16,5 +16,6 @@
       "type": "integer"
     }
   },
-  "required": ["tileId", "displayPos", "tileColorIndex"]
+  "required": ["tileId", "displayPos", "tileColorIndex"],
+  "additionalProperties": false
 }

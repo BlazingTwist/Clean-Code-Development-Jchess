@@ -6,5 +6,6 @@
         "yesAction",
         "noAction",
         "selected"
-    ]
+    ],
+    "additionalProperties": false
 }

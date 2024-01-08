@@ -11,5 +11,6 @@
   },
   "required": [
     "markerType"
-  ]
+  ],
+  "additionalProperties": false
 }

@@ -24,12 +24,14 @@
                 "required": [
                     "pieceTypeId",
                     "playerIdx"
-                ]
+                ],
+                "additionalProperties": false
             }
         }
     },
     "required": [
         "title",
         "pieces"
-    ]
+    ],
+    "additionalProperties": false
 }

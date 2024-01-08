@@ -24,5 +24,6 @@
     "shortName",
     "ownerId",
     "forwardBasis"
-  ]
+  ],
+  "additionalProperties": false
 }

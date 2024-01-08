@@ -17,5 +17,6 @@
     "required": [
         "resourcePrefix",
         "themes"
-    ]
+    ],
+    "additionalProperties": false
 }

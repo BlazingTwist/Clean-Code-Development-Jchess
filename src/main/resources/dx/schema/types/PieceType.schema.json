@@ -9,5 +9,6 @@
         "Queen",
         "King",
         "Pawn"
-    ]
+    ],
+    "additionalProperties": false
 }

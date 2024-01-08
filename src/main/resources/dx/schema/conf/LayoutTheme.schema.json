@@ -5,10 +5,7 @@
     "javaType": "dx.schema.conf.LayoutTheme",
     "properties": {
         "layoutId": {
-            "enum": [
-                "hex3p",
-                "square2p"
-            ]
+            "$ref": "../types/LayoutId.schema.json"
         },
         "tileSize": {
             "$ref": "../types/Vector2I.schema.json"
@@ -39,7 +36,8 @@
                 "required": [
                     "markerType",
                     "icon"
-                ]
+                ],
+                "additionalProperties": false
             }
         }
     },
@@ -55,5 +53,6 @@
             "type": "string",
             "pattern": "^\\.?/"
         }
-    }
+    },
+    "additionalProperties": false
 }
