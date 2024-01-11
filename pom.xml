@@ -46,7 +46,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>jchess.server.WipExampleServer</mainClass>
+                            <mainClass>jchess.server.JChessServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

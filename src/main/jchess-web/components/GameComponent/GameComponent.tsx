@@ -116,7 +116,6 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
         translationString: string
     ) {
         const canvas: JSX.Element[] = [];
-        const serverUri = Config.clientUri + "/api/";
         const offsetWidthFromCanvasRef = canvasRef.current?.offsetWidth || 1;
         const rawBoardWidth = theme!.tileAspectRatio!.x + theme!.tileStride!.x * (maxTilePos[0] - minTilePos[0]);
         let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
@@ -142,7 +141,7 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                 >
                     <img
                         className="absolute w-full h-full"
-                        src={serverUri + iconPath}
+                        src={"api/" + iconPath}
                         onClick={() => {
                             console.log("Clicked: " + tileKey);
 
@@ -186,7 +185,7 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                             transform: translationString,
                             pointerEvents: "none",
                         }}
-                        src={serverUri + iconPath}
+                        src={"api/" + iconPath}
                     />
                 </div>
             );
@@ -213,7 +212,7 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
                             height: theme!.tileAspectRatio!.y * scaleFactor,
                             pointerEvents: "none",
                         }}
-                        src={serverUri + iconPath}
+                        src={"api/" + iconPath}
                     ></img>
                 </div>
             );

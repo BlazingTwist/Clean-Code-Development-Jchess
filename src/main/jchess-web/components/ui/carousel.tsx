@@ -1,13 +1,14 @@
 import * as React from "react";
-import useEmblaCarousel, {
-    type EmblaCarouselType as CarouselApi,
-    type EmblaOptionsType as CarouselOptions,
-    type EmblaPluginType as CarouselPlugin,
-} from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { cn } from "@/utils/tailwindMergeUtils";
 import { Button } from "@/components/ui/button";
+import {
+    type EmblaOptionsType as CarouselOptions,
+    type EmblaCarouselType as CarouselApi,
+    type EmblaPluginType as CarouselPlugin,
+} from "embla-carousel";
+import useEmblaCarousel from "embla-carousel-react";
 
 type CarouselProps = {
     opts?: CarouselOptions;
