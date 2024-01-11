@@ -1,0 +1,7 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8880:8880"
+    environment:
+      - IS_DOCKER=true

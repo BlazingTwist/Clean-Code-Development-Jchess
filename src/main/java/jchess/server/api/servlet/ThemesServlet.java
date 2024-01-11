@@ -9,7 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jchess.server.WipExampleServer;
+import jchess.server.JChessServer;
 import jchess.server.adapter.Vector2IAdapter;
 import jchess.server.util.JsonUtils;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class ThemesServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(ThemesServlet.class);
     private static final Map<String, Map<String, String>> themeMap = new HashMap<>();
     private static final Map<String, TileInfo> themeTileInfoMap = new HashMap<>();
-    private static final String resourcePrefix = WipExampleServer.resourcePrefix;
+    private static final String resourcePrefix = JChessServer.resourcePrefix;
 
     public ThemesServlet() {
         try {
