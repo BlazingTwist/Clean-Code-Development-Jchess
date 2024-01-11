@@ -2,24 +2,24 @@ package jchess.gamemode.square2p;
 
 import jchess.common.theme.IIconKey;
 import jchess.common.theme.ThemeUtils;
+import util.ResourceHelper.ResourceFile;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Theme {
-    public static Map<String, String> getIconMap(File themeDirectory) {
+    public static Map<String, String> getIconMap(ResourceFile themeDirectory) {
         HashMap<String, String> iconMap = new HashMap<>();
 
         iconMap.put("preview", ThemeUtils.getIconPath(themeDirectory, "Preview.png"));
 
-        File boardThemeDirectory = new File(themeDirectory, "board_square");
+        ResourceFile boardThemeDirectory = themeDirectory.resolve("board_square");
         for (BoardIcons boardIcon : BoardIcons.values()) {
             String iconPath = ThemeUtils.getIconPath(boardThemeDirectory, boardIcon.getFileName());
             iconMap.put(boardIcon.getIconId(), iconPath);
         }
 
-        File pieceThemeDirectory = new File(themeDirectory, "piece");
+        ResourceFile pieceThemeDirectory = themeDirectory.resolve("piece");
         for (PieceIcons pieceIcon : PieceIcons.values()) {
             for (PieceColor pieceColor : PieceColor.values()) {
                 String iconPath = ThemeUtils.getIconPath(pieceThemeDirectory, pieceIcon.getFileName(pieceColor));

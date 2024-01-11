@@ -14,13 +14,13 @@ import jchess.server.adapter.Vector2IAdapter;
 import jchess.server.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.ResourceHelper;
+import util.ResourceHelper.ResourceFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class ThemesServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(ThemesServlet.class);
@@ -30,35 +30,26 @@ public class ThemesServlet extends HttpServlet {
 
     public ThemesServlet() {
         try {
-            File themeRootDir = new File(Objects.requireNonNull(ThemesServlet.class.getResource("/jchess/theme/v2")).toURI());
+            ResourceFile themeRootDir = ResourceHelper.getResource("/jchess/theme/v2");
             loadThemes(themeRootDir);
         } catch (Exception e) {
             logger.error("Unable to find theme directory", e);
         }
     }
 
-    private void loadThemes(File themesRootDir) {
-        if (!themesRootDir.exists()) {
-            logger.error("Unable to find theme directory, searching at '{}'", themesRootDir.getAbsolutePath());
-            return;
-        }
-
-        File[] themeDirectories = themesRootDir.listFiles(File::isDirectory);
-        if (themeDirectories == null || themeDirectories.length == 0) {
-            logger.error("Unable to find any themes in the root directory at '{}'", themesRootDir.getAbsolutePath());
-            return;
-        }
-
+    private void loadThemes(ResourceFile themesRootDir) {
         TileInfo hexTileInfo = new TileInfo(Vector2IAdapter.fromPosition(30, 32), Vector2IAdapter.fromPosition(15, 24));
         TileInfo squareTileInfo = new TileInfo(Vector2IAdapter.fromPosition(50, 50), Vector2IAdapter.fromPosition(50, 50));
 
-        for (File themeDir : themeDirectories) {
-            String hexThemeId = themeDir.getName();
+        String[] themeDirNames = {"default"};
+        for (String themeDirName : themeDirNames) {
+            ResourceFile themeDir = themesRootDir.resolve(themeDirName);
+            String hexThemeId = themeDirName;
             Map<String, String> hexIcons = jchess.gamemode.hex3p.Theme.getIconMap(themeDir);
             themeMap.put(hexThemeId, hexIcons);
             themeTileInfoMap.put(hexThemeId, hexTileInfo);
 
-            String squareThemeId = themeDir.getName() + "_square";
+            String squareThemeId = themeDirName + "_square";
             Map<String, String> squareIcons = jchess.gamemode.square2p.Theme.getIconMap(themeDir);
             themeMap.put(squareThemeId, squareIcons);
             themeTileInfoMap.put(squareThemeId, squareTileInfo);

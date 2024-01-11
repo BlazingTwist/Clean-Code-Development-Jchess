@@ -1,29 +1,17 @@
 package jchess.common.theme;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URISyntaxException;
+import util.ResourceHelper;
 
 public class ThemeUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ThemeUtils.class);
+    private static final ResourceHelper.ResourceFile resourceRoot = ResourceHelper.getResource("/");
 
-    private static File resourceRootDir;
-
-    static {
-        try {
-            resourceRootDir = new File(ThemeUtils.class.getResource("/").toURI());
-        } catch (URISyntaxException e) {
-            logger.error("", e);
-        }
+    public static String getIconPath(ResourceHelper.ResourceFile directory, String imageName) {
+        ResourceHelper.ResourceFile imageFile = directory.resolve(imageName).normalize();
+        return sanitizeIconPath(imageFile.asRelativePath(resourceRoot).toString());
     }
 
-    public static String getIconPath(File directory, String imageName) {
-        File imageFile = new File(directory, imageName);
-        return imageFile.getAbsolutePath()
-                .replace(resourceRootDir.getAbsolutePath(), "")
-                .replace("\\", "/")
+    public static String sanitizeIconPath(String path) {
+        return path.replace("\\", "/")
                 .replaceFirst("^/", "");
     }
 }
