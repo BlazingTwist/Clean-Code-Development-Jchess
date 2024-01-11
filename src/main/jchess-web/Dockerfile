@@ -1,9 +1,12 @@
+ARG backend_port
+
 # https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
 FROM node:18-alpine AS base
 
 
 # Rebuild the source code only when needed
 FROM base AS builder
+ARG backend_port
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -33,10 +36,10 @@ RUN json2ts -i ./resources/dx/schema/ -o ./models --cwd ./resources/dx/schema/ty
 # ENV NEXT_TELEMETRY_DISABLED 1
 
 # see .env.example
-ENV NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI "http://backend:8880"
+ENV NEXT_PUBLIC_JCHESS_UNDERTOW_SERVER_URI "http://backend:$backend_port"
 # verwirrend, aber: http Requests werden auf dem Server aufgelöst, Sockets auf dem Client
 # -> PROBLEM: dann stimmt die Addresse hier natürlich nur, wenn man den Server selbst hostet... (TODO erja)
-ENV NEXT_PUBLIC_JCHESS_SOCKET_URI "ws://localhost:8880"
+ENV NEXT_PUBLIC_JCHESS_SOCKET_URI "ws://localhost:$backend_port"
 ENV NEXT_PUBLIC_BOARD_WITH_COORDINATES "false"
 ENV NEXT_PUBLIC_LOCAL_STORAGE "false"
 

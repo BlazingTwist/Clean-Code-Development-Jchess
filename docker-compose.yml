@@ -11,5 +11,7 @@ services:
     build:
       context: ./src/main/
       dockerfile: ./jchess-web/Dockerfile
+      args:
+        backend_port: 8880
     ports:
       - "3000:3000"
