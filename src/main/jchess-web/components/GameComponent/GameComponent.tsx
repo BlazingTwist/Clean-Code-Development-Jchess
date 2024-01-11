@@ -11,7 +11,7 @@ import { postClick } from "@/services/rest_api_service";
 import PlayerOverviewComponent from "./PlayerOverviewComponent";
 import PieceSelectionComponent from "./PieceSelectionComponent";
 
-export default function GameComponment({ sessionId }: { sessionId: string }) {
+export default function GameComponent({ sessionId }: { sessionId: string }) {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
 
     // Contexts
@@ -30,6 +30,7 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
      * @function calculateMinMaxTilePosition
      * @description Calculates the min and max tile positions from a tiles array.
      * @param {Entity[]} entities
+     * @return {{minTilePos, maxTilePos}}
      */
     function calculateMinMaxTilePosition(entities: Entity[]) {
         let minTilePos;
@@ -68,8 +69,6 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
             const translationString = `translate(${pieceTranslationOffset}%,${pieceTranslationOffset}%)`; // css translation string
 
             // create the canvas
-            // TODO: add markers
-            // TODO: add click handlers
             const canvas: JSX.Element[] = getBoardCanvas(
                 maxTilePos,
                 minTilePos,

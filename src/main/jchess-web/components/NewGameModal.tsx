@@ -209,7 +209,7 @@ export function NewGameModal() {
         console.log("timeGameAmount:" + timeGameAmount);
 
         // TODO send the player names to the server and retrieve the player colors and times
-        // MOCK GameStart Endpoit on the Client
+        // MOCK GameStart Endpoint on the Client
         const playerColors = new Map<number, string>();
         const playerTimes = new Map<number, Date>();
         const playerHistory = new Map<number, Array<string>>();
