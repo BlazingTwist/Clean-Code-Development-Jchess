@@ -1,5 +1,5 @@
 services:
-  app:
+  backend:
     build: .
     ports:
       - "8880:8880"
