@@ -12,12 +12,11 @@ import dx.schema.types.LayoutId;
 import dx.schema.types.PieceType;
 import jchess.gamemode.GameModeStore;
 import jchess.server.util.JsonUtils;
+import util.ResourceHelper;
+import util.ResourceHelper.ResourceFile;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,11 +29,11 @@ public enum ThemeStore {
     ThemeStore() {
         try {
             ObjectMapper mapper = JsonUtils.getMapper();
-            File gameConfigFile = new File(Objects.requireNonNull(ThemeStore.class.getResource("/jchess/GameConfig.json")).toURI());
-            GameConfig gameConfig = mapper.readValue(gameConfigFile, GameConfig.class);
+            ResourceFile gameConfigFile = ResourceHelper.getResource("/jchess/GameConfig.json");
+            GameConfig gameConfig = mapper.readValue(gameConfigFile.toInputStream(), GameConfig.class);
             for (String themePath : gameConfig.getThemes()) {
-                File themeFile = resolvePath(gameConfigFile, themePath);
-                Theme theme = mapper.readValue(themeFile, Theme.class);
+                ResourceFile themeFile = resolvePath(gameConfigFile, themePath);
+                Theme theme = mapper.readValue(themeFile.toInputStream(), Theme.class);
                 resolveThemePaths(themeFile, theme);
                 themes.add(theme);
             }
@@ -43,23 +42,23 @@ public enum ThemeStore {
         }
     }
 
-    private static File resolvePath(File declaringFile, String path) throws URISyntaxException {
+    private static ResourceFile resolvePath(ResourceFile declaringFile, String path) {
         if (path.startsWith("./")) {
-            return new File(declaringFile.getParentFile(), path);
+            return declaringFile.parent().resolve(path).normalize();
         } else {
-            return new File(Objects.requireNonNull(ThemeStore.class.getResource(path)).toURI());
+            return ResourceHelper.getResource(path);
         }
     }
 
-    private static String resolveIcon(File declaringFile, String path) {
+    private static String resolveIcon(ResourceFile declaringFile, String path) {
         if (path.startsWith("./")) {
-            return ThemeUtils.getIconPath(declaringFile.getParentFile(), path);
+            return ThemeUtils.getIconPath(declaringFile.parent(), path);
         } else {
             return ThemeUtils.sanitizeIconPath(path);
         }
     }
 
-    private static void resolveThemePaths(File themeFile, Theme theme) {
+    private static void resolveThemePaths(ResourceFile themeFile, Theme theme) {
         Optional.ofNullable(theme.getBoardTheme()).map(BoardTheme::getLayouts).ifPresent(layouts -> {
             for (LayoutTheme layout : layouts) {
                 resolveLayoutPaths(themeFile, layout);
@@ -73,7 +72,7 @@ public enum ThemeStore {
         });
     }
 
-    private static void resolveLayoutPaths(File themeFile, LayoutTheme layout) {
+    private static void resolveLayoutPaths(ResourceFile themeFile, LayoutTheme layout) {
         layout.setTiles(
                 layout.getTiles().stream()
                         .map(path -> resolveIcon(themeFile, path))
@@ -85,7 +84,7 @@ public enum ThemeStore {
         }
     }
 
-    private static void resolvePiecePaths(File themeFile, Piece piece) {
+    private static void resolvePiecePaths(ResourceFile themeFile, Piece piece) {
         piece.setPathPrefix(resolveIcon(themeFile, piece.getPathPrefix()));
     }
 
