@@ -3,5 +3,13 @@ services:
     build: .
     ports:
       - "8880:8880"
+    expose:
+      - "8880"
     environment:
       - IS_DOCKER=true
+  frontend:
+    build:
+      context: ./src/main/
+      dockerfile: ./jchess-web/Dockerfile
+    ports:
+      - "3000:3000"
