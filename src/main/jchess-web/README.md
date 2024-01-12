@@ -35,10 +35,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 This project uses [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) to generate typescript types from JSON Schema.
 
 ```bash
-bun install -g json-schema-to-typescript@9.1.1
-
-# hacky command to make json2ts work...
-json2ts -i ../resources/dx/schema/message/ -o ./models/ --cwd ../resources/dx/schema/
+npm run codegen
 ```
 
 ## Generate API Docs

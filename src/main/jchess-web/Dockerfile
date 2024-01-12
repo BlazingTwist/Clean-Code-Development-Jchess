@@ -28,7 +28,7 @@ COPY ./resources/dx ./resources/dx
 
 RUN npm i
 RUN npm install -g json-schema-to-typescript
-RUN json2ts -i ./resources/dx/schema/ -o ./models --cwd ./resources/dx/schema/types
+RUN json2ts -i ./resources/dx/schema/message -o ./models --cwd ./resources/dx/schema/message
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry

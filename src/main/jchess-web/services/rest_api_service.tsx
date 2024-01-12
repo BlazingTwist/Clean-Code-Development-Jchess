@@ -1,7 +1,7 @@
-import { GameClicked } from "@/models/message/GameClicked.schema";
-import { GameCreate } from "@/models/message/GameCreate.schema";
-import { GameModes } from "@/models/message/GameModes.schema";
-import { Themes } from "@/models/message/Themes.schema";
+import { GameClicked } from "@/models/GameClicked.schema";
+import { GameCreate } from "@/models/GameCreate.schema";
+import { GameModes } from "@/models/GameModes.schema";
+import { Themes } from "@/models/Themes.schema";
 
 /**
  * @function postCreateGame
