@@ -1,0 +1,29 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "GameInfo",
+    "type": "object",
+    "javaType": "dx.schema.types.GameInfo",
+    "properties": {
+        "layoutId": {
+            "description": "Id the layout to be used",
+            "$ref": "LayoutId.schema.json"
+        },
+        "themeName": {
+            "description": "The selected Theme name",
+            "type": "string"
+        },
+        "playerNames": {
+            "description": "The display-names of the players",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "layoutId",
+        "themeName",
+        "playerNames"
+    ],
+    "additionalProperties": false
+}

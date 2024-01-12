@@ -1,7 +1,6 @@
 package jchess.server.api.servlet;
 
-import dx.schema.message.GameCreate;
-import dx.schema.types.LayoutId;
+import dx.schema.types.GameInfo;
 import io.undertow.util.StatusCodes;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,20 +18,11 @@ public class GameCreateServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        GameCreate createInfo = JsonUtils.getMapper().readValue(req.getReader(), GameCreate.class);
-
-        final LayoutId layoutId;
-        try {
-            layoutId = LayoutId.fromValue(createInfo.getModeId());
-        } catch (Exception e) {
-            logger.warn("Failed to find GameMode with id: '{}'", createInfo.getModeId());
-            HttpUtils.respond(resp, StatusCodes.BAD_REQUEST, "Invalid Game-Mode Id");
-            return;
-        }
+        GameInfo createInfo = JsonUtils.getMapper().readValue(req.getReader(), GameInfo.class);
 
         final String sessionId;
         try {
-            sessionId = JChessServer.startNewGame(layoutId);
+            sessionId = JChessServer.startNewGame(createInfo);
         } catch (Exception e) {
             logger.warn("Failed to start new game.", e);
             HttpUtils.respond(resp, StatusCodes.INTERNAL_SERVER_ERROR, "Failed to start new game. Exception: " + e.getMessage());

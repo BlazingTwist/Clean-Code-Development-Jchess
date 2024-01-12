@@ -1,5 +1,6 @@
 package jchess.server;
 
+import dx.schema.types.GameInfo;
 import dx.schema.types.LayoutId;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -17,6 +18,7 @@ import jchess.common.events.RenderEvent;
 import jchess.gamemode.GameModeStore;
 import jchess.server.api.servlet.BoardClickedServlet;
 import jchess.server.api.servlet.GameCreateServlet;
+import jchess.server.api.servlet.GameInfoServlet;
 import jchess.server.api.servlet.GameModesServlet;
 import jchess.server.api.servlet.ThemesServlet;
 import jchess.server.api.socket.BoardUpdateWebsocket;
@@ -55,6 +57,7 @@ public class JChessServer {
                 .setContextPath("")
                 .setDeploymentName("WipChessServer")
                 .addServlet(Servlets.servlet("GameCreate", GameCreateServlet.class).addMapping("/api/game/create"))
+                .addServlet(Servlets.servlet("GameInfo", GameInfoServlet.class).addMapping("/api/game/info"))
                 .addServlet(Servlets.servlet("GameClicked", BoardClickedServlet.class).addMapping("/api/game/clicked"))
                 .addServlet(Servlets.servlet("Themes", ThemesServlet.class).addMapping("/api/themes"))
                 .addServlet(Servlets.servlet("GameModes", GameModesServlet.class).addMapping("/api/modes"));
@@ -81,10 +84,11 @@ public class JChessServer {
         logger.info("Server started");
     }
 
-    public static String startNewGame(LayoutId layoutId) {
+    public static String startNewGame(GameInfo createInfo) {
+        LayoutId layoutId = createInfo.getLayoutId();
         IChessGame game = GameModeStore.getGameMode(layoutId).newGame();
 
-        GameSessionData gameData = new GameSessionData(game);
+        GameSessionData gameData = new GameSessionData(game, createInfo);
         SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
         String sessionId = gameManager.createSession(gameData).sessionId;
 
