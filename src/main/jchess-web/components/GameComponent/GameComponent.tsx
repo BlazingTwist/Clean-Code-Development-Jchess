@@ -5,8 +5,6 @@ import { useGameUpdateContext } from "@/app/context/game_update_context";
 import { useThemeContext } from "@/app/context/theme_context";
 import { Vector2I } from "@/models/message/GameUpdate.schema";
 import Config from "@/utils/config";
-import TimeGameComponent from "./TimeGameComponent";
-import HistoryComponent from "./HistoryComponent";
 import { postClick } from "@/services/rest_api_service";
 import PlayerOverviewComponent from "./PlayerOverviewComponent";
 import ChatComponent from "./ChatComponent";
@@ -136,11 +134,22 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
 
         let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
 
+        const centerX = offsetWidthFromCanvasRef / 2;
+        const centerY = offsetHeightFromCanvasRef / 2;
+
+        // Calculate the total size of the tiles group
+        const totalTilesWidth = rawBoardWidth * scaleFactor;
+        const totalTilesHeight = rawBoardHeight * scaleFactor;
+
+        // Calculate the starting point for the first tile
+        const startOffsetX = centerX - totalTilesWidth / 2;
+        const startOffsetY = centerY - totalTilesHeight / 2;
+
         for (const tile of tiles) {
             const tileX = tile.position[0] - minTilePos[0];
-            const offsetX = tileX * theme!.tileStride!.x * scaleFactor;
+            const offsetX = startOffsetX + tileX * theme!.tileStride!.x * scaleFactor;
             const tileY = tile.position[1] - minTilePos[1];
-            const offsetY = tileY * theme!.tileStride!.y * scaleFactor;
+            const offsetY = startOffsetY + tileY * theme!.tileStride!.y * scaleFactor;
             const iconPath = iconMap[tile.iconId];
             const tileKey = `tile-${tile.iconId}-${tile.position[0]}-${tile.position[1]}`;
             canvas.push(
@@ -181,9 +190,9 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
         for (const piece of pieces) {
             const tilePos = piece.tile.position;
             const x = tilePos[0] - minTilePos[0];
-            const offsetX = x * theme!.tileStride!.x * scaleFactor;
+            const offsetX = startOffsetX + x * theme!.tileStride!.x * scaleFactor;
             const y = tilePos[1] - minTilePos[1];
-            const offsetY = y * theme!.tileStride!.y * scaleFactor;
+            const offsetY = startOffsetY + y * theme!.tileStride!.y * scaleFactor;
             const iconPath = iconMap[piece.identifier.iconId];
             const pieceKey = `piece-${piece.identifier.iconId}-${tilePos[0]}-${tilePos[1]}`;
 
@@ -211,9 +220,9 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
         for (const marker of markers) {
             const markerPos = marker.tile.position;
             const x = markerPos[0] - minTilePos[0];
-            const offsetX = x * theme!.tileStride!.x * scaleFactor;
+            const offsetX = startOffsetX + x * theme!.tileStride!.x * scaleFactor;
             const y = markerPos[1] - minTilePos[1];
-            const offsetY = y * theme!.tileStride!.y * scaleFactor;
+            const offsetY = startOffsetY + y * theme!.tileStride!.y * scaleFactor;
             const markerKey = `marker-${marker.iconId}-${markerPos[0]}-${markerPos[1]}`;
             const iconPath = iconMap[marker.iconId];
 
@@ -293,27 +302,20 @@ export default function GameComponment({ sessionId }: { sessionId: string }) {
     }, [gameUpdate, getCurrentTheme()]);
 
     return (
-        <div className="p-12 max-w-[2000px] mx-auto flex flex-col lg:flex-row items-center md:items-start md:justify-center">
+        <div className="p-12 max-w-[2000px] mx-auto flex flex-col xl:flex-row items-center md:justify-center gap-12">
             <div
                 ref={canvasRef}
-                className="w-[80vw] h-[80vw] lg:w-[50vw] md:h-[55vw] min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh] justify-self-center relative"
+                className="w-[80vw] h-[80vw] xl:w-[50vw] xl:h-[50vw] md:w-[65vw] md:h-[65vw] min-w-[20px] min-h-[200px] max-w-[80vh] max-h-[80vh] justify-self-center relative"
             >
                 {board}
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2 md:ml-[5vw] ">
-                <div className="grid gap-2  sm:col-start-1 sm:col-end-2">
-                    {gameOptions.isTimeGame && <TimeGameComponent className="w-full" />}
-                    {!gameOptions.isTimeGame && <PlayerOverviewComponent className="w-full" />}
-                    {<HistoryComponent className="w-full" />}
-                </div>
-
-                {
-                    <ChatComponent
-                        sessionId={sessionId}
-                        className="w-full sm:col-start-2 sm:col-end-3 sm:row-span-2 sm:row-start-1"
-                    />
-                }
+            <div className="flex flex-col sm:flex-row xl:flex-col gap-2">
+                <PlayerOverviewComponent className="w-full" />
+                <ChatComponent
+                    sessionId={sessionId}
+                    className="w-full sm:col-start-2 sm:col-end-3 sm:row-span-2 sm:row-start-1"
+                />
             </div>
         </div>
     );

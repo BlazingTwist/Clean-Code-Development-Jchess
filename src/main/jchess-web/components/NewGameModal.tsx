@@ -26,10 +26,7 @@ export function NewGameModal() {
 
     // State variables for player information and game settings
     // values for the select elements
-    const [timeGameValues, setTimeGameValues] = useState<string[]>([]);
     const [isWhiteOnTop, setWhiteOnTop] = useState(false);
-    const [isTimeGame, setTimeGame] = useState(false);
-    const [timeGameAmount, setTimeGameAmount] = useState("0");
 
     const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
 
@@ -37,16 +34,6 @@ export function NewGameModal() {
     const { gameModeMap, setTheme } = useThemeContext();
 
     const [gameMode, setGameMode] = useState<GameMode | undefined>(undefined);
-
-    /**
-     * @function useEffect
-     * @description Fetches possible values from the server when the component mounts.
-     */
-    useEffect(() => {
-        // TODO fetch possible values from server:
-        console.log("fetch possible time game amounts from server");
-        setTimeGameValues(["1", "3", "5", "8", "10", "15", "20", "25", "30", "60", "120"]);
-    }, []);
 
     useEffect(() => {
         // Reset selected theme when gameMode changes
@@ -109,31 +96,6 @@ export function NewGameModal() {
         );
     };
 
-    /**
-     * @function renderTimeSelect
-     * @description Renders a dropdown for selecting the time limit for the game.
-     * @returns {JSX.Element} JSX Element representing the time select dropdown.
-     */
-    const renderTimeSelect = () => {
-        return (
-            <Select onValueChange={setTimeGameAmount}>
-                <SelectTrigger id="time-game-amount">
-                    <SelectValue placeholder="Select time game amount" />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                    {timeGameValues.map((value) => (
-                        <SelectItem key={value} value={value}>
-                            <div className="flex">
-                                <div className="w-8 text-end">{value}</div>
-                                <div className="pl-2">{value != "1" ? "minutes" : "minute"}</div>
-                            </div>
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        );
-    };
-
     type ColorMap = {
         [key: number]: {
             [key: number]: string;
@@ -155,14 +117,9 @@ export function NewGameModal() {
         );
 
         console.log("players are:" + playerNames);
-        console.log("isTimeGame:" + isTimeGame);
-        console.log("timeGameAmount:" + timeGameAmount);
-
         // TODO send the player names to the server and retrieve the player colors and times
         // MOCK GameStart Endpoit on the Client
         const playerColors = new Map<number, string>();
-        const playerTimes = new Map<number, Date>();
-        const playerHistory = new Map<number, Array<string>>();
 
         // mock Color Map. TODO: remove and add to themes response
         const colorMap: ColorMap = {
@@ -178,10 +135,7 @@ export function NewGameModal() {
         };
 
         playerNames.forEach((playerName, index) => {
-            const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
             playerColors.set(index, colorMap[playerNames.length][index]);
-            playerTimes.set(index, playerTime);
-            playerHistory.set(index, ["e4:e5", " e5:e4"]);
         });
 
         console.log("post newGame to server");
@@ -194,14 +148,10 @@ export function NewGameModal() {
             setGameOptions({
                 playerNames,
                 isWhiteOnTop,
-                isTimeGame,
-                timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
             });
 
             setPlayerState({
                 playerColor: playerColors,
-                playerTime: playerTimes,
-                playerHistory: playerHistory,
             });
             router.push("/?sessionId=" + sessionId);
         });
@@ -246,16 +196,7 @@ export function NewGameModal() {
                             >
                                 White on top
                             </label>
-
-                            <Checkbox id="time-game" onCheckedChange={(checked: boolean) => setTimeGame(checked)} />
-                            <label
-                                htmlFor="time-game"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                Time Game
-                            </label>
                         </div>
-                        {isTimeGame && renderTimeSelect()}
                     </CardContent>
                     <CardFooter className="flex justify-between">
                         <Button type="button" variant="outline">
