@@ -28,6 +28,7 @@ jobs:
           # This will hand over control about PR rejection to the GitHub side
           max-allowed-issues: 2147483647
           directory: /src/main/java
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
       # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
