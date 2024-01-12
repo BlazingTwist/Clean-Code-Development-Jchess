@@ -8,7 +8,4 @@ import dx.schema.types.MarkerType;
 public class MarkerComponent {
     public MarkerType markerType;
     public Runnable onMarkerClicked;
-
-    public MarkerComponent() {
-    }
 }

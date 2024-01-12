@@ -127,7 +127,7 @@ public class PieceMoveRulesTest {
         return out;
     }
 
-    private void MoveTestNoOtherPieces(Hex3pPieces pieceType, int tileToTest, int[] expectedTiles) {
+    private void moveTestNoOtherPieces(Hex3pPieces pieceType, int tileToTest, int[] expectedTiles) {
         PieceStore.PieceDefinition pieceDefinition = pieceType.getPieceDefinition();
         PieceIdentifier identifier = new PieceIdentifier(pieceType.getPieceType(), pieceDefinition.shortName(), 0, 0);
         PieceComponent piece = new PieceComponent(null, identifier, pieceDefinition.baseMoves());
@@ -140,56 +140,56 @@ public class PieceMoveRulesTest {
     @Test
     public void pawnMoveTest() {
         logger.info("--- Pawn Test ---");
-        MoveTestNoOtherPieces(Hex3pPieces.Pawn, 0, new int[]{});
-        MoveTestNoOtherPieces(Hex3pPieces.Pawn, 1, new int[]{10});
-        MoveTestNoOtherPieces(Hex3pPieces.Pawn, 5, new int[]{1, 2});
-        MoveTestNoOtherPieces(Hex3pPieces.Pawn, 9, new int[]{7, 8});//TODO wenn 2er move fertig eingebaut, 4 und 6 hinzufügen ins array
+        moveTestNoOtherPieces(Hex3pPieces.Pawn, 0, new int[]{});
+        moveTestNoOtherPieces(Hex3pPieces.Pawn, 1, new int[]{10});
+        moveTestNoOtherPieces(Hex3pPieces.Pawn, 5, new int[]{1, 2});
+        moveTestNoOtherPieces(Hex3pPieces.Pawn, 9, new int[]{7, 8});//TODO wenn 2er move fertig eingebaut, 4 und 6 hinzufügen ins array
     }
 
     @Test
     public void rookMoveTest() {
         logger.info("--- Rook Test ---");
-        MoveTestNoOtherPieces(Hex3pPieces.Rook, 0, new int[]{1, 2, 3, 4, 7, 9});
-        MoveTestNoOtherPieces(Hex3pPieces.Rook, 3, new int[]{0, 1, 2, 6, 8, 9});
-        MoveTestNoOtherPieces(Hex3pPieces.Rook, 5, new int[]{1, 2, 4, 6, 7, 8});
-        MoveTestNoOtherPieces(Hex3pPieces.Rook, 9, new int[]{0, 3, 4, 6, 7, 8});
-        MoveTestNoOtherPieces(Hex3pPieces.Rook, 10, new int[]{1, 2, 4, 6, 11, 12});
-        MoveTestNoOtherPieces(Hex3pPieces.Rook, 11, new int[]{1, 4, 7, 8, 10, 12});
-        MoveTestNoOtherPieces(Hex3pPieces.Rook, 12, new int[]{2, 6, 7, 8, 10, 11});
+        moveTestNoOtherPieces(Hex3pPieces.Rook, 0, new int[]{1, 2, 3, 4, 7, 9});
+        moveTestNoOtherPieces(Hex3pPieces.Rook, 3, new int[]{0, 1, 2, 6, 8, 9});
+        moveTestNoOtherPieces(Hex3pPieces.Rook, 5, new int[]{1, 2, 4, 6, 7, 8});
+        moveTestNoOtherPieces(Hex3pPieces.Rook, 9, new int[]{0, 3, 4, 6, 7, 8});
+        moveTestNoOtherPieces(Hex3pPieces.Rook, 10, new int[]{1, 2, 4, 6, 11, 12});
+        moveTestNoOtherPieces(Hex3pPieces.Rook, 11, new int[]{1, 4, 7, 8, 10, 12});
+        moveTestNoOtherPieces(Hex3pPieces.Rook, 12, new int[]{2, 6, 7, 8, 10, 11});
     }
 
     @Test
     public void knightMoveTest() {
         logger.info("--- Knight Test ---");
-        MoveTestNoOtherPieces(Hex3pPieces.Knight, 0, new int[]{6, 8});
-        MoveTestNoOtherPieces(Hex3pPieces.Knight, 3, new int[]{4, 7});
-        MoveTestNoOtherPieces(Hex3pPieces.Knight, 5, new int[]{});
-        MoveTestNoOtherPieces(Hex3pPieces.Knight, 9, new int[]{1, 2});
-        MoveTestNoOtherPieces(Hex3pPieces.Knight, 10, new int[]{7, 8});
-        MoveTestNoOtherPieces(Hex3pPieces.Knight, 11, new int[]{2, 6});
-        MoveTestNoOtherPieces(Hex3pPieces.Knight, 12, new int[]{1, 4});
+        moveTestNoOtherPieces(Hex3pPieces.Knight, 0, new int[]{6, 8});
+        moveTestNoOtherPieces(Hex3pPieces.Knight, 3, new int[]{4, 7});
+        moveTestNoOtherPieces(Hex3pPieces.Knight, 5, new int[]{});
+        moveTestNoOtherPieces(Hex3pPieces.Knight, 9, new int[]{1, 2});
+        moveTestNoOtherPieces(Hex3pPieces.Knight, 10, new int[]{7, 8});
+        moveTestNoOtherPieces(Hex3pPieces.Knight, 11, new int[]{2, 6});
+        moveTestNoOtherPieces(Hex3pPieces.Knight, 12, new int[]{1, 4});
     }
 
     @Test
     public void bishopMoveTest() {
         logger.info("--- Bishop Test ---");
-        MoveTestNoOtherPieces(Hex3pPieces.Bishop, 1, new int[]{6, 7});
-        MoveTestNoOtherPieces(Hex3pPieces.Bishop, 5, new int[]{0, 3, 9, 10, 11, 12});
-        MoveTestNoOtherPieces(Hex3pPieces.Bishop, 10, new int[]{0, 3, 5, 9});
+        moveTestNoOtherPieces(Hex3pPieces.Bishop, 1, new int[]{6, 7});
+        moveTestNoOtherPieces(Hex3pPieces.Bishop, 5, new int[]{0, 3, 9, 10, 11, 12});
+        moveTestNoOtherPieces(Hex3pPieces.Bishop, 10, new int[]{0, 3, 5, 9});
     }
 
     @Test
     public void kingMoveTest() {
         logger.info("--- King Test ---");
-        MoveTestNoOtherPieces(Hex3pPieces.King, 0, new int[]{1, 4, 5, 10, 11});
-        MoveTestNoOtherPieces(Hex3pPieces.King, 1, new int[]{0, 2, 4, 5, 6, 7, 10});
-        MoveTestNoOtherPieces(Hex3pPieces.King, 5, new int[]{0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12});
+        moveTestNoOtherPieces(Hex3pPieces.King, 0, new int[]{1, 4, 5, 10, 11});
+        moveTestNoOtherPieces(Hex3pPieces.King, 1, new int[]{0, 2, 4, 5, 6, 7, 10});
+        moveTestNoOtherPieces(Hex3pPieces.King, 5, new int[]{0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12});
     }
 
     @Test
     public void queenMoveTest() {
         logger.info("--- Queen Test ---");
-        MoveTestNoOtherPieces(Hex3pPieces.Queen, 5, new int[]{0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12});
-        MoveTestNoOtherPieces(Hex3pPieces.Queen, 10, new int[]{0, 1, 2, 3, 4, 5, 6, 9, 11, 12});
+        moveTestNoOtherPieces(Hex3pPieces.Queen, 5, new int[]{0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12});
+        moveTestNoOtherPieces(Hex3pPieces.Queen, 10, new int[]{0, 1, 2, 3, 4, 5, 6, 9, 11, 12});
     }
 }
