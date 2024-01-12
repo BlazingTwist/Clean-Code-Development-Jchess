@@ -30,8 +30,8 @@ jobs:
           run-staticcheck: true
           run-docker-tools: true
 
-      - name: List files in the working directory
-        run: ls -R
+      - name: Read sarif file
+        run: cat results.sarif
 
       - name: Upload SARIF results file
         uses: github/codeql-action/upload-sarif@main
