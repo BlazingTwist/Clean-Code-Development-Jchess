@@ -6,13 +6,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jchess.common.theme.ThemeStore;
-import jchess.server.WipExampleServer;
+import jchess.server.JChessServer;
 import jchess.server.util.HttpUtils;
 
 import java.io.IOException;
 
 public class ThemesServlet extends HttpServlet {
-    private static final String resourcePrefix = WipExampleServer.resourcePrefix;
+    private static final String resourcePrefix = JChessServer.resourcePrefix;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

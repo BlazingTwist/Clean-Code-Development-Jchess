@@ -1,6 +1,16 @@
 Hier wird das Projekt allgemein und das Backend beschrieben.  
 Siehe auch: [Frontend Dokumentation](./src/main/jchess-web/README.md)
 
+### Server start/stop
+```bash
+# starts both the Backend and Frontend.
+# Will be available at 'localhost:3000'
+docker-compose up -d
+
+# stops the servers
+docker-compose down
+```
+
 ---
 
 ## Entwicklerhilfen

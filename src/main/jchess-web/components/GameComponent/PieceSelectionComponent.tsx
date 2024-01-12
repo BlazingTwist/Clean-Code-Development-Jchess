@@ -13,8 +13,6 @@ export default function PieceSelectionComponent({
     sessionId: string;
     themeHelper: ThemeHelper;
 }) {
-    const serverUri = Config.clientUri + "/api/";
-
     const [pieceSelectionOffer, setPieceSelectionOffer] = useState<OfferPieceSelection | undefined>(undefined);
 
     // Websocket
@@ -85,7 +83,7 @@ export default function PieceSelectionComponent({
                                                     }
                                                 }}
                                             >
-                                                <img src={serverUri + iconPath} />
+                                                <img src={"api/" + iconPath} />
                                             </div>
                                         </div>
                                     </CarouselItem>

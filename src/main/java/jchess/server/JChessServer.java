@@ -27,18 +27,20 @@ import jchess.server.session.SessionMgrController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
-public class WipExampleServer {
-    private static final Logger logger = LoggerFactory.getLogger(WipExampleServer.class);
+public class JChessServer {
+    private static final Logger logger = LoggerFactory.getLogger(JChessServer.class);
 
     public static final String resourcePrefix = "resources";
 
     public static BoardUpdateWebsocket boardUpdateWebsocket;
     public static PieceSelectionWebsocket pieceSelectionWebsocket;
 
-    public static void main(String[] args) throws ServletException, URISyntaxException {
+    public static void main(String[] args) throws ServletException, URISyntaxException, UnknownHostException {
         boardUpdateWebsocket = new BoardUpdateWebsocket();
         pieceSelectionWebsocket = new PieceSelectionWebsocket();
         ChatWebsocket chatWebsocket = new ChatWebsocket();
@@ -46,10 +48,10 @@ public class WipExampleServer {
         SessionMgrController.registerSessionManager(GameSessionData.class, 10, TimeUnit.MINUTES);
         SessionMgrController.startHeartbeat(1, TimeUnit.MINUTES);
 
-        ClassPathResourceManager resourceManager = new ClassPathResourceManager(WipExampleServer.class.getClassLoader());
+        ClassPathResourceManager resourceManager = new ClassPathResourceManager(JChessServer.class.getClassLoader());
 
         DeploymentInfo deployment = Servlets.deployment()
-                .setClassLoader(WipExampleServer.class.getClassLoader())
+                .setClassLoader(JChessServer.class.getClassLoader())
                 .setContextPath("")
                 .setDeploymentName("WipChessServer")
                 .addServlet(Servlets.servlet("GameCreate", GameCreateServlet.class).addMapping("/api/game/create"))
@@ -67,8 +69,12 @@ public class WipExampleServer {
                 .addPrefixPath("/api/pieceSelection", Handlers.websocket(pieceSelectionWebsocket))
                 .addPrefixPath("/api/chat", Handlers.websocket(chatWebsocket));
 
+        final String isDocker = System.getenv("IS_DOCKER");
+        final String address = (isDocker == null || isDocker.isEmpty()) ? "localhost" : InetAddress.getLocalHost().getHostAddress();
+        final int port = 8880;
+        logger.info("Listening on {}:{}", address, port);
         Undertow server = Undertow.builder()
-                .addHttpListener(8880, "127.0.0.1")
+                .addHttpListener(port, address)
                 .setHandler(pathHandler)
                 .build();
         server.start();

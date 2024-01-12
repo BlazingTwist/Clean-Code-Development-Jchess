@@ -6,7 +6,7 @@ import io.undertow.util.StatusCodes;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jchess.server.WipExampleServer;
+import jchess.server.JChessServer;
 import jchess.server.util.HttpUtils;
 import jchess.server.util.JsonUtils;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ public class GameCreateServlet extends HttpServlet {
 
         final String sessionId;
         try {
-            sessionId = WipExampleServer.startNewGame(layoutId);
+            sessionId = JChessServer.startNewGame(layoutId);
         } catch (Exception e) {
             logger.warn("Failed to start new game.", e);
             HttpUtils.respond(resp, StatusCodes.INTERNAL_SERVER_ERROR, "Failed to start new game. Exception: " + e.getMessage());

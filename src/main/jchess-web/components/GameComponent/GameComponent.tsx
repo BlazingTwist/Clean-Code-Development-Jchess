@@ -106,7 +106,6 @@ export default function GameComponent({ sessionId }: { sessionId: string }) {
         translationString: string
     ) {
         const canvas: JSX.Element[] = [];
-        const serverUri = Config.clientUri + "/api/";
         const offsetWidthFromCanvasRef = canvasRef.current?.offsetWidth || 1;
         const tileSize = themeHelper.getTileSize();
         const tileStride = themeHelper.getTileStride();
@@ -134,7 +133,7 @@ export default function GameComponent({ sessionId }: { sessionId: string }) {
                 >
                     <img
                         className="absolute w-full h-full"
-                        src={serverUri + iconPath}
+                        src={"api/" + iconPath}
                         onClick={() => {
                             console.log("Clicked: " + tileKey);
 
@@ -178,7 +177,7 @@ export default function GameComponent({ sessionId }: { sessionId: string }) {
                             transform: translationString,
                             pointerEvents: "none",
                         }}
-                        src={serverUri + iconPath}
+                        src={"api/" + iconPath}
                     />
                 </div>
             );
@@ -205,7 +204,7 @@ export default function GameComponent({ sessionId }: { sessionId: string }) {
                             height: tileSize!.y * scaleFactor,
                             pointerEvents: "none",
                         }}
-                        src={serverUri + iconPath}
+                        src={"api/" + iconPath}
                     ></img>
                 </div>
             );
