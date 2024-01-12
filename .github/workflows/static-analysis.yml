@@ -30,6 +30,8 @@ jobs:
           directory: /src/main/java
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           upload: true
+          run-staticcheck: true
+          run-docker-tools: true
 
       # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
