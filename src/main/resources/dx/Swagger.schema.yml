@@ -15,7 +15,7 @@ paths:
         - in: body
           name: GameProperties
           schema:
-            $ref: 'schema/types/GameInfo.schema.json'
+            $ref: 'schema/message/GameInfo.schema.json'
       responses:
         '201':
           description: Game Created
@@ -44,7 +44,7 @@ paths:
         '200':
           description: Game Found
           schema:
-            $ref: 'schema/types/GameInfo.schema.json'
+            $ref: 'schema/message/GameInfo.schema.json'
         '404':
           description: Game not Found
           schema:

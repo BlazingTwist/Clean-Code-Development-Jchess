@@ -1,6 +1,6 @@
 package jchess.server;
 
-import dx.schema.types.GameInfo;
+import dx.schema.message.GameInfo;
 import jchess.common.IChessGame;
 import jchess.server.api.socket.BoardUpdateWebsocket;
 import jchess.server.api.socket.ChatWebsocket;

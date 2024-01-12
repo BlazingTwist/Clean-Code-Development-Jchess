@@ -1,6 +1,6 @@
 package jchess.server.api.servlet;
 
-import dx.schema.types.GameInfo;
+import dx.schema.message.GameInfo;
 import io.undertow.util.StatusCodes;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;

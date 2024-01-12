@@ -1,5 +1,5 @@
 import { GameClicked } from "@/models/GameClicked.schema";
-import { GameCreate } from "@/models/GameCreate.schema";
+import { GameInfo } from "@/models/GameInfo.schema";
 import { GameModes } from "@/models/GameModes.schema";
 import { Themes } from "@/models/Themes.schema";
 
@@ -8,7 +8,7 @@ import { Themes } from "@/models/Themes.schema";
  * @description Creates a new game on the server.
  * @returns A promise that resolves to the session id of the new game.
  */
-export async function postCreateGame(gameCreateBody: GameCreate): Promise<string> {
+export async function postCreateGame(gameCreateBody: GameInfo): Promise<string> {
     const response = await fetch(`api/game/create`, {
         method: "POST",
         headers: {

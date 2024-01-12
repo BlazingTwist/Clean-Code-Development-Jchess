@@ -2,11 +2,11 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "GameInfo",
     "type": "object",
-    "javaType": "dx.schema.types.GameInfo",
+    "javaType": "dx.schema.message.GameInfo",
     "properties": {
         "layoutId": {
             "description": "Id the layout to be used",
-            "$ref": "LayoutId.schema.json"
+            "$ref": "../types/LayoutId.schema.json"
         },
         "themeName": {
             "description": "The selected Theme name",

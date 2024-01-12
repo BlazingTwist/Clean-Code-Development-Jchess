@@ -1,5 +1,5 @@
 "use client";
-import {useEffect, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
@@ -18,9 +18,9 @@ import {GameMode} from "@/models/GameModes.schema";
 /**
  * @function NewGameModal
  * @description React component for rendering a modal to start a new chess game.
- * @returns {JSX.Element} JSX Element representing the New Game Modal.
+ * @returns JSX Element representing the New Game Modal.
  */
-export function NewGameModal() {
+export function NewGameModal() : ReactElement | null {
     const router = useRouter();
 
     // State variables for player information and game settings
@@ -64,13 +64,13 @@ export function NewGameModal() {
     /**
      * @function renderNameInputs
      * @description Renders input fields for player names based on the selected gameMode.
-     * @returns {JSX.Element[]} Array of JSX Elements representing player name input fields.
+     * @returns Array of JSX Elements representing player name input fields.
      */
-    const renderNameInputs = () => {
+    const renderNameInputs = function (): ReactElement[] {
         if (!gameMode || !gameMode?.numPlayers) {
             return [];
         }
-        const inputs: JSX.Element[] = [];
+        const inputs: ReactElement[] = [];
         for (let i = 1; i <= gameMode!.numPlayers; i++) {
             inputs.push(
                 <div key={i}>
@@ -87,11 +87,11 @@ export function NewGameModal() {
     /**
      * @function renderThemeSelect
      * @description Renders a dropdown for selecting the theme for the gameMode.
-     * @returns {JSX.Element} JSX Element representing the time select dropdown.
+     * @returns JSX Element representing the time select dropdown.
      */
-    const renderThemeSelect = () => {
+    const renderThemeSelect = function (): ReactElement | null {
         if (!gameMode) {
-            return [];
+            return null;
         }
 
         return (
@@ -128,12 +128,12 @@ export function NewGameModal() {
 
     /**
      * @function renderPerspectiveSelect
-     * @description Renders a dropdown for selecting the players perspective.
-     * @returns {JSX.Element} JSX Element representing the perspective select dropdown.
+     * @description Renders a dropdown for selecting the player's perspective.
+     * @returns JSX Element representing the perspective select dropdown.
      */
-    const renderPerspectiveSelect = () => {
+    const renderPerspectiveSelect = function (): ReactElement | null {
         if (!gameMode) {
-            return [];
+            return null;
         }
 
         return (
@@ -162,9 +162,9 @@ export function NewGameModal() {
     /**
      * @function renderTimeSelect
      * @description Renders a dropdown for selecting the time limit for the game.
-     * @returns {JSX.Element} JSX Element representing the time select dropdown.
+     * @returns JSX Element representing the time select dropdown.
      */
-    const renderTimeSelect = () => {
+    const renderTimeSelect = function (): ReactElement {
         return (
             <Select onValueChange={setTimeGameAmount}>
                 <SelectTrigger id="time-game-amount">
@@ -207,7 +207,7 @@ export function NewGameModal() {
         const playerTimes = new Map<number, Date>();
         const playerHistory = new Map<number, Array<string>>();
 
-        playerNames.forEach((playerName, index) => {
+        playerNames.forEach((_playerName, index) => {
             const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
             playerTimes.set(index, playerTime);
             playerHistory.set(index, ["e4:e5", " e5:e4"]);
@@ -217,7 +217,9 @@ export function NewGameModal() {
         // TODO improve error handling
 
         postCreateGame({
-            modeId: gameMode!.modeId,
+            layoutId: gameMode!.layoutId!,
+            themeName: selectedTheme!,
+            playerNames: playerNames
         }).then((sessionId) => {
             console.log("sessionId:" + sessionId);
             setGameOptions({
