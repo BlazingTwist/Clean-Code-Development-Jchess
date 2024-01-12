@@ -1,15 +1,20 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "GameClicked",
-  "type": "object",
-  "javaType": "dx.schema.message.GameClicked",
-  "properties": {
-    "sessionId": {
-      "type": "string"
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "GameClicked",
+    "type": "object",
+    "javaType": "dx.schema.message.GameClicked",
+    "properties": {
+        "sessionId": {
+            "type": "string"
+        },
+        "clickedTile": {
+            "description": "tileId of the clicked tile",
+            "type": "string"
+        }
     },
-    "clickPos": {
-      "$ref": "../types/Vector2I.schema.json"
-    }
-  },
-  "required": ["sessionId", "clickPos"]
+    "required": [
+        "sessionId",
+        "clickedTile"
+    ],
+    "additionalProperties": false
 }

@@ -1,7 +1,7 @@
 "use client";
 import Config from "@/utils/config";
 import { useRouter } from "next/navigation";
-import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNode, useEffect, use } from "react";
+import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNode, useEffect } from "react";
 
 //TODO most of this will be handled by the server, so this will be a lot simpler
 
@@ -10,7 +10,7 @@ import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNod
  */
 type GameOptions = {
     playerNames: Array<string>;
-    isWhiteOnTop: boolean;
+    playerPerspective: number;
 };
 
 /**
@@ -68,8 +68,8 @@ const GameContext = createContext<ContextProps>({
     },
     setPlayerState: () => {},
     gameOptions: {
+        playerPerspective: 0,
         playerNames: [],
-        isWhiteOnTop: false,
     },
     setGameOptions: () => {},
     resetGame: () => {},
@@ -96,7 +96,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     const playerStateStorageKey = "playerState";
 
     // Initialize state for chessboard, game options, and player state
-    const [chessboardState, setChessboardState] = useState<Array<Array<string>>>(Array<Array<string>>());
     const [gameOptions, setGameOptions] = useState<GameOptions>(() => {
         // Load the initial state from localStorage if saving cookies is enabled
         return useLocalStorage
@@ -139,8 +138,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     const resetGame = () => {
         console.log("resetting game");
         setGameOptions({
+            playerPerspective: 0,
             playerNames: [],
-            isWhiteOnTop: false,
         });
 
         // Remove the gameUpdate from localStorage if saving cookies is enabled

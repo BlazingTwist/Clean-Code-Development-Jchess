@@ -6,18 +6,11 @@
   "properties": {
     "markerType": {
       "title": "MarkerType",
-      "enum": [
-        "NoAction",
-        "YesAction",
-        "Selection"
-      ]
-    },
-    "iconId": {
-      "type": "string"
+      "$ref": "MarkerType.schema.json"
     }
   },
   "required": [
-    "markerType",
-    "iconId"
-  ]
+    "markerType"
+  ],
+  "additionalProperties": false
 }

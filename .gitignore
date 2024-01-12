@@ -76,6 +76,13 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+docs/api-docs
+docs/java-docs
+
 target
 /logs/
 /src/main/jchess-web/api-docs
+jchess.iml
+src/main/jchess-web/package-lock.json
+src/main/jchess-web/.idea
+src/main/jchess-web/models

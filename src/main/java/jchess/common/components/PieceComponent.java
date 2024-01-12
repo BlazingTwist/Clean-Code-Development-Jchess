@@ -1,5 +1,6 @@
 package jchess.common.components;
 
+import dx.schema.types.PieceType;
 import jchess.ecs.Entity;
 import jchess.common.IChessGame;
 import jchess.common.moveset.ISpecialRule;
@@ -51,10 +52,9 @@ public class PieceComponent {
                     baseMoveSet.findTiles(thisTile).map(toTile -> NormalMove.getMove(game, thisTile, toTile))
             );
         }
-        moves = Stream.concat(
-                moves,
-                specialMoveSet.stream().flatMap(rule -> rule.getSpecialMoves(thisTile).stream())
-        );
+        for (ISpecialRule specialRule : specialMoveSet) {
+            moves = specialRule.getSpecialMoves(thisTile, moves);
+        }
 
         if (verifyKingSafe) {
             moves = verifyKingSafe(moves);
@@ -65,13 +65,12 @@ public class PieceComponent {
 
     private Stream<MoveIntention> verifyKingSafe(Stream<MoveIntention> allMoves) {
         int ownPlayerId = identifier.ownerId();
-        int kingTypeId = game.getKingTypeId();
 
         return allMoves.filter(move -> {
             MoveIntention.IMoveSimulator simulator = move.moveSimulator();
             simulator.simulate();
 
-            Entity ownKing = findKing(ownPlayerId, kingTypeId);
+            Entity ownKing = findKing(ownPlayerId);
             if (ownKing == null) {
                 logger.warn("Unable to find King on Board after simulated move.");
                 return false;
@@ -90,13 +89,13 @@ public class PieceComponent {
         });
     }
 
-    private Entity findKing(int playerId, int kingTypeId) {
+    private Entity findKing(int playerId) {
         return game.getEntityManager().getEntities().stream()
                 .filter(entity -> {
                     if (entity.piece == null) return false;
 
                     PieceIdentifier pieceId = entity.piece.identifier;
-                    return pieceId.ownerId() == playerId && pieceId.pieceTypeId() == kingTypeId;
+                    return pieceId.ownerId() == playerId && pieceId.pieceType() == PieceType.KING;
                 })
                 .findFirst().orElse(null);
     }

@@ -1,20 +1,19 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import {useEffect, useState} from "react";
+import {useRouter} from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Checkbox} from "@/components/ui/checkbox";
 
-import { postCreateGame } from "@/services/rest_api_service";
+import {postCreateGame} from "@/services/rest_api_service";
 
-import { useGameContext } from "@/app/context/game_context";
-import { useThemeContext } from "@/app/context/theme_context";
-import { GameMode } from "@/models/message/GameModes.schema";
-import { GameCreate } from "@/models/message/GameCreate.schema";
+import {useGameContext} from "@/app/context/game_context";
+import {useThemeContext} from "@/app/context/theme_context";
+import {GameMode} from "@/models/GameModes.schema";
 
 /**
  * @function NewGameModal
@@ -26,14 +25,23 @@ export function NewGameModal() {
 
     // State variables for player information and game settings
     // values for the select elements
-    const [isWhiteOnTop, setWhiteOnTop] = useState(false);
+    const [playerPerspective, setPlayerPerspective] = useState(0);
 
-    const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
-
-    const { setGameOptions, setPlayerState } = useGameContext(); // old code for client side state, later it probably will be removed
-    const { gameModeMap, setTheme } = useThemeContext();
+    const {setGameOptions, setPlayerState} = useGameContext(); // old code for client side state, later it probably will be removed
+    const {gameModeMap, setTheme, setLayout} = useThemeContext();
 
     const [gameMode, setGameMode] = useState<GameMode | undefined>(undefined);
+
+    function onGameModeChanged(gameMode: GameMode | undefined) {
+        if (gameMode === undefined) {
+            console.warn("selected gameMode was undefined");
+            return;
+        }
+        setGameMode(gameMode);
+        setLayout(gameMode.layoutId!);
+    }
+
+    const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         // Reset selected theme when gameMode changes
@@ -55,7 +63,7 @@ export function NewGameModal() {
                 <div key={i}>
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor={`player-${i}`}>Name of Player {i}</Label>
-                        <Input id={`player-${i}`} placeholder={`Name of Player ${i}`} required />
+                        <Input id={`player-${i}`} placeholder={`Name of Player ${i}`} required/>
                     </div>
                 </div>
             );
@@ -83,7 +91,7 @@ export function NewGameModal() {
                 required
             >
                 <SelectTrigger id="them-selection">
-                    <SelectValue placeholder="Select Theme" />
+                    <SelectValue placeholder="Select Theme"/>
                 </SelectTrigger>
                 <SelectContent position="popper">
                     {Array.from(gameMode.themeIds).map((value) => (
@@ -96,10 +104,71 @@ export function NewGameModal() {
         );
     };
 
-    type ColorMap = {
-        [key: number]: {
-            [key: number]: string;
-        };
+    function getPerspectiveString(perspective: number): string {
+        return "Player " + (perspective + 1);
+    }
+
+    function getPerspectiveFromPerspectiveString(perspectiveString: string): number {
+        // magic number 7 is the length of "Player "
+        return parseInt(perspectiveString.substring(7)) - 1;
+    }
+
+    /**
+     * @function renderPerspectiveSelect
+     * @description Renders a dropdown for selecting the players perspective.
+     * @returns {JSX.Element} JSX Element representing the perspective select dropdown.
+     */
+    const renderPerspectiveSelect = () => {
+        if (!gameMode) {
+            return [];
+        }
+
+        return (
+            <Select
+                onValueChange={(playerPerspective) => {
+                    setPlayerPerspective(getPerspectiveFromPerspectiveString(playerPerspective));
+                }}
+                value={getPerspectiveString(playerPerspective)}
+                required
+            >
+                <Label htmlFor={"player-perspective"}>Perspective</Label>
+                <SelectTrigger id="perspective-selection">
+                    <SelectValue placeholder="Select Perspective"/>
+                </SelectTrigger>
+                <SelectContent position="popper" id="player-perspective">
+                    {Array.from(Array(gameMode.numPlayers).keys()).map((value) => (
+                        <SelectItem key={value} value={getPerspectiveString(value)}>
+                            {getPerspectiveString(value)}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        );
+    };
+
+    /**
+     * @function renderTimeSelect
+     * @description Renders a dropdown for selecting the time limit for the game.
+     * @returns {JSX.Element} JSX Element representing the time select dropdown.
+     */
+    const renderTimeSelect = () => {
+        return (
+            <Select onValueChange={setTimeGameAmount}>
+                <SelectTrigger id="time-game-amount">
+                    <SelectValue placeholder="Select time game amount"/>
+                </SelectTrigger>
+                <SelectContent position="popper">
+                    {timeGameValues.map((value) => (
+                        <SelectItem key={value} value={value}>
+                            <div className="flex">
+                                <div className="w-8 text-end">{value}</div>
+                                <div className="pl-2">{value != "1" ? "minutes" : "minute"}</div>
+                            </div>
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        );
     };
 
     /**
@@ -112,32 +181,11 @@ export function NewGameModal() {
 
         // Access the inputted player names
         const playerNames = Array.from(
-            { length: gameMode?.numPlayers || 0 },
+            {length: gameMode?.numPlayers || 0},
             (_, i) => (document.getElementById(`player-${i + 1}`) as HTMLInputElement).value
         );
 
         console.log("players are:" + playerNames);
-        // TODO send the player names to the server and retrieve the player colors and times
-        // MOCK GameStart Endpoit on the Client
-        const playerColors = new Map<number, string>();
-
-        // mock Color Map. TODO: remove and add to themes response
-        const colorMap: ColorMap = {
-            3: {
-                0: "white",
-                1: "destructive",
-                2: "black",
-            },
-            2: {
-                0: "white",
-                1: "black",
-            },
-        };
-
-        playerNames.forEach((playerName, index) => {
-            playerColors.set(index, colorMap[playerNames.length][index]);
-        });
-
         console.log("post newGame to server");
         // TODO improve error handling
 
@@ -147,11 +195,7 @@ export function NewGameModal() {
             console.log("sessionId:" + sessionId);
             setGameOptions({
                 playerNames,
-                isWhiteOnTop,
-            });
-
-            setPlayerState({
-                playerColor: playerColors,
+                playerPerspective,
             });
             router.push("/?sessionId=" + sessionId);
         });
@@ -168,9 +212,9 @@ export function NewGameModal() {
                     <CardContent>
                         <div className="flex flex-col space-y-1.5 mb-4">
                             <Label htmlFor="framework">Game Mode</Label>
-                            <Select onValueChange={(value) => setGameMode(gameModeMap.get(value))} required>
+                            <Select onValueChange={(value) => onGameModeChanged(gameModeMap.get(value))} required>
                                 <SelectTrigger id="board-layout">
-                                    <SelectValue placeholder="Select Game Mode" />
+                                    <SelectValue placeholder="Select Game Mode"/>
                                 </SelectTrigger>
                                 <SelectContent position="popper">
                                     {Array.from(gameModeMap.keys()).map((value) => (
@@ -184,19 +228,7 @@ export function NewGameModal() {
                         </div>
 
                         <div className="flex flex-col space-y-1.5 mb-4">{renderNameInputs()}</div>
-                        <div className="flex items-center space-x-2 mb-4 ">
-                            <Checkbox
-                                disabled // TODO implement
-                                id="white-on-top"
-                                onCheckedChange={(checked: boolean) => setWhiteOnTop(checked)}
-                            />
-                            <label
-                                htmlFor="white-on-top"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                White on top
-                            </label>
-                        </div>
+                        <div className="flex flex-col space-y-1.5 mb-4">{renderPerspectiveSelect()}</div>
                     </CardContent>
                     <CardFooter className="flex justify-between">
                         <Button type="button" variant="outline">

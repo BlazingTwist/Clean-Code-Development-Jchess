@@ -9,6 +9,8 @@ import { useGameUpdateContext } from "@/app/context/game_update_context";
 import Config from "@/utils/config";
 import { useThemeContext } from "@/app/context/theme_context";
 import { fetchThemes } from "@/services/rest_api_service";
+import { BoardUpdateSubscribe } from "@/models/BoardUpdateSubscribe.schema";
+import {LayoutId} from "@/models/Themes.schema";
 
 /**
  * Represents the main body component for the JChess application.
@@ -17,7 +19,8 @@ import { fetchThemes } from "@/services/rest_api_service";
 export default function Body({ sessionId }: { sessionId: string | undefined }) {
     // Retrieve the game state from the context
     const { setGameUpdate } = useGameUpdateContext();
-    const { getCurrentTheme, setTheme } = useThemeContext();
+    const { gameOptions } = useGameContext();
+    const { getCurrentTheme, setTheme, setLayout } = useThemeContext();
 
     const [ws, setWs] = useState<WebSocket | undefined>(undefined);
 
@@ -30,6 +33,11 @@ export default function Body({ sessionId }: { sessionId: string | undefined }) {
             const serverUri = Config.socketServerUri;
             const socketEndpoint = `${serverUri}/api/board/update`;
 
+            const subscribeMessage: BoardUpdateSubscribe = {
+                sessionId: sessionId,
+                perspective: gameOptions.playerPerspective,
+            };
+
             const ws = new WebSocket(socketEndpoint);
             setWs(ws);
             ws.onopen = () => {
@@ -39,12 +47,18 @@ export default function Body({ sessionId }: { sessionId: string | undefined }) {
                     fetchThemes().then((themes) => {
                         const selectedTheme = prompt(
                             "Please select a theme before starting a game. \n Themes are: " +
-                                themes.themes.map((theme) => theme.name).join(", ")
+                                themes.themes.map((theme) => theme.displayName).join(", ")
                         );
                         setTheme(selectedTheme || "default");
+
+                        const selectedLayout = prompt(
+                            "Please select a layout before starting a game. \n Layouts are: " +
+                            themes.themes.flatMap((theme) => theme.boardTheme?.layouts.map(x => x.layoutId)).join(", ")
+                        ) as LayoutId;
+                        setLayout(selectedLayout || "hex3p");
                     });
                 }
-                ws.send(JSON.stringify({ sessionId: sessionId }));
+                ws.send(JSON.stringify(subscribeMessage));
             };
             ws.onmessage = (event) => {
                 let data = JSON.parse(event.data);

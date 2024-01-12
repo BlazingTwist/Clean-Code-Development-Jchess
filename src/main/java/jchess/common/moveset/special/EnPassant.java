@@ -1,29 +1,27 @@
 package jchess.common.moveset.special;
 
+import dx.schema.types.PieceType;
 import jchess.common.IChessGame;
 import jchess.common.components.PieceComponent;
 import jchess.common.components.PieceIdentifier;
 import jchess.common.events.PieceMoveEvent;
+import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
 import jchess.el.TileExpression;
-import jchess.common.moveset.ISpecialRule;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class EnPassant implements ISpecialRule {
     private final IChessGame game;
     private final PieceIdentifier thisPawnId;
-    private final int pawnTypeId;
+    private final PieceType pawnTypeId;
     private final int[] pawnDoubleMoveDirections;
     private final int[] pawnCaptureDirections;
     private final Map<Integer, PieceMoveEvent.PieceMove> doubleMovesByPlayer = new HashMap<>();
 
-    public EnPassant(IChessGame game, PieceIdentifier thisPawnId, int pawnTypeId, int[] pawnDoubleMoveDirections, int[] pawnCaptureDirections) {
+    public EnPassant(IChessGame game, PieceIdentifier thisPawnId, PieceType pawnTypeId, int[] pawnDoubleMoveDirections, int[] pawnCaptureDirections) {
         this.game = game;
         this.thisPawnId = thisPawnId;
         this.pawnTypeId = pawnTypeId;
@@ -41,16 +39,16 @@ public class EnPassant implements ISpecialRule {
             return;
         }
 
-        if (movedPiece.identifier.pieceTypeId() == pawnTypeId && move.moveType() == SpecialFirstMove.class) {
+        if (movedPiece.identifier.pieceType() == pawnTypeId && move.moveType() == SpecialFirstMove.class) {
             // opponent has made a move that can be attacked with EnPassant
             doubleMovesByPlayer.put(movedPiece.identifier.ownerId(), move);
         }
     }
 
     @Override
-    public List<MoveIntention> getSpecialMoves(Entity thisPawn) {
+    public Stream<MoveIntention> getSpecialMoves(Entity thisPawn, Stream<MoveIntention> baseMoves) {
         if (doubleMovesByPlayer.isEmpty()) {
-            return Collections.emptyList();
+            return baseMoves;
         }
 
         List<MoveIntention> result = new ArrayList<>();
@@ -72,7 +70,7 @@ public class EnPassant implements ISpecialRule {
                 result.add(getEnPassantMove(moveInfo, thisPawn, targetTile));
             }
         }
-        return result;
+        return Stream.concat(baseMoves, result.stream());
     }
 
     private Entity findEnPassantTargetTile(PieceMoveEvent.PieceMove doubleMove, PieceIdentifier doubleMovedPawn, Entity thisPawn) {

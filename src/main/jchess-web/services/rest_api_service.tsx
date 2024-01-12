@@ -1,9 +1,7 @@
-import { GameClicked } from "@/models/message/GameClicked.schema";
-import { GameCreate } from "@/models/message/GameCreate.schema";
-import { GameModes } from "@/models/message/GameModes.schema";
-import { Themes } from "@/models/message/Themes.schema";
-import { Theme } from "@/models/types/Theme.schema";
-import Config from "@/utils/config";
+import { GameClicked } from "@/models/GameClicked.schema";
+import { GameCreate } from "@/models/GameCreate.schema";
+import { GameModes } from "@/models/GameModes.schema";
+import { Themes } from "@/models/Themes.schema";
 
 /**
  * @function postCreateGame
@@ -11,8 +9,7 @@ import Config from "@/utils/config";
  * @returns A promise that resolves to the session id of the new game.
  */
 export async function postCreateGame(gameCreateBody: GameCreate): Promise<string> {
-    const serverUri = Config.clientUri;
-    const response = await fetch(`${serverUri}/api/game/create`, {
+    const response = await fetch(`api/game/create`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -20,13 +17,12 @@ export async function postCreateGame(gameCreateBody: GameCreate): Promise<string
         body: JSON.stringify(gameCreateBody),
     });
     if (!response.ok) {
-        throw new Error(`Error fetching ${serverUri}/api/game/create: ${response.status} ${response.statusText}`);
+        throw new Error(`Error fetching api/game/create: ${response.status} ${response.statusText}`);
     }
     try {
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
-        console.error(`Error fetching ${serverUri}/api/game/create:`, error);
+        console.error(`Error fetching api/game/create:`, error);
         throw error;
     }
 }
@@ -37,8 +33,7 @@ export async function postCreateGame(gameCreateBody: GameCreate): Promise<string
  * @param body - The click to send.
  */
 export async function postClick(body: GameClicked): Promise<void> {
-    const serverUri = Config.clientUri;
-    const response = await fetch(`${serverUri}/api/game/clicked`, {
+    const response = await fetch(`api/game/clicked`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -46,7 +41,7 @@ export async function postClick(body: GameClicked): Promise<void> {
         body: JSON.stringify(body),
     });
     if (!response.ok) {
-        throw new Error(`Error fetching ${serverUri}/api/game/create: ${response.status} ${response.statusText}`);
+        throw new Error(`Error fetching api/game/create: ${response.status} ${response.statusText}`);
     }
 }
 
@@ -74,14 +69,12 @@ export async function fetchGameModes(): Promise<GameModes> {
  * @throws An error if the fetch request fails or if there is an error parsing the response.
  */
 export async function fetchData<T>(endpoint: string): Promise<T> {
-    const serverUri = Config.clientUri;
-    const response = await fetch(`${serverUri}/api/${endpoint}`);
+    const response = await fetch(`api/${endpoint}`);
     if (!response.ok) {
         throw new Error(`Error fetching ${endpoint}: ${response.status} ${response.statusText}`);
     }
     try {
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
         console.error(`Error fetching ${endpoint}:`, error);
         throw error;

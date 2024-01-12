@@ -1,19 +1,20 @@
 package jchess.common;
 
+import dx.schema.types.MarkerType;
 import jchess.common.components.MarkerComponent;
-import jchess.common.components.MarkerType;
 import jchess.common.components.TileComponent;
 import jchess.common.events.BoardClickedEvent;
+import jchess.common.events.BoardInitializedEvent;
+import jchess.common.events.ComputeAttackInfoEvent;
 import jchess.common.events.GameOverEvent;
+import jchess.common.events.OfferPieceSelectionEvent;
 import jchess.common.events.PieceMoveEvent;
+import jchess.common.events.PieceOfferSelectedEvent;
 import jchess.common.events.RenderEvent;
-import jchess.common.theme.IIconKey;
+import jchess.common.moveset.MoveIntention;
 import jchess.ecs.EcsEventManager;
 import jchess.ecs.Entity;
 import jchess.ecs.EntityManager;
-import jchess.common.events.BoardInitializedEvent;
-import jchess.common.events.ComputeAttackInfoEvent;
-import jchess.common.moveset.MoveIntention;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +42,15 @@ public abstract class BaseChessGame implements IChessGame {
 
         BoardClickedEvent boardClickedEvent = new BoardClickedEvent();
         eventManager.registerEvent(boardClickedEvent);
-        boardClickedEvent.addListener(vector -> onBoardClicked(vector.getX(), vector.getY()));
+        boardClickedEvent.addListener(point -> onBoardClicked(point.x, point.y));
+
+        eventManager.registerEvent(new OfferPieceSelectionEvent());
+        eventManager.registerEvent(new PieceOfferSelectedEvent());
     }
 
     protected abstract void generateBoard();
 
     protected abstract Entity getEntityAtPosition(int x, int y);
-
-    protected abstract IIconKey getMarkerIcon(MarkerType markerType);
 
     protected void onBoardClicked(int x, int y) {
         Entity clickedEntity = getEntityAtPosition(x, y);
@@ -90,28 +92,28 @@ public abstract class BaseChessGame implements IChessGame {
     protected boolean markerShouldConsumeClick(MarkerComponent marker) {
         if (marker == null) return false;
         if (marker.onMarkerClicked != null) return true;
-        if (marker.markerType == MarkerType.Selection) return true; // click consumed to hide all markers
+        if (marker.markerType == MarkerType.SELECTED) return true; // click consumed to hide all markers
         return false;
     }
 
     protected void createSelectionMarker(Entity selectedTile) {
-        MarkerComponent marker = new MarkerComponent(this::getMarkerIcon);
+        MarkerComponent marker = new MarkerComponent();
         marker.onMarkerClicked = null;
-        marker.markerType = MarkerType.Selection;
+        marker.markerType = MarkerType.SELECTED;
         selectedTile.marker = marker;
     }
 
     protected void createMoveToMarker(MoveIntention moveIntention, boolean isActivePiece) {
-        MarkerComponent marker = new MarkerComponent(this::getMarkerIcon);
+        MarkerComponent marker = new MarkerComponent();
         marker.onMarkerClicked = isActivePiece ? moveIntention.onClick() : null;
-        marker.markerType = isActivePiece ? MarkerType.YesAction : MarkerType.NoAction;
+        marker.markerType = isActivePiece ? MarkerType.YES_ACTION : MarkerType.NO_ACTION;
         moveIntention.displayTile().marker = marker;
     }
 
     protected void createMoveFromMarker(Entity fromTile) {
-        MarkerComponent marker = new MarkerComponent(this::getMarkerIcon);
+        MarkerComponent marker = new MarkerComponent();
         marker.onMarkerClicked = null;
-        marker.markerType = MarkerType.NoAction;
+        marker.markerType = MarkerType.NO_ACTION;
         fromTile.marker = marker;
     }
 

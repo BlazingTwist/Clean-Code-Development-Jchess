@@ -1,0 +1,19 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "BoardTheme",
+    "type": "object",
+    "javaType": "dx.schema.conf.BoardTheme",
+    "properties": {
+        "layouts": {
+            "description": "contains the supported layouts",
+            "type": "array",
+            "items": {
+                "$ref": "LayoutTheme.schema.json"
+            }
+        }
+    },
+    "required": [
+        "layouts"
+    ],
+    "additionalProperties": false
+}

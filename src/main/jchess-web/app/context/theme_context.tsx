@@ -1,9 +1,10 @@
 "use client";
-import { createContext, useContext, Dispatch, SetStateAction, useState, useEffect, ReactNode } from "react";
-import { Theme } from "@/models/message/Themes.schema";
-import { fetchGameModes, fetchThemes } from "@/services/rest_api_service";
+import {createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState} from "react";
+import {LayoutId, PieceType, Theme, Vector2I} from "@/models/Themes.schema";
+import {fetchGameModes, fetchThemes} from "@/services/rest_api_service";
 import Config from "@/utils/config";
-import { GameMode, GameModes } from "@/models/message/GameModes.schema";
+import {GameMode} from "@/models/GameModes.schema";
+import {MarkerComponent, PieceComponent, TileComponent} from "@/models/GameUpdate.schema";
 
 /**
  * The properties provided by the ThemeContext.
@@ -11,9 +12,21 @@ import { GameMode, GameModes } from "@/models/message/GameModes.schema";
 interface ThemeContextProps {
     theme: string;
     setTheme: Dispatch<SetStateAction<string>>;
+    setLayout: Dispatch<SetStateAction<LayoutId>>
     themeMap: Map<string, Theme>;
     getCurrentTheme: () => Theme | undefined;
+    getThemeHelper: () => ThemeHelper | undefined;
     gameModeMap: Map<string, GameMode>;
+}
+
+export interface ThemeHelper {
+    getPlayerColors: () => string[] | undefined;
+    getTileSize: () => Vector2I;
+    getTileStride: () => Vector2I;
+    getTileIcon: (tile: TileComponent) => string;
+    getPieceIcon: (piece: PieceComponent) => string;
+    getPieceIconByType: (pieceType: PieceType, player: number) => string;
+    getMarkerIcon: (marker: MarkerComponent) => string;
 }
 
 // TODO refactor contexts ThemeContext contains knowledge of themes and game modes, either split into two contexts or rename to something more generic
@@ -24,9 +37,13 @@ interface ThemeContextProps {
  */
 const ThemeContext = createContext<ThemeContextProps>({
     theme: "",
-    setTheme: () => {},
+    setTheme: () => {
+    },
+    setLayout: () => {
+    },
     themeMap: new Map<string, Theme>(),
     getCurrentTheme: () => undefined,
+    getThemeHelper: () => undefined,
     gameModeMap: new Map<string, GameMode>(),
 });
 
@@ -42,7 +59,7 @@ interface ThemeProviderProps {
  * @param {ThemeProviderProps} props - The component properties.
  * @returns {JSX.Element} The JSX element.
  */
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({children}) => {
     // Determine if localStorage should be used based on the environment variable
     const useLocalStorage = Config.useLocalStorage;
 
@@ -61,7 +78,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const themeMapStorageKey = "themeMap";
 
     // Initialize state for the selected theme and theme map
+    const [iconPrefix, setIconPrefix] = useState<string>("");
     const [theme, setTheme] = useState<string>("default");
+    const [curLayout, setLayout] = useState<LayoutId>("hex3p");
     const [themeMap, setThemeMap] = useState<Map<string, Theme>>(() => {
         // Load the initial state from localStorage if saving cookies is enabled
         return useLocalStorage
@@ -86,8 +105,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         fetchThemes().then((themeResponse) => {
             const newThemeMap = new Map<string, Theme>();
             themeResponse.themes.forEach((theme) => {
-                newThemeMap.set(theme.name, theme);
+                newThemeMap.set(theme.displayName, theme);
             });
+            setIconPrefix(themeResponse.resourcePrefix);
             setThemeMap(newThemeMap);
 
             // Save themeMap to localStorage if saving cookies is enabled
@@ -107,8 +127,57 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         return themeMap.get(theme);
     };
 
+    const getThemeHelper = (): ThemeHelper | undefined => {
+        const theme = getCurrentTheme();
+        if (theme === undefined) {
+            return undefined;
+        }
+
+        const layoutTheme = theme.boardTheme?.layouts.find(layout => layout.layoutId == curLayout);
+        if (layoutTheme === undefined) {
+            console.warn("layoutTheme is undefined");
+            return undefined;
+        }
+
+        return {
+            getPlayerColors() {
+                return theme.piecesTheme?.playerColors?.map(x => x.colorCode);
+            },
+            getTileSize() {
+                return layoutTheme.tileSize;
+            },
+            getTileStride() {
+                return layoutTheme.tileStride;
+            },
+            getTileIcon(tile) {
+                return iconPrefix + "/" + layoutTheme.tiles[tile.tileColorIndex];
+            },
+            getPieceIcon(piece) {
+                let pieceThemeEntry = theme.piecesTheme?.pieces.find(x => x.pieceType == piece.identifier.pieceTypeId);
+                let pieceColor = theme.piecesTheme?.playerColors[piece.identifier.ownerId];
+                return iconPrefix + "/" + pieceThemeEntry?.pathPrefix + pieceColor?.fileSuffix + pieceThemeEntry?.pathSuffix;
+            },
+            getPieceIconByType(pieceType, playerIdx) {
+                let pieceThemeEntry = theme.piecesTheme?.pieces.find(x => x.pieceType == pieceType);
+                let pieceColor = theme.piecesTheme?.playerColors[playerIdx];
+                return iconPrefix + "/" + pieceThemeEntry?.pathPrefix + pieceColor?.fileSuffix + pieceThemeEntry?.pathSuffix;
+            },
+            getMarkerIcon(marker) {
+                return iconPrefix + "/" + layoutTheme.markers.find(x => x.markerType == marker.markerType)?.icon;
+            }
+        }
+    };
+
     // Create the context value to be provided
-    const contextValue: ThemeContextProps = { theme, setTheme, themeMap, getCurrentTheme, gameModeMap };
+    const contextValue: ThemeContextProps = {
+        theme,
+        setTheme,
+        setLayout,
+        themeMap,
+        getCurrentTheme,
+        getThemeHelper,
+        gameModeMap,
+    };
 
     // Provide the context to the children components
     return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;

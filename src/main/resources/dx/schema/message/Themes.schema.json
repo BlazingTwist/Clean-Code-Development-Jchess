@@ -1,15 +1,22 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Themes",
-  "type": "object",
-  "javaType": "dx.schema.message.Themes",
-  "properties": {
-    "themes": {
-      "type": "array",
-      "items": {
-        "$ref": "../types/Theme.schema.json"
-      }
-    }
-  },
-  "required": ["themes"]
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Themes",
+    "type": "object",
+    "javaType": "dx.schema.message.Themes",
+    "properties": {
+        "resourcePrefix": {
+            "type": "string"
+        },
+        "themes": {
+            "type": "array",
+            "items": {
+                "$ref": "../conf/Theme.schema.json"
+            }
+        }
+    },
+    "required": [
+        "resourcePrefix",
+        "themes"
+    ],
+    "additionalProperties": false
 }
