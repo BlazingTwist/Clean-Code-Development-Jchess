@@ -17,6 +17,8 @@ docker-compose down
 
 [Schnittstellendokumentation](https://blazingtwist.github.io/Clean-Code-Development-Jchess/)
 
+[Static Analysis (Codacy)](https://app.codacy.com/gh/BlazingTwist/Clean-Code-Development-Jchess)
+
 Es finden sich einige Beispiele in [src/main/java/example](./src/main/java/example).
 - [Microservices mit Undertow](/../../pull/10) | [Issue](/../../issues/7)
 - [Resource-Files mit Undertow hosten](/../../pull/10) | [Issue](/../../issues/7)
