@@ -1,18 +1,22 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "GameUpdate",
-  "type": "object",
-  "javaType": "dx.schema.message.GameUpdate",
-  "properties": {
-    "boardState": {
-      "type": "array",
-      "items": {
-        "$ref": "../types/Entity.schema.json"
-      }
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "GameUpdate",
+    "type": "object",
+    "javaType": "dx.schema.message.GameUpdate",
+    "properties": {
+        "boardState": {
+            "type": "array",
+            "items": {
+                "$ref": "../types/Entity.schema.json"
+            }
+        },
+        "activePlayerId": {
+            "type": "integer"
+        }
     },
-    "activePlayerId": {
-      "type": "integer"
-    }
-  },
-  "required": ["boardState", "activePlayerId"]
+    "required": [
+        "boardState",
+        "activePlayerId"
+    ],
+    "additionalProperties": false
 }

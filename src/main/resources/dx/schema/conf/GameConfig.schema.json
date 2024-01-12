@@ -1,0 +1,26 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "GameConfig",
+    "type": "object",
+    "javaType": "dx.schema.conf.GameConfig",
+    "properties": {
+        "themes": {
+            "description": "list of all theme files",
+            "type": "array",
+            "items": {
+                "description": "absolute ('/') or relative ('./') path to theme file",
+                "$ref": "#/definitions/path"
+            }
+        }
+    },
+    "required": [
+        "themes"
+    ],
+    "definitions": {
+        "path": {
+            "type": "string",
+            "pattern": "^\\.?/"
+        }
+    },
+    "additionalProperties": false
+}

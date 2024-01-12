@@ -85,3 +85,4 @@ target
 jchess.iml
 src/main/jchess-web/package-lock.json
 src/main/jchess-web/.idea
+src/main/jchess-web/models

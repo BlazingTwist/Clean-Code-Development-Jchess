@@ -1,7 +1,7 @@
 "use client";
 import Config from "@/utils/config";
 import { useRouter } from "next/navigation";
-import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNode, useEffect, use } from "react";
+import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNode, useEffect } from "react";
 
 //TODO most of this will be handled by the server, so this will be a lot simpler
 
@@ -19,7 +19,6 @@ type GameOptions = {
  * Represents the state of a player in a chess game.
  */
 type PlayerState = {
-    playerColor: Map<number, string>;
     playerTime: Map<number, Date>;
     playerHistory: Map<number, Array<string>>;
 };
@@ -28,7 +27,6 @@ type PlayerState = {
  * Represents the serializable state of a player in a chess game.
  */
 type SerializablePlayerState = {
-    playerColor: [number, string][];
     playerTime: [number, string][];
     playerHistory: [number, string[]][];
 };
@@ -36,7 +34,6 @@ type SerializablePlayerState = {
 // Serialize PlayerState to JSON
 function serializePlayerStateToJson(playerState: PlayerState): string {
     const serialized: SerializablePlayerState = {
-        playerColor: Array.from(playerState.playerColor.entries()),
         playerTime: Array.from(playerState.playerTime.entries()).map(([key, date]) => [key, date.toISOString()]),
         playerHistory: Array.from(playerState.playerHistory.entries()).map(([key, history]) => [key, history]),
     };
@@ -47,19 +44,17 @@ function serializePlayerStateToJson(playerState: PlayerState): string {
 function deserializeJsonToPlayerState(jsonString: string): PlayerState {
     if (jsonString === "{}") {
         return {
-            playerColor: new Map<number, string>(),
             playerTime: new Map<number, Date>(),
             playerHistory: new Map<number, Array<string>>(),
         };
     }
     const serialized: SerializablePlayerState = JSON.parse(jsonString);
-    const playerColor = new Map<number, string>(serialized.playerColor);
     const playerTime = new Map<number, Date>(
         serialized.playerTime.map(([key, isoString]) => [key, new Date(isoString)])
     );
     const playerHistory = new Map<number, Array<string>>(serialized.playerHistory);
 
-    return { playerColor, playerTime, playerHistory };
+    return { playerTime, playerHistory };
 }
 
 /**
@@ -78,7 +73,6 @@ interface ContextProps {
  */
 const GameContext = createContext<ContextProps>({
     playerState: {
-        playerColor: new Map<number, string>(),
         playerTime: new Map<number, Date>(),
         playerHistory: new Map<number, Array<string>>(),
     },
@@ -114,7 +108,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     const playerStateStorageKey = "playerState";
 
     // Initialize state for chessboard, game options, and player state
-    const [chessboardState, setChessboardState] = useState<Array<Array<string>>>(Array<Array<string>>());
     const [gameOptions, setGameOptions] = useState<GameOptions>(() => {
         // Load the initial state from localStorage if saving cookies is enabled
         return useLocalStorage
@@ -131,7 +124,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         return useLocalStorage
             ? deserializeJsonToPlayerState(localStorage.getItem(playerStateStorageKey) || "{}")
             : {
-                  playerColor: new Map<number, string>(),
                   playerTime: new Map<number, Date>(),
                   playerHistory: new Map<number, Array<string>>(),
               };

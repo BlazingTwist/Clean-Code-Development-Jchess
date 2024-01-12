@@ -1,11 +1,11 @@
 package jchess.server.api.servlet;
 
 import dx.schema.message.GameCreate;
+import dx.schema.types.LayoutId;
 import io.undertow.util.StatusCodes;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jchess.gamemode.GameMode;
 import jchess.server.JChessServer;
 import jchess.server.util.HttpUtils;
 import jchess.server.util.JsonUtils;
@@ -21,25 +21,24 @@ public class GameCreateServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         GameCreate createInfo = JsonUtils.getMapper().readValue(req.getReader(), GameCreate.class);
 
-        final GameMode gameMode;
+        final LayoutId layoutId;
         try {
-            gameMode = GameMode.valueOf(createInfo.getModeId());
+            layoutId = LayoutId.fromValue(createInfo.getModeId());
         } catch (Exception e) {
             logger.warn("Failed to find GameMode with id: '{}'", createInfo.getModeId());
-            HttpUtils.error(resp, StatusCodes.BAD_REQUEST, "Invalid Game-Mode Id");
+            HttpUtils.respond(resp, StatusCodes.BAD_REQUEST, "Invalid Game-Mode Id");
             return;
         }
 
         final String sessionId;
         try {
-            sessionId = JChessServer.startNewGame(gameMode);
+            sessionId = JChessServer.startNewGame(layoutId);
         } catch (Exception e) {
             logger.warn("Failed to start new game.", e);
-            HttpUtils.error(resp, StatusCodes.INTERNAL_SERVER_ERROR, "Failed to start new game. Exception: " + e.getMessage());
+            HttpUtils.respond(resp, StatusCodes.INTERNAL_SERVER_ERROR, "Failed to start new game. Exception: " + e.getMessage());
             return;
         }
 
-        // TODO erja, rename 'error' method
-        HttpUtils.error(resp, StatusCodes.CREATED, sessionId);
+        HttpUtils.respond(resp, StatusCodes.CREATED, sessionId);
     }
 }

@@ -12,7 +12,7 @@ public enum TileComponentAdapter implements IAdapter<TileComponent, dx.schema.ty
         dx.schema.types.TileComponent result = new dx.schema.types.TileComponent();
         result.setTileId(TileComponent.getTileId(data));
         result.setDisplayPos(Vector2IAdapter.Instance.convert(data.position));
-        result.setIconId(data.iconKey.getIconId());
+        result.setTileColorIndex(data.colorIndex);
         return result;
     }
 }

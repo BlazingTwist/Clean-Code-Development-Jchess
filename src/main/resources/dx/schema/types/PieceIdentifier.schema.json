@@ -10,9 +10,6 @@
     "shortName": {
       "type": "string"
     },
-    "iconId": {
-      "type": "string"
-    },
     "ownerId": {
       "description": "The numerical ID of the Player that owns this piece.",
       "type": "integer"
@@ -25,8 +22,8 @@
   "required": [
     "pieceTypeId",
     "shortName",
-    "iconId",
     "ownerId",
     "forwardBasis"
-  ]
+  ],
+  "additionalProperties": false
 }

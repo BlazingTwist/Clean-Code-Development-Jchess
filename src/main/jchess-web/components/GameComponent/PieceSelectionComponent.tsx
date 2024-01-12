@@ -1,16 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OfferPieceSelection } from "@/models/message/OfferPieceSelection.schema";
+import { OfferPieceSelection } from "@/models/OfferPieceSelection.schema";
 
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Config from "@/utils/config";
 import { useEffect, useState } from "react";
+import {ThemeHelper} from "@/app/context/theme_context";
 
 export default function PieceSelectionComponent({
     sessionId,
-    iconMap,
+    themeHelper,
 }: {
     sessionId: string;
-    iconMap: { [key: string]: string };
+    themeHelper: ThemeHelper;
 }) {
     const [pieceSelectionOffer, setPieceSelectionOffer] = useState<OfferPieceSelection | undefined>(undefined);
 
@@ -56,7 +57,7 @@ export default function PieceSelectionComponent({
                     <Carousel orientation="horizontal" className="mx-12">
                         <CarouselContent>
                             {pieceSelectionOffer.pieces.map((piece) => {
-                                const iconPath = iconMap[piece.iconId!];
+                                const iconPath = themeHelper.getPieceIconByType(piece.pieceTypeId, piece.playerIdx);
                                 return (
                                     <CarouselItem key={piece.pieceTypeId}>
                                         <div className="flex flex-col justify-center items-center ">

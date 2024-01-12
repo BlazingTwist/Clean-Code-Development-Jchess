@@ -1,0 +1,22 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Theme",
+    "type": "object",
+    "javaType": "dx.schema.conf.Theme",
+    "properties": {
+        "displayName": {
+            "description": "display-name of the theme",
+            "type": "string"
+        },
+        "boardTheme": {
+            "$ref": "BoardTheme.schema.json"
+        },
+        "piecesTheme": {
+            "$ref": "PiecesTheme.schema.json"
+        }
+    },
+    "required": [
+        "displayName"
+    ],
+    "additionalProperties": false
+}

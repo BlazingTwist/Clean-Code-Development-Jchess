@@ -35,13 +35,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 This project uses [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) to generate typescript types from JSON Schema.
 
 ```bash
-bun install -g json-schema-to-typescript
-
-# execute this command in the root directory of the project
-json2ts -i src/main/resources/dx/schema/ -o src/main/jchess-web/models --cwd src/main/resources/dx/schema/types
-
-# or this command in the root directory of the frontend
-json2ts -i ../resources/dx/schema -o models --cwd ../resources/dx/schema/types
+npm run codegen
 ```
 
 ## Generate API Docs

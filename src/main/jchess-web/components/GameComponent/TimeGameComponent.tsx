@@ -3,14 +3,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { useGameContext } from "@/app/context/game_context";
 import { useGameUpdateContext } from "@/app/context/game_update_context";
+import {useThemeContext} from "@/app/context/theme_context";
+import {ReactElement} from "react";
 
 /**
  * Represents the TimeGameComponent that displays player information and time left.
- * @returns {JSX.Element} The rendered TimeGameComponent.
+ * @returns The rendered TimeGameComponent.
  */
-export default function TimeGameComponent() {
+export default function TimeGameComponent() : ReactElement | null {
     // Extracting game options and player state using the custom hook.
     const { gameOptions, playerState } = useGameContext();
+    const { getThemeHelper } = useThemeContext();
     const { gameUpdate } = useGameUpdateContext();
     return (
         <Card className="self-start mb-6 max-w-[500px]">
@@ -32,7 +35,7 @@ export default function TimeGameComponent() {
                             const secondsLeft = playerState.playerTime.get(index)?.getUTCSeconds();
                             const hoursLeft = playerState.playerTime.get(index)?.getUTCHours();
                             const isCurrentPlayer = gameUpdate?.activePlayerId === index;
-                            const playerColor = playerState.playerColor.get(index);
+                            const playerColor = getThemeHelper()!.getPlayerColors()![index];
 
                             return (
                                 <TableRow key={index}>
@@ -42,14 +45,14 @@ export default function TimeGameComponent() {
                                     <TableCell>
                                         <div
                                             key={index}
-                                            className={`w-8 h-8 rounded-md bg-${playerColor}  border-primary border-2 `}
+                                            className={`w-8 h-8 rounded-md border-primary border-2 `}
+                                            style={{backgroundColor: playerColor}}
                                         >
                                             {isCurrentPlayer && (
                                                 // if the player is the current player, display a ping animation
                                                 <span
-                                                    className={`animate-ping inline-flex h-full w-full rounded-full bg-${
-                                                        playerColor === "white" ? "primary" : playerColor
-                                                    } opacity-20`}
+                                                    className={`animate-ping inline-flex h-full w-full rounded-full opacity-40`}
+                                                    style={{backgroundColor: "#000000"}}
                                                 />
                                             )}
                                         </div>

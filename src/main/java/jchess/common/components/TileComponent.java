@@ -1,8 +1,7 @@
 package jchess.common.components;
 
-import jchess.ecs.Entity;
 import jchess.common.IChessGame;
-import jchess.common.theme.IIconKey;
+import jchess.ecs.Entity;
 
 import java.awt.Point;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class TileComponent {
 
     public final Set<Entity> attackingPieces = ConcurrentHashMap.newKeySet();
     public Point position;
-    public IIconKey iconKey;
+    public int colorIndex;
 
     /**
      * key = number in range [0, 360), indicating the direction of travel towards the neighbor

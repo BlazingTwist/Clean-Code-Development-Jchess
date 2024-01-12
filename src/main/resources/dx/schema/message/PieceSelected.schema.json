@@ -1,13 +1,16 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "PieceSelected",
-  "type": "object",
-  "javaType": "dx.schema.message.PieceSelected",
-  "properties": {
-    "pieceTypeId": {
-      "description": "typeId of the selected piece",
-      "type": "string"
-    }
-  },
-  "required": ["pieceTypeId"]
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "PieceSelected",
+    "type": "object",
+    "javaType": "dx.schema.message.PieceSelected",
+    "properties": {
+        "pieceTypeId": {
+            "description": "typeId of the selected piece",
+            "$ref": "../types/PieceType.schema.json"
+        }
+    },
+    "required": [
+        "pieceTypeId"
+    ],
+    "additionalProperties": false
 }
