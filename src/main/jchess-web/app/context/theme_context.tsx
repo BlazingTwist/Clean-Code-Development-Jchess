@@ -20,6 +20,7 @@ interface ThemeContextProps {
 }
 
 export interface ThemeHelper {
+    getPlayerColors: () => string[] | undefined;
     getTileSize: () => Vector2I;
     getTileStride: () => Vector2I;
     getTileIcon: (tile: TileComponent) => string;
@@ -139,6 +140,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({children}) => {
         }
 
         return {
+            getPlayerColors() {
+                return theme.piecesTheme?.playerColors?.map(x => x.colorCode);
+            },
             getTileSize() {
                 return layoutTheme.tileSize;
             },

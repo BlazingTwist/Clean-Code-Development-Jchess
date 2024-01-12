@@ -184,12 +184,6 @@ export function NewGameModal() {
         );
     };
 
-    type ColorMap = {
-        [key: number]: {
-            [key: number]: string;
-        };
-    };
-
     /**
      * @function handleSubmit
      * @description Handles the form submission, processes input values, and initiates a new game.
@@ -208,28 +202,13 @@ export function NewGameModal() {
         console.log("isTimeGame:" + isTimeGame);
         console.log("timeGameAmount:" + timeGameAmount);
 
-        // TODO send the player names to the server and retrieve the player colors and times
+        // TODO send the player names to the server and retrieve the player times
         // MOCK GameStart Endpoint on the Client
-        const playerColors = new Map<number, string>();
         const playerTimes = new Map<number, Date>();
         const playerHistory = new Map<number, Array<string>>();
 
-        // mock Color Map. TODO: remove and add to themes response
-        const colorMap: ColorMap = {
-            3: {
-                0: "white",
-                1: "destructive",
-                2: "black",
-            },
-            2: {
-                0: "white",
-                1: "black",
-            },
-        };
-
         playerNames.forEach((playerName, index) => {
             const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
-            playerColors.set(index, colorMap[playerNames.length][index]);
             playerTimes.set(index, playerTime);
             playerHistory.set(index, ["e4:e5", " e5:e4"]);
         });
@@ -249,7 +228,6 @@ export function NewGameModal() {
             });
 
             setPlayerState({
-                playerColor: playerColors,
                 playerTime: playerTimes,
                 playerHistory: playerHistory,
             });
