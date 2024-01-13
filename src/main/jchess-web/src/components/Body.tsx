@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import GameComponent from "./GameComponent/GameComponent";
 import { ReactElement, useEffect, useState } from "react";
-import Config from "@/src/utils/config";
 import { BoardUpdateSubscribe } from "@/models/BoardUpdateSubscribe.schema";
 import { useGameUpdateContext } from "@/src/app/context/game_update_context";
 import { useGameContext } from "@/src/app/context/game_context";
@@ -19,45 +18,34 @@ export default function Body(): ReactElement {
     const gameUpdateContext = useGameUpdateContext();
     const gameContext = useGameContext();
 
-    const [wsSessionId, setWsSessionId] = useState<string>();
-    const [ws, setUpdateWs] = useState<WebSocket>();
+    const [localSocketConnId, setLocalSocketConnId] = useState<number>(-1);
 
     useEffect(() => {
-        if (!gameContext.gameInfo) {
+        if (gameContext.socketConnectionId === localSocketConnId) {
             return;
         }
-        if (ws !== undefined && ws.readyState !== WebSocket.CLOSED) {
-            if (wsSessionId == gameContext.sessionId) {
-                // sessionId matches -> do nothing
-                return;
-            }
 
-            console.log("New sessionId, but socket is still open -> close board/update socket");
-            ws.close();
-        }
+        setLocalSocketConnId(gameContext.socketConnectionId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameContext]);
 
-        // Open a websocket connection when the game starts
-        console.log("Opening board/update WebSocket");
-        const serverUri = Config.socketServerUri;
-        const socketEndpoint = `${serverUri}/api/board/update`;
+    useEffect(() => {
+        if (localSocketConnId < 0) return;
+
+        console.log(`Subscribing to boardUpdate. socketId: ${localSocketConnId}`);
+
+        gameContext.boardUpdateSocket.addListener(event => {
+            let data = JSON.parse(event.data);
+            gameUpdateContext.updateState({ gameUpdate: data })
+        });
 
         const subscribeMessage: BoardUpdateSubscribe = {
             sessionId: gameContext.sessionId!,
-            perspective: gameContext.gameInfo.playerPerspective ?? 0,
+            perspective: gameContext.gameInfo?.playerPerspective ?? 0,
         };
-
-        const _ws = new WebSocket(socketEndpoint);
-        setUpdateWs(_ws);
-        setWsSessionId(gameContext.sessionId);
-        _ws.onopen = () => {
-            console.log("WebSocket connection opened");
-            _ws.send(JSON.stringify(subscribeMessage));
-        };
-        _ws.onmessage = (event) => {
-            let data = JSON.parse(event.data);
-            gameUpdateContext.updateState({ gameUpdate: data })
-        };
-    }, [gameContext, gameUpdateContext, ws, wsSessionId]);
+        gameContext.boardUpdateSocket.sendMessage(JSON.stringify(subscribeMessage))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [localSocketConnId]);
     /**
      * Renders the appropriate content based on the game state.
      * If the game is not in progress, it displays a welcome screen with a "New Game" button.

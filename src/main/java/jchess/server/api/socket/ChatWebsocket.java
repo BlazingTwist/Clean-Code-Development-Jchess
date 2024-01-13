@@ -87,8 +87,11 @@ public class ChatWebsocket extends AbstractReceiveListener implements WebSocketC
 
         private void repeatAllMessages(WebSocketChannel channel) {
             logger.debug("repeating {} messages to new subscriber", chatMessages.size());
-            String messageList = JsonUtils.serialize(chatMessages);
-            WebSockets.sendText(messageList, channel, null);
+
+            if (!chatMessages.isEmpty()) {
+                String messageList = JsonUtils.serialize(chatMessages);
+                WebSockets.sendText(messageList, channel, null);
+            }
         }
 
         public void onMessageReceived(ChatMessage message) {
@@ -108,7 +111,7 @@ public class ChatWebsocket extends AbstractReceiveListener implements WebSocketC
                     continue;
                 }
 
-                WebSockets.sendText(JsonUtils.serialize(payload), channel, null);
+                WebSockets.sendText(payload, channel, null);
                 socketsNotified++;
             }
             logger.debug("Notified {} WebSockets of chat message", socketsNotified);

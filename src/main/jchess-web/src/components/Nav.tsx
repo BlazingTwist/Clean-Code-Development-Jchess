@@ -16,14 +16,16 @@ import {
 } from "@/src/components/ui/menubar";
 import { useGameContext } from "@/src/app/context/game_context";
 import { ReactElement } from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * Main navigation component for the application.
  * Displays a menu bar with Play, Options, and Help sections.
  */
-export default function Nav() : ReactElement {
+export default function Nav(): ReactElement {
     // Use the game update context to check game status and reset the game.
     const gameContext = useGameContext();
+    const router = useRouter();
     const isGame = gameContext.gameInfo != undefined;
 
     /**
@@ -45,7 +47,7 @@ export default function Nav() : ReactElement {
                     <MenubarContent>
                         {!isGame && <MenubarItem disabled>Load Game</MenubarItem>}
                         {isGame && <MenubarItem disabled>Save Game</MenubarItem>}
-                        <MenubarSeparator />
+                        <MenubarSeparator/>
                         {!isGame && (
                             <MenubarItem>
                                 <Link href="/?newGame=true">
@@ -54,7 +56,7 @@ export default function Nav() : ReactElement {
                             </MenubarItem>
                         )}
                         {isGame && (
-                            <MenubarItem onClick={() => gameContext.updateState(undefined, {})}>
+                            <MenubarItem onClick={() => router.push("/")}>
                                 Exit Game <MenubarShortcut>ESC</MenubarShortcut>
                             </MenubarItem>
                         )}

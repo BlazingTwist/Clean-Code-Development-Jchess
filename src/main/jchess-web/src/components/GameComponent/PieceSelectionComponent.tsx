@@ -2,44 +2,46 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/ca
 import { OfferPieceSelection } from "@/models/OfferPieceSelection.schema";
 
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/src/components/ui/carousel";
-import Config from "@/src/utils/config";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useGameContext } from "@/src/app/context/game_context";
 import { useThemeHelperContext } from "@/src/app/context/theme_helper_context";
 
 export default function PieceSelectionComponent(): ReactElement {
-    const [pieceSelectionOffer, setPieceSelectionOffer] = useState<OfferPieceSelection | undefined>(undefined);
+    const [pieceSelectionOffer, setPieceSelectionOffer] = useState<OfferPieceSelection>();
+    const [localSocketConnId, setLocalSocketConnId] = useState<number>(-1);
 
     const gameContext = useGameContext();
     const { themeHelper } = useThemeHelperContext();
 
-    // Websocket
-    const [pieceSelectionSocket, setPieceSelectionSocket] = useState<WebSocket | undefined>(undefined);
     useEffect(() => {
-        console.log("Opening PieceSelection WebSocket connection");
+        if (gameContext.socketConnectionId === localSocketConnId) {
+            return;
+        }
 
-        const serverUri = Config.socketServerUri;
-        const socketEndpoint = `${serverUri}/api/pieceSelection`;
+        setLocalSocketConnId(gameContext.socketConnectionId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameContext]);
 
-        const ws = new WebSocket(socketEndpoint);
-        setPieceSelectionSocket(ws);
+    // Websocket
+    useEffect(() => {
+        if(localSocketConnId < 0) return;
 
-        ws.onopen = () => {
-            console.log("PieceSelection WebSocket connection opened");
-            ws.send(JSON.stringify({ sessionId: gameContext.sessionId, msgType: "subscribe" }));
-        };
+        console.log(`Subscribing to pieceSelection. socketId: ${localSocketConnId}`);
 
-        ws.onmessage = (event) => {
+        gameContext.pieceSelectionSocket.addListener(event => {
             let data = JSON.parse(event.data);
             console.log("PieceSelection WebSocket message received", data);
             setPieceSelectionOffer(data);
-        };
+        });
 
-        ws.onclose = (event) => {
-            console.log("PieceSelection WebSocket connection closed", event);
-            setPieceSelectionSocket(undefined);
-        };
-    }, [gameContext.sessionId]);
+        const subscribeMessage = {
+            sessionId: gameContext.sessionId,
+            msgType: "subscribe"
+        }
+        gameContext.pieceSelectionSocket.sendMessage(JSON.stringify(subscribeMessage))
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [localSocketConnId]);
 
     if (pieceSelectionOffer === undefined) {
         return <></>;
@@ -62,22 +64,17 @@ export default function PieceSelectionComponent(): ReactElement {
                                             <div
                                                 className="hover:cursor-pointer hover:animate-pulse flex-col justify-center items-center flex px-2"
                                                 onClick={() => {
-                                                    if (pieceSelectionSocket?.readyState === WebSocket.OPEN) {
-                                                        try {
-                                                            pieceSelectionSocket.send(
-                                                                JSON.stringify({
-                                                                    msgType: "pieceSelected",
-                                                                    data: {
-                                                                        pieceTypeId: piece.pieceTypeId,
-                                                                    },
-                                                                })
-                                                            );
-                                                            setPieceSelectionOffer(undefined);
-                                                        } catch (error) {
-                                                            console.error("Failed to send message:", error);
-                                                        }
-                                                    } else {
-                                                        console.error("WebSocket is not open");
+                                                    try {
+                                                        const message = {
+                                                            msgType: "pieceSelected",
+                                                            data: {
+                                                                pieceTypeId: piece.pieceTypeId,
+                                                            },
+                                                        };
+                                                        gameContext.pieceSelectionSocket.sendMessage(JSON.stringify(message));
+                                                        setPieceSelectionOffer(undefined);
+                                                    } catch (error) {
+                                                        console.error("Failed to send message:", error);
                                                     }
                                                 }}
                                             >

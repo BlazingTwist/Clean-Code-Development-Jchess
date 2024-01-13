@@ -2,7 +2,6 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { useGameContext } from "@/src/app/context/game_context";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Config from "@/src/utils/config";
 import { ChatMessage } from "@/models/message/ChatMessage.schema";
 import { ScrollArea } from "../ui/scroll-area";
 import ChatMessageComponent from "./ChatMessageComponent";
@@ -18,69 +17,50 @@ import { cn } from "@/src/utils/tailwindMergeUtils";
 export default function ChatComponent({ className }: { className?: string }) {
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState<string>("");
-    
+    const [localSocketConnId, setLocalSocketConnId] = useState<number>(-1);
+
     const scrollAreaRef = useRef<{ scrollToBottom: () => void }>(null);
 
     // Extract game options and player state using the game context hook.
 
-    const { sessionId, gameInfo } = useGameContext();
+    const gameContext = useGameContext();
     const { gameUpdate } = useGameUpdateContext();
 
+    useEffect(() => {
+        if (gameContext.socketConnectionId === localSocketConnId) {
+            return;
+        }
+
+        setLocalSocketConnId(gameContext.socketConnectionId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameContext]);
+
     const getCurrentUserName = useCallback(() => {
-        let userName = gameInfo!.playerNames[gameUpdate?.activePlayerId || 0];
+        let userName = gameContext.gameInfo!.playerNames[gameUpdate?.activePlayerId || 0];
         console.log("Username", userName);
         if (userName === undefined || userName === null || userName === "") {
             console.log("No username found");
             userName = prompt("Please enter your username ") || "no username";
         }
         return userName;
-    }, [gameInfo, gameUpdate?.activePlayerId]);
+    }, [gameContext, gameUpdate?.activePlayerId]);
 
     // Websocket
-    const [chatSocket, setChatSocket] = useState<WebSocket | undefined>(undefined);
     useEffect(() => {
-        console.log("Opening Chat WebSocket connection");
+        if (localSocketConnId < 0) return;
 
-        const serverUri = Config.socketServerUri;
-        const socketEndpoint = `${serverUri}/api/chat`;
+        console.log(`Subscribing to chat. socketId: ${localSocketConnId}`);
 
-        const ws = new WebSocket(socketEndpoint);
-        setChatSocket(ws);
+        gameContext.chatSocket.addListener(event => {
+            const messages: ChatMessage[] = JSON.parse(event.data);
+            setChatMessages((oldMessages) => [...oldMessages, ...messages]);
+        });
 
-        ws.onopen = () => {
-            console.log("Chat WebSocket connection opened");
-            ws.send(JSON.stringify({ sessionId: sessionId, msgType: "subscribe", userName: getCurrentUserName() }));
-        };
+        const message = { sessionId: gameContext.sessionId, msgType: "subscribe", userName: getCurrentUserName() }
+        gameContext.chatSocket.sendMessage(JSON.stringify(message));
 
-        ws.onmessage = (event) => {
-            const first = JSON.parse(event.data);
-            console.log("Type of once", typeof first);
-            try {
-                const data: ChatMessage[] = JSON.parse(first);
-                console.log("Type of data", typeof data);
-
-                console.log("Chat WebSocket message received", data);
-
-                for (let i = 0; i < data.length; i++) {
-                    const chatMessage = data[i];
-                    if (chatMessage === undefined || chatMessage === null) {
-                        console.log("Chat message is undefined or null");
-                        continue;
-                    }
-                    console.log("Chat message", chatMessage);
-                    setChatMessages((chatMessages) => [...chatMessages, chatMessage]);
-                }
-            } catch (e) {
-                // why is this happening
-                setChatMessages(first);
-            }
-            console.log("ChatMessages", chatMessages);
-        };
-
-        ws.onclose = (event) => {
-            console.log("Chat WebSocket connection closed", event);
-        };
-    }, [sessionId, getCurrentUserName, chatMessages]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [localSocketConnId]);
 
     /**
      * Scroll to the bottom of the chat when a new message is received.
@@ -93,17 +73,17 @@ export default function ChatComponent({ className }: { className?: string }) {
         <Card className={cn("self-start", className)}>
             <CardHeader>
                 <CardTitle>Chat</CardTitle>
-                <Separator />
+                <Separator/>
             </CardHeader>
             {chatMessages.length > 0 && (
                 <CardContent>
                     <ScrollArea className="h-[200px]" ref={scrollAreaRef}>
                         {chatMessages.map((chatMessage, index) => (
-                            <ChatMessageComponent key={index} chatMessage={chatMessage} index={index} />
+                            <ChatMessageComponent key={index} chatMessage={chatMessage} index={index}/>
                         ))}
                     </ScrollArea>
 
-                    <Separator className="my-2" />
+                    <Separator className="my-2"/>
                 </CardContent>
             )}
             <CardFooter>
@@ -112,14 +92,11 @@ export default function ChatComponent({ className }: { className?: string }) {
                     onSubmit={(event) => {
                         event.preventDefault();
                         console.log("Sending message", input);
-                        if (chatSocket) {
-                            chatSocket.send(
-                                JSON.stringify({
-                                    msgType: "submit",
-                                    data: input,
-                                })
-                            );
-                        }
+                        const message = {
+                            msgType: "submit",
+                            data: input,
+                        };
+                        gameContext.chatSocket.sendMessage(JSON.stringify(message));
                         setInput("");
                     }}
                 >
