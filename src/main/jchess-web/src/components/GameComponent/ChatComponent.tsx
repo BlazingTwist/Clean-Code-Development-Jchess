@@ -56,6 +56,8 @@ export default function ChatComponent({ className }: { className?: string }) {
             setChatMessages((oldMessages) => [...oldMessages, ...messages]);
         });
 
+        /* TODO aktuell ist der username immer name[0], da der gameContext noch nicht bereit ist...
+        *   Ggf. reicht das schon, wenn man die Komponenten erst rendert, wenn der Kontext bereit ist - weiß aber nicht, wie sich das beim starten eines neuen spiels verhält*/
         const message = { sessionId: gameContext.sessionId, msgType: "subscribe", userName: getCurrentUserName() }
         gameContext.chatSocket.sendMessage(JSON.stringify(message));
 
