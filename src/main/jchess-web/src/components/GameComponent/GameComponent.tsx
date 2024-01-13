@@ -68,9 +68,11 @@ export default function GameComponent(): ReactElement {
 
         const canvas: ReactElement[] = [];
         const offsetWidthFromCanvasRef = canvasRef.current?.offsetWidth || 1;
+        const offsetHeightFromCanvasRef = canvasRef.current?.offsetHeight || 1;
         const tileSize = themeHelper.getTileSize();
         const tileStride = themeHelper.getTileStride();
         const rawBoardWidth = tileSize!.x + tileStride.x * (maxTilePos[0] - minTilePos[0]);
+        const rawBoardHeight = tileSize!.y + tileStride.y * (maxTilePos[1] - minTilePos[1]);
         let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
 
         const centerX = offsetWidthFromCanvasRef / 2;
@@ -252,10 +254,7 @@ export default function GameComponent(): ReactElement {
 
             <div className="flex flex-col sm:flex-row xl:flex-col gap-2">
                 <PlayerOverviewComponent className="w-full"/>
-                <ChatComponent
-                    sessionId={sessionId}
-                    className="w-full sm:col-start-2 sm:col-end-3 sm:row-span-2 sm:row-start-1"
-                />
+                <ChatComponent className="w-full sm:col-start-2 sm:col-end-3 sm:row-span-2 sm:row-start-1"/>
             </div>
         </div>
     );

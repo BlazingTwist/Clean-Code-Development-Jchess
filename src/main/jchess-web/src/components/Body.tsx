@@ -81,9 +81,13 @@ export default function Body(): ReactElement {
             );
         } else {
             // Render the chess game component when the game is in progress
-            return <ThemeHelperProvider>
-                <GameComponent/>
-            </ThemeHelperProvider>;
+            return (
+                <div className="flex flex-col xl:justify-center items-center min-h-[90vh]">
+                    <ThemeHelperProvider>
+                        <GameComponent/> {" "}
+                    </ThemeHelperProvider>
+                </div>
+            );
         }
     };
 

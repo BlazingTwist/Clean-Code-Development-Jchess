@@ -2,7 +2,7 @@ import { ChatMessage } from "@/models/message/ChatMessage.schema";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip";
 
 export default function ChatMessageComponent({ chatMessage, index }: { chatMessage: ChatMessage; index: number }) {
     const [minutesAgo, setMinutesAgo] = useState(0);
@@ -29,7 +29,6 @@ export default function ChatMessageComponent({ chatMessage, index }: { chatMessa
     }
 
     const calculateTimeAgo = () => {
-        const now = new Date();
         const difference = Math.abs(Date.now() - chatMessage.timestamp);
         setMinutesAgo(Math.floor(difference / 1000 / 60));
     };

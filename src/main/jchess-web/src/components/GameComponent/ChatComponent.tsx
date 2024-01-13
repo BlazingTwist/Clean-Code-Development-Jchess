@@ -1,30 +1,40 @@
 "use client";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGameContext } from "@/app/context/game_context";
-import { useEffect, useRef, useState } from "react";
-import Config from "@/utils/config";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/src/components/ui/card";
+import { useGameContext } from "@/src/app/context/game_context";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Config from "@/src/utils/config";
 import { ChatMessage } from "@/models/message/ChatMessage.schema";
 import { ScrollArea } from "../ui/scroll-area";
 import ChatMessageComponent from "./ChatMessageComponent";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useGameUpdateContext } from "@/app/context/game_update_context";
-import { cn } from "@/utils/tailwindMergeUtils";
+import { useGameUpdateContext } from "@/src/app/context/game_update_context";
+import { cn } from "@/src/utils/tailwindMergeUtils";
 
 /**
  * ChatComponent allows Multiplayer users to chat with each other.
  */
-export default function ChatComponent({ sessionId, className }: { sessionId: string | undefined; className?: string }) {
+export default function ChatComponent({ className }: { className?: string }) {
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-    // Extract game options and player state using the game context hook.
-    const { gameOptions, playerState } = useGameContext();
+    const [input, setInput] = useState<string>("");
+    
+    const scrollAreaRef = useRef<{ scrollToBottom: () => void }>(null);
 
+    // Extract game options and player state using the game context hook.
+
+    const { sessionId, gameInfo } = useGameContext();
     const { gameUpdate } = useGameUpdateContext();
 
-    const [input, setInput] = useState<string>("");
-
-    const scrollAreaRef = useRef<{ scrollToBottom: () => void }>(null);
+    const getCurrentUserName = useCallback(() => {
+        let userName = gameInfo!.playerNames[gameUpdate?.activePlayerId || 0];
+        console.log("Username", userName);
+        if (userName === undefined || userName === null || userName === "") {
+            console.log("No username found");
+            userName = prompt("Please enter your username ") || "no username";
+        }
+        return userName;
+    }, [gameInfo, gameUpdate?.activePlayerId]);
 
     // Websocket
     const [chatSocket, setChatSocket] = useState<WebSocket | undefined>(undefined);
@@ -70,7 +80,7 @@ export default function ChatComponent({ sessionId, className }: { sessionId: str
         ws.onclose = (event) => {
             console.log("Chat WebSocket connection closed", event);
         };
-    }, []);
+    }, [sessionId, getCurrentUserName, chatMessages]);
 
     /**
      * Scroll to the bottom of the chat when a new message is received.
@@ -78,16 +88,6 @@ export default function ChatComponent({ sessionId, className }: { sessionId: str
     useEffect(() => {
         scrollAreaRef.current?.scrollToBottom();
     }, [chatMessages]);
-
-    function getCurrentUserName() {
-        let userName = gameOptions.playerNames[gameUpdate?.activePlayerId || 0];
-        console.log("Username", userName);
-        if (userName === undefined || userName === null || userName === "") {
-            console.log("No username found");
-            userName = prompt("Please enter your username ") || "no username";
-        }
-        return userName;
-    }
 
     return (
         <Card className={cn("self-start", className)}>

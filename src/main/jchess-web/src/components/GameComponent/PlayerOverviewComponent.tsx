@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { useGameContext } from "@/src/app/context/game_context";
 import { useGameUpdateContext } from "@/src/app/context/game_update_context";
-import { cn } from "@/utils/tailwindMergeUtils";
+import { cn } from "@/src/utils/tailwindMergeUtils";
 import { ReactElement } from "react";
 import { useThemeHelperContext } from "@/src/app/context/theme_helper_context";
 

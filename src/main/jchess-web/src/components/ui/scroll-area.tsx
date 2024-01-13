@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
-import { cn } from "@/utils/tailwindMergeUtils";
+import { cn } from "@/src/utils/tailwindMergeUtils";
 
 const ScrollArea = React.forwardRef<
     { scrollToBottom: () => void }, // This defines the type of the ref
