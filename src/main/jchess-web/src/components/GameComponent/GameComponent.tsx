@@ -1,21 +1,22 @@
 "use client";
-import React, { ReactElement, useCallback, useEffect, useRef, useState } from "react";
-import { useGameContext } from "@/src/app/context/game_context";
-import { useGameUpdateContext } from "@/src/app/context/game_update_context";
-import { Entity } from "@/models/GameUpdate.schema";
+import React, {ReactElement, useCallback, useEffect, useRef, useState} from "react";
+import {useGameContext} from "@/src/app/context/game_context";
+import {useGameUpdateContext} from "@/src/app/context/game_update_context";
+import {Entity} from "@/models/GameUpdate.schema";
 import Config from "@/src/utils/config";
-import { postClick } from "@/src/services/rest_api_service";
+import {postClick} from "@/src/services/rest_api_service";
 import PlayerOverviewComponent from "./PlayerOverviewComponent";
+import ChatComponent from "./ChatComponent";
 import PieceSelectionComponent from "./PieceSelectionComponent";
-import { useThemeHelperContext } from "@/src/app/context/theme_helper_context";
+import {useThemeHelperContext} from "@/src/app/context/theme_helper_context";
 
 export default function GameComponent(): ReactElement {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
 
     // Contexts
     const gameContext = useGameContext();
-    const { gameUpdate } = useGameUpdateContext(); // this is the current game state coming from the server
-    const { themeHelper } = useThemeHelperContext();
+    const {gameUpdate} = useGameUpdateContext(); // this is the current game state coming from the server
+    const {themeHelper} = useThemeHelperContext();
 
     // State
     const canvasRef = useRef<HTMLInputElement>(null);
@@ -43,7 +44,7 @@ export default function GameComponent(): ReactElement {
             minTilePos = [minX, minY];
             maxTilePos = [maxX, maxY];
         }
-        return { maxTilePos, minTilePos };
+        return {maxTilePos, minTilePos};
     }
 
     /**
@@ -72,12 +73,23 @@ export default function GameComponent(): ReactElement {
         const rawBoardWidth = tileSize!.x + tileStride.x * (maxTilePos[0] - minTilePos[0]);
         let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
 
+        const centerX = offsetWidthFromCanvasRef / 2;
+        const centerY = offsetHeightFromCanvasRef / 2;
+
+        // Calculate the total size of the tiles group
+        const totalTilesWidth = rawBoardWidth * scaleFactor;
+        const totalTilesHeight = rawBoardHeight * scaleFactor;
+
+        // Calculate the starting point for the first tile
+        const startOffsetX = centerX - totalTilesWidth / 2;
+        const startOffsetY = centerY - totalTilesHeight / 2;
+
         entities.filter(e => e.tile).forEach(entity => {
             const tile = entity.tile!;
             const tileX = tile.displayPos.x - minTilePos[0];
-            const offsetX = tileX * tileStride!.x * scaleFactor;
+            const offsetX = startOffsetX + tileX * tileStride!.x * scaleFactor;
             const tileY = tile.displayPos.y - minTilePos[1];
-            const offsetY = tileY * tileStride!.y * scaleFactor;
+            const offsetY = startOffsetY + tileY * tileStride!.y * scaleFactor;
             const iconPath = themeHelper.getTileIcon(tile);
             const tileKey = `tile-${tile.tileColorIndex}-${tile.displayPos.x}-${tile.displayPos.y}`;
             canvas.push(
@@ -118,9 +130,9 @@ export default function GameComponent(): ReactElement {
             const tilePos = entity.tile!.displayPos;
             const piece = entity.piece!;
             const x = tilePos.x - minTilePos[0];
-            const offsetX = x * tileStride!.x * scaleFactor;
+            const offsetX = startOffsetX + x * tileStride!.x * scaleFactor;
             const y = tilePos.y - minTilePos[1];
-            const offsetY = y * tileStride!.y * scaleFactor;
+            const offsetY = startOffsetY + y * tileStride!.y * scaleFactor;
             const iconPath = themeHelper.getPieceIcon(piece);
             const pieceKey = `piece-${piece.identifier.pieceTypeId}${piece.identifier.ownerId}-${tilePos.x}-${tilePos.y}`;
 
@@ -151,9 +163,9 @@ export default function GameComponent(): ReactElement {
             const marker = entity.marker!;
             const markerPos = entity.tile!.displayPos;
             const x = markerPos.x - minTilePos[0];
-            const offsetX = x * tileStride!.x * scaleFactor;
+            const offsetX = startOffsetX + x * tileStride!.x * scaleFactor;
             const y = markerPos.y - minTilePos[1];
-            const offsetY = y * tileStride!.y * scaleFactor;
+            const offsetY = startOffsetY + y * tileStride!.y * scaleFactor;
             const markerKey = `marker-${marker.markerType}-${markerPos.x}-${markerPos.y}`;
             const iconPath = themeHelper.getMarkerIcon(marker);
 
@@ -193,7 +205,7 @@ export default function GameComponent(): ReactElement {
         }
 
         // calculate the min and max tile positions
-        const { maxTilePos, minTilePos } = calculateMinMaxTilePosition(gameUpdate.boardState);
+        const {maxTilePos, minTilePos} = calculateMinMaxTilePosition(gameUpdate.boardState);
 
         // calculate the piece size adjustment and translation offset to ensure clickability of the pieces
         const pieceSizeAdjustment = 0.7; // this is needed so the bounding box of the piece is not overlapping with other pieces
@@ -228,17 +240,23 @@ export default function GameComponent(): ReactElement {
     }, [handleResize, renderBoard]);
 
     return (
-        <div className="grid grid-cols-1 gap-2 p-12 items-center sm:grid-cols-2 lg:grid-cols-3  sm:grid-row-2 max-w-[2000px] mx-auto">
+        <div className="p-12 max-w-[2000px] mx-auto flex flex-col xl:flex-row items-center md:justify-center gap-12">
             <div
                 ref={canvasRef}
-                className="w-[80vw] h-[80vw] md:w-[55vw] md:h-[55vw] lg:w-full lg:h-[100%] min-w-[200px] min-h-[200px] max-w-[80vh] max-h-[80vh]  justify-self-center sm:row-span-2 sm:col-span-2 relative"
+                className="w-[80vw] h-[80vw] xl:w-[50vw] xl:h-[50vw] md:w-[65vw] md:h-[65vw] min-w-[20px] min-h-[200px] max-w-[80vh] max-h-[80vh] justify-self-center relative"
             >
                 <PieceSelectionComponent/>
 
                 {board}
             </div>
 
-            <PlayerOverviewComponent/>
+            <div className="flex flex-col sm:flex-row xl:flex-col gap-2">
+                <PlayerOverviewComponent className="w-full"/>
+                <ChatComponent
+                    sessionId={sessionId}
+                    className="w-full sm:col-start-2 sm:col-end-3 sm:row-span-2 sm:row-start-1"
+                />
+            </div>
         </div>
     );
 }
