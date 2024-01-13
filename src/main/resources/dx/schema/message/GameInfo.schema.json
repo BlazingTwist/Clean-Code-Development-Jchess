@@ -18,12 +18,17 @@
             "items": {
                 "type": "string"
             }
+        },
+        "playerPerspective": {
+            "description": "The index of the players whose perspective is shown",
+            "type": "integer"
         }
     },
     "required": [
         "layoutId",
         "themeName",
-        "playerNames"
+        "playerNames",
+        "playerPerspective"
     ],
     "additionalProperties": false
 }

@@ -28,18 +28,19 @@ paths:
             description: the error message
             type: string
 
-  /api/game/info:
+  /api/game/info/{SessionId}:
     get:
       summary: Obtain info on an active Game Session
+      parameters:
+        - in: path
+          name: SessionId
+          required: true
+          schema:
+            type: string
       consumes:
         - application/json
       produces:
         - application/json
-      parameters:
-        - in: body
-          name: SessionId
-          schema:
-            type: string
       responses:
         '200':
           description: Game Found

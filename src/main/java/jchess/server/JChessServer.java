@@ -51,13 +51,15 @@ public class JChessServer {
         SessionMgrController.startHeartbeat(1, TimeUnit.MINUTES);
 
         ClassPathResourceManager resourceManager = new ClassPathResourceManager(JChessServer.class.getClassLoader());
+        ResourceHandler resourceHandler = new ResourceHandler(resourceManager);
+        resourceHandler.setCacheTime(604800);
 
         DeploymentInfo deployment = Servlets.deployment()
                 .setClassLoader(JChessServer.class.getClassLoader())
                 .setContextPath("")
                 .setDeploymentName("WipChessServer")
                 .addServlet(Servlets.servlet("GameCreate", GameCreateServlet.class).addMapping("/api/game/create"))
-                .addServlet(Servlets.servlet("GameInfo", GameInfoServlet.class).addMapping("/api/game/info"))
+                .addServlet(Servlets.servlet("GameInfo", GameInfoServlet.class).addMapping("/api/game/info/*"))
                 .addServlet(Servlets.servlet("GameClicked", BoardClickedServlet.class).addMapping("/api/game/clicked"))
                 .addServlet(Servlets.servlet("Themes", ThemesServlet.class).addMapping("/api/themes"))
                 .addServlet(Servlets.servlet("GameModes", GameModesServlet.class).addMapping("/api/modes"));
@@ -67,7 +69,7 @@ public class JChessServer {
         manager.deploy();
         HttpHandler handler = manager.start();
         PathHandler pathHandler = Handlers.path(handler)
-                .addPrefixPath(resourcePrefix, new ResourceHandler(resourceManager))
+                .addPrefixPath(resourcePrefix, resourceHandler)
                 .addPrefixPath("/api/board/update", Handlers.websocket(boardUpdateWebsocket))
                 .addPrefixPath("/api/pieceSelection", Handlers.websocket(pieceSelectionWebsocket))
                 .addPrefixPath("/api/chat", Handlers.websocket(chatWebsocket));

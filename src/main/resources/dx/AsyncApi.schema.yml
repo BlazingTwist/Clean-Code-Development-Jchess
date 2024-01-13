@@ -26,6 +26,7 @@ channels:
         messageId: BoardUpdate
         payload:
           $ref: "./schema/message/GameUpdate.schema.json"
+
   api/pieceSelection:
     subscribe:
       summary: Used by the frontend to subscribe to the channel / and notify the backend of a selected piece
@@ -58,6 +59,7 @@ channels:
         messageId: OfferPieceSelection
         payload:
           $ref: "./schema/message/OfferPieceSelection.schema.json"
+
   api/chat:
     subscribe:
       summary: Used by the frontend to (subscribe to the channel / and notify the backend of a new chat message)

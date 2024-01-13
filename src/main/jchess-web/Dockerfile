@@ -12,12 +12,8 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY jchess-web/package.json jchess-web/package-lock.json* ./
-COPY ./jchess-web/app app
-COPY ./jchess-web/components components
-COPY ./jchess-web/pages pages
+COPY ./jchess-web/src/ src
 COPY ./jchess-web/public public
-COPY ./jchess-web/services services
-COPY ./jchess-web/utils utils
 COPY ./jchess-web/.eslintrc.json .eslintrc.json
 COPY ./jchess-web/components.json components.json
 COPY ./jchess-web/next.config.js next.config.js
