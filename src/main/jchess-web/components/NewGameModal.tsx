@@ -25,10 +25,7 @@ export function NewGameModal() {
 
     // State variables for player information and game settings
     // values for the select elements
-    const [timeGameValues, setTimeGameValues] = useState<string[]>([]);
     const [playerPerspective, setPlayerPerspective] = useState(0);
-    const [isTimeGame, setTimeGame] = useState(false);
-    const [timeGameAmount, setTimeGameAmount] = useState("0");
 
     const {setGameOptions, setPlayerState} = useGameContext(); // old code for client side state, later it probably will be removed
     const {gameModeMap, setTheme, setLayout} = useThemeContext();
@@ -43,16 +40,6 @@ export function NewGameModal() {
         setGameMode(gameMode);
         setLayout(gameMode.layoutId!);
     }
-
-    /**
-     * @function useEffect
-     * @description Fetches possible values from the server when the component mounts.
-     */
-    useEffect(() => {
-        // TODO fetch possible values from server:
-        console.log("fetch possible time game amounts from server");
-        setTimeGameValues(["1", "3", "5", "8", "10", "15", "20", "25", "30", "60", "120"]);
-    }, []);
 
     const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
 
@@ -199,20 +186,6 @@ export function NewGameModal() {
         );
 
         console.log("players are:" + playerNames);
-        console.log("isTimeGame:" + isTimeGame);
-        console.log("timeGameAmount:" + timeGameAmount);
-
-        // TODO send the player names to the server and retrieve the player times
-        // MOCK GameStart Endpoint on the Client
-        const playerTimes = new Map<number, Date>();
-        const playerHistory = new Map<number, Array<string>>();
-
-        playerNames.forEach((playerName, index) => {
-            const playerTime = new Date(Date.UTC(0, 0, 0, 0, parseInt(timeGameAmount), 0, 0));
-            playerTimes.set(index, playerTime);
-            playerHistory.set(index, ["e4:e5", " e5:e4"]);
-        });
-
         console.log("post newGame to server");
         // TODO improve error handling
 
@@ -223,13 +196,6 @@ export function NewGameModal() {
             setGameOptions({
                 playerNames,
                 playerPerspective,
-                isTimeGame,
-                timeGameAmountInSeconds: parseInt(timeGameAmount) * 60,
-            });
-
-            setPlayerState({
-                playerTime: playerTimes,
-                playerHistory: playerHistory,
             });
             router.push("/?sessionId=" + sessionId);
         });
@@ -263,16 +229,6 @@ export function NewGameModal() {
 
                         <div className="flex flex-col space-y-1.5 mb-4">{renderNameInputs()}</div>
                         <div className="flex flex-col space-y-1.5 mb-4">{renderPerspectiveSelect()}</div>
-                        <div className="flex items-center space-x-2 mb-4 ">
-                            <Checkbox id="time-game" onCheckedChange={(checked: boolean) => setTimeGame(checked)}/>
-                            <label
-                                htmlFor="time-game"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                Time Game
-                            </label>
-                        </div>
-                        {isTimeGame && renderTimeSelect()}
                     </CardContent>
                     <CardFooter className="flex justify-between">
                         <Button type="button" variant="outline">
