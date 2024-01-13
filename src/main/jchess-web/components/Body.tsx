@@ -97,7 +97,11 @@ export default function Body({ sessionId }: { sessionId: string | undefined }) {
             );
         } else {
             // Render the chess game component when the game is in progress
-            return <GameComponent sessionId={sessionId} />;
+            return (
+                <div className="flex flex-col xl:justify-center items-center min-h-[90vh]">
+                    <GameComponent sessionId={sessionId} />{" "}
+                </div>
+            );
         }
     };
 

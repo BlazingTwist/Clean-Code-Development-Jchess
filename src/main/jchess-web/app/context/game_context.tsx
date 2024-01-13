@@ -11,31 +11,26 @@ import { createContext, useContext, Dispatch, SetStateAction, useState, ReactNod
 type GameOptions = {
     playerNames: Array<string>;
     playerPerspective: number;
-    isTimeGame: boolean;
-    timeGameAmountInSeconds: number;
 };
 
 /**
  * Represents the state of a player in a chess game.
  */
 type PlayerState = {
-    playerTime: Map<number, Date>;
-    playerHistory: Map<number, Array<string>>;
+    playerColor: Map<number, string>;
 };
 
 /**
  * Represents the serializable state of a player in a chess game.
  */
 type SerializablePlayerState = {
-    playerTime: [number, string][];
-    playerHistory: [number, string[]][];
+    playerColor: [number, string][];
 };
 
 // Serialize PlayerState to JSON
 function serializePlayerStateToJson(playerState: PlayerState): string {
     const serialized: SerializablePlayerState = {
-        playerTime: Array.from(playerState.playerTime.entries()).map(([key, date]) => [key, date.toISOString()]),
-        playerHistory: Array.from(playerState.playerHistory.entries()).map(([key, history]) => [key, history]),
+        playerColor: Array.from(playerState.playerColor.entries()),
     };
     return JSON.stringify(serialized);
 }
@@ -44,17 +39,13 @@ function serializePlayerStateToJson(playerState: PlayerState): string {
 function deserializeJsonToPlayerState(jsonString: string): PlayerState {
     if (jsonString === "{}") {
         return {
-            playerTime: new Map<number, Date>(),
-            playerHistory: new Map<number, Array<string>>(),
+            playerColor: new Map<number, string>(),
         };
     }
     const serialized: SerializablePlayerState = JSON.parse(jsonString);
-    const playerTime = new Map<number, Date>(
-        serialized.playerTime.map(([key, isoString]) => [key, new Date(isoString)])
-    );
-    const playerHistory = new Map<number, Array<string>>(serialized.playerHistory);
+    const playerColor = new Map<number, string>(serialized.playerColor);
 
-    return { playerTime, playerHistory };
+    return { playerColor };
 }
 
 /**
@@ -73,15 +64,12 @@ interface ContextProps {
  */
 const GameContext = createContext<ContextProps>({
     playerState: {
-        playerTime: new Map<number, Date>(),
-        playerHistory: new Map<number, Array<string>>(),
+        playerColor: new Map<number, string>(),
     },
     setPlayerState: () => {},
     gameOptions: {
         playerPerspective: 0,
         playerNames: [],
-        isTimeGame: false,
-        timeGameAmountInSeconds: 0,
     },
     setGameOptions: () => {},
     resetGame: () => {},
@@ -124,8 +112,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         return useLocalStorage
             ? deserializeJsonToPlayerState(localStorage.getItem(playerStateStorageKey) || "{}")
             : {
-                  playerTime: new Map<number, Date>(),
-                  playerHistory: new Map<number, Array<string>>(),
+                  playerColor: new Map<number, string>(),
               };
     });
 
@@ -153,8 +140,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         setGameOptions({
             playerPerspective: 0,
             playerNames: [],
-            isTimeGame: false,
-            timeGameAmountInSeconds: 0,
         });
 
         // Remove the gameUpdate from localStorage if saving cookies is enabled
