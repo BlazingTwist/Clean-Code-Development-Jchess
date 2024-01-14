@@ -19,13 +19,21 @@ public class TileComponent {
                 .filter(entity -> entity.tile != null && entity.piece != null)
                 .forEach(entity -> entity
                         .findValidMoves(false)
-                        .forEach(move -> move.displayTile().tile.attackingPieces.add(entity))
+                        .forEach(move -> {
+                            assert move.displayTile().tile != null;
+                            move.displayTile().tile.attackingPieces.add(entity);
+                        })
                 );
     }
 
     public final Set<Entity> attackingPieces = ConcurrentHashMap.newKeySet();
-    public Point position;
-    public int colorIndex;
+    public final Point position;
+    public final int colorIndex;
+
+    public TileComponent(Point position, int colorIndex) {
+        this.position = position;
+        this.colorIndex = colorIndex;
+    }
 
     /**
      * key = number in range [0, 360), indicating the direction of travel towards the neighbor

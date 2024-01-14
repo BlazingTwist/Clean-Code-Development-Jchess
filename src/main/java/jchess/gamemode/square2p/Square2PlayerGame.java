@@ -79,9 +79,7 @@ public class Square2PlayerGame extends BaseChessGame {
         for (int y = 0; y < numTiles; y++) {
             Entity[] tileRow = tiles[y];
             for (int x = 0; x < numTiles; x++) {
-                TileComponent tile = new TileComponent();
-                tile.colorIndex = (x + y) % 2;
-                tile.position = new Point(x, y);
+                TileComponent tile = new TileComponent(new Point(x, y), (x + y) % 2);
 
                 tile.neighborsByDirection.put(0, getEntityAtPosition(x, y - 1));
                 tile.neighborsByDirection.put(45, getEntityAtPosition(x + 1, y - 1));
