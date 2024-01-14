@@ -13,8 +13,10 @@ import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import jakarta.servlet.ServletException;
 import jchess.common.IChessGame;
+import jchess.common.events.GameOverEvent;
 import jchess.common.events.OfferPieceSelectionEvent;
 import jchess.common.events.RenderEvent;
+import jchess.ecs.EcsEventManager;
 import jchess.gamemode.GameModeStore;
 import jchess.server.api.servlet.BoardClickedServlet;
 import jchess.server.api.servlet.GameCreateServlet;
@@ -23,6 +25,7 @@ import jchess.server.api.servlet.GameModesServlet;
 import jchess.server.api.servlet.ThemesServlet;
 import jchess.server.api.socket.BoardUpdateWebsocket;
 import jchess.server.api.socket.ChatWebsocket;
+import jchess.server.api.socket.GameOverWebsocket;
 import jchess.server.api.socket.PieceSelectionWebsocket;
 import jchess.server.session.SessionManager;
 import jchess.server.session.SessionMgrController;
@@ -39,14 +42,12 @@ public class JChessServer {
 
     public static final String resourcePrefix = "resources";
 
-    public static BoardUpdateWebsocket boardUpdateWebsocket;
-    public static PieceSelectionWebsocket pieceSelectionWebsocket;
+    public static final BoardUpdateWebsocket boardUpdateWebsocket = new BoardUpdateWebsocket();
+    public static final PieceSelectionWebsocket pieceSelectionWebsocket = new PieceSelectionWebsocket();
+    public static final ChatWebsocket chatWebsocket = new ChatWebsocket();
+    public static final GameOverWebsocket gameOverWebsocket = new GameOverWebsocket();
 
     public static void main(String[] args) throws ServletException, URISyntaxException, UnknownHostException {
-        boardUpdateWebsocket = new BoardUpdateWebsocket();
-        pieceSelectionWebsocket = new PieceSelectionWebsocket();
-        ChatWebsocket chatWebsocket = new ChatWebsocket();
-
         SessionMgrController.registerSessionManager(GameSessionData.class, 10, TimeUnit.MINUTES);
         SessionMgrController.startHeartbeat(1, TimeUnit.MINUTES);
 
@@ -71,6 +72,7 @@ public class JChessServer {
         PathHandler pathHandler = Handlers.path(handler)
                 .addPrefixPath(resourcePrefix, resourceHandler)
                 .addPrefixPath("/api/board/update", Handlers.websocket(boardUpdateWebsocket))
+                .addPrefixPath("/api/board/gameOver", Handlers.websocket(gameOverWebsocket))
                 .addPrefixPath("/api/pieceSelection", Handlers.websocket(pieceSelectionWebsocket))
                 .addPrefixPath("/api/chat", Handlers.websocket(chatWebsocket));
 
@@ -94,8 +96,10 @@ public class JChessServer {
         SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
         String sessionId = gameManager.createSession(gameData).sessionId;
 
-        game.getEventManager().getEvent(RenderEvent.class).addListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
-        game.getEventManager().getEvent(OfferPieceSelectionEvent.class).addListener(x -> pieceSelectionWebsocket.onOfferPieceSelectionEvent(sessionId, x));
+        EcsEventManager eventManager = game.getEventManager();
+        eventManager.getEvent(RenderEvent.class).addListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
+        eventManager.getEvent(OfferPieceSelectionEvent.class).addListener(x -> pieceSelectionWebsocket.onOfferPieceSelectionEvent(sessionId, x));
+        eventManager.getEvent(GameOverEvent.class).addListener(x -> gameOverWebsocket.onGameOverEvent(sessionId, x));
         logger.info("Starting new game. Mode '{}'. SessionId '{}'", layoutId, sessionId);
         game.start();
 
