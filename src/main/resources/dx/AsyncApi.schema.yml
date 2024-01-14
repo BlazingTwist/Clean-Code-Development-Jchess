@@ -27,6 +27,24 @@ channels:
         payload:
           $ref: "./schema/message/GameUpdate.schema.json"
 
+  api/board/gameOver:
+    subscribe:
+      summary: Used by the frontend to subscribe to gameOver messages
+      operationId: onGameOverSubscribe
+      message:
+        name: GameOverSubscribe
+        messageId: GameOverSubscribe
+        payload:
+          $ref: "./schema/message/GameOverSubscribe.schema.json"
+    publish:
+      summary: Used by the backend to notify the frontend once the game has ended
+      operationId: onGameOver
+      message:
+        name: GameOver
+        messageId: GameOver
+        payload:
+          $ref: "./schema/message/GameOver.schema.json"
+
   api/pieceSelection:
     subscribe:
       summary: Used by the frontend to subscribe to the channel / and notify the backend of a selected piece
