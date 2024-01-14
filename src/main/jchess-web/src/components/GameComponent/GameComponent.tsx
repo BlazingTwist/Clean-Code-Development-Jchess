@@ -9,6 +9,7 @@ import PlayerOverviewComponent from "./PlayerOverviewComponent";
 import ChatComponent from "./ChatComponent";
 import PieceSelectionComponent from "./PieceSelectionComponent";
 import {useThemeHelperContext} from "@/src/app/context/theme_helper_context";
+import GameOverComponent from "@/src/components/GameComponent/GameOverComponent";
 
 export default function GameComponent(): ReactElement {
     const showCoordinates = Config.boardWithCoordinates; // boolean flag in .env.local file to control if coordinates are shown on the board
@@ -248,6 +249,7 @@ export default function GameComponent(): ReactElement {
                 className="w-[80vw] h-[80vw] xl:w-[50vw] xl:h-[50vw] md:w-[65vw] md:h-[65vw] min-w-[20px] min-h-[200px] max-w-[80vh] max-h-[80vh] justify-self-center relative"
             >
                 <PieceSelectionComponent/>
+                <GameOverComponent/>
 
                 {board}
             </div>

@@ -80,6 +80,7 @@ export interface SessionData {
     boardUpdateSocket: SocketHandler;
     chatSocket: SocketHandler;
     pieceSelectionSocket: SocketHandler;
+    gameOverSocket: SocketHandler;
 
     updateState: (sessionId: string | undefined) => void;
 }
@@ -89,6 +90,7 @@ const defaultContext: SessionData = {
     boardUpdateSocket: new SocketHandler(`${Config.socketServerUri}/api/board/update`),
     chatSocket: new SocketHandler(`${Config.socketServerUri}/api/chat`),
     pieceSelectionSocket: new SocketHandler(`${Config.socketServerUri}/api/pieceSelection`),
+    gameOverSocket: new SocketHandler(`${Config.socketServerUri}/api/board/gameOver`),
     updateState: (_) => {
     }
 }
@@ -124,6 +126,7 @@ export const GameProvider: React.FC<GameProviderProps> = (props: GameProviderPro
                 state.boardUpdateSocket.close();
                 state.chatSocket.close();
                 state.pieceSelectionSocket.close();
+                state.gameOverSocket.close();
 
                 console.log("Clearing SessionData");
                 setState({ ...state, sessionId: undefined, gameInfo: undefined })
@@ -141,6 +144,7 @@ export const GameProvider: React.FC<GameProviderProps> = (props: GameProviderPro
                         state.boardUpdateSocket.open();
                         state.chatSocket.open();
                         state.pieceSelectionSocket.open();
+                        state.gameOverSocket.open();
                     }
                 });
             }
