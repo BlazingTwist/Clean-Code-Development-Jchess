@@ -32,6 +32,7 @@ public class EnPassant implements ISpecialRule {
     }
 
     private void onPieceMove(PieceMoveEvent.PieceMove move) {
+        assert move.toTile().piece != null; // move always contains moved piece in toTile
         PieceComponent movedPiece = move.toTile().piece;
         if (movedPiece.identifier.ownerId() == thisPawnId.ownerId()) {
             // player made a move -> the window for an EnPassant move has passed

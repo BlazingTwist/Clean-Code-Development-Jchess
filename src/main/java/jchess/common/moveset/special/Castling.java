@@ -76,11 +76,14 @@ public class Castling implements ISpecialRule {
             return;
         }
 
+        //noinspection DataFlowIssue
         rightRookId = rightRooks.get(0).piece.identifier;
+        //noinspection DataFlowIssue
         leftRookId = leftRooks.get(0).piece.identifier;
     }
 
     private List<Entity> findRooks(Entity fromTile, int direction) {
+        assert fromTile.piece != null;
         return TileExpression.repeat(TileExpression.neighbor(direction), 1, -1, true).compile(fromTile.piece.identifier)
                 .findTiles(fromTile)
                 .filter(tile -> tile.piece != null && tile.piece.identifier.pieceType() == rookTypeId)
@@ -92,6 +95,7 @@ public class Castling implements ISpecialRule {
             logger.error("Castling observed PieceMove, but Rooks were not identified yet! LeftRookId: {} | RightRookId: {}", leftRookId, rightRookId);
         }
 
+        assert move.toTile().piece != null; // move always contains to moved piece in 'toTile'
         PieceIdentifier movedPiece = move.toTile().piece.identifier;
         if (movedPiece == this.kingId) {
             kingMoved = true;
@@ -115,6 +119,7 @@ public class Castling implements ISpecialRule {
             PieceIdentifier rookId, boolean rookHasMoved,
             int rookToKingDirection, int kingToRookDirection
     ) {
+        assert king.piece != null;
         if (rookHasMoved) {
             return null;
         }
@@ -146,6 +151,7 @@ public class Castling implements ISpecialRule {
     }
 
     private Entity checkKingMoveTile(Entity king, TileExpression kingMove) {
+        assert king.piece != null;
         return TileExpression.filter(kingMove, tile -> tile.piece == null && !tile.isAttacked())
                 .compile(king.piece.identifier)
                 .findTiles(king)

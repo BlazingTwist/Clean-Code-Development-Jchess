@@ -78,7 +78,10 @@ public class TileExpression {
         return new TileExpression(movingPiece -> {
             int localDirection = (movingPiece.forwardBasis() + direction) % 360;
             return stream -> stream
-                    .map(tile -> tile.tile.getTile(localDirection))
+                    .map(tile -> {
+                        assert tile.tile != null; // neighboring tiles will always have a TileComponent
+                        return tile.tile.getTile(localDirection);
+                    })
                     .filter(Objects::nonNull);
         });
     }
@@ -87,6 +90,7 @@ public class TileExpression {
         return new TileExpression(movingPiece -> stream -> stream.flatMap(
                 tile -> Arrays.stream(direction)
                         .mapToObj(dir -> {
+                            assert tile.tile != null; // neighboring tiles will always have a TileComponent
                             int localDirection = (movingPiece.forwardBasis() + dir) % 360;
                             return tile.tile.getTile(localDirection);
                         })

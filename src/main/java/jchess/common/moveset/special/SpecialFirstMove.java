@@ -24,6 +24,7 @@ public class SpecialFirstMove implements ISpecialRule {
         this.compiledFirstMove = firstMove.compile(pieceIdentifier);
 
         game.getEventManager().getEvent(PieceMoveEvent.class).addListener(move -> {
+            assert move.toTile().piece != null; // move always contains moved piece in toTile
             if (move.toTile().piece.identifier == this.pieceIdentifier) {
                 hasMoved = true;
             }
