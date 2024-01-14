@@ -5,7 +5,7 @@ import { Button } from "@/src/components/ui/button";
 import GameComponent from "./GameComponent/GameComponent";
 import { ReactElement, useEffect, useState } from "react";
 import { BoardUpdateSubscribe } from "@/models/BoardUpdateSubscribe.schema";
-import { useGameUpdateContext } from "@/src/app/context/game_update_context";
+import { useBoardUpdateContext } from "@/src/app/context/board_update_context";
 import { useGameContext } from "@/src/app/context/game_context";
 import { ThemeHelperProvider } from "@/src/app/context/theme_helper_context";
 
@@ -15,7 +15,7 @@ import { ThemeHelperProvider } from "@/src/app/context/theme_helper_context";
  */
 export default function Body(): ReactElement {
     // Retrieve the game state from the context
-    const gameUpdateContext = useGameUpdateContext();
+    const boardUpdateContext = useBoardUpdateContext();
     const gameContext = useGameContext();
 
     const [localSocketConnId, setLocalSocketConnId] = useState<number>(-1);
@@ -36,7 +36,7 @@ export default function Body(): ReactElement {
 
         gameContext.boardUpdateSocket.addListener(event => {
             let data = JSON.parse(event.data);
-            gameUpdateContext.updateState({ gameUpdate: data })
+            boardUpdateContext.updateState({ boardUpdate: data })
         });
 
         const subscribeMessage: BoardUpdateSubscribe = {

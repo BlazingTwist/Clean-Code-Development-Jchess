@@ -3,7 +3,7 @@ import { Play } from "next/font/google";
 import { Hotkeys } from "@/src/components/Hotkeys";
 import "./globals.css";
 import React from "react";
-import { GameUpdateProvider } from "@/src/app/context/game_update_context";
+import { BoardUpdateProvider } from "@/src/app/context/board_update_context";
 import { GameProvider } from "@/src/app/context/game_context";
 import { ServerDataProvider } from "@/src/app/context/server_data_context";
 
@@ -23,12 +23,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="en">
             <body className={playFont.className}>
                 <ServerDataProvider>
-                    <GameUpdateProvider>
+                    <BoardUpdateProvider>
                         <GameProvider>
                             <Hotkeys/>
                             {children}
                         </GameProvider>
-                    </GameUpdateProvider>
+                    </BoardUpdateProvider>
                 </ServerDataProvider>
             </body>
         </html>

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table";
 
 import { useGameContext } from "@/src/app/context/game_context";
-import { useGameUpdateContext } from "@/src/app/context/game_update_context";
+import { useBoardUpdateContext } from "@/src/app/context/board_update_context";
 import { cn } from "@/src/utils/tailwindMergeUtils";
 import { ReactElement } from "react";
 import { useThemeHelperContext } from "@/src/app/context/theme_helper_context";
@@ -14,7 +14,7 @@ import { useThemeHelperContext } from "@/src/app/context/theme_helper_context";
 export default function PlayerOverviewComponent({ className }: { className?: string }): ReactElement | null {
     // Extracting game options and player state using the custom hook.
     const gameContext = useGameContext();
-    const { gameUpdate } = useGameUpdateContext();
+    const { boardUpdate } = useBoardUpdateContext();
     const { themeHelper } = useThemeHelperContext();
 
     const themePlayerColors = themeHelper?.getPlayerColors();
@@ -22,7 +22,7 @@ export default function PlayerOverviewComponent({ className }: { className?: str
     const playerColors = playerNames.map((_name, index) => {
         return (themePlayerColors) ? themePlayerColors[index] : "#000000";
     })
-    const activePlayerId = gameUpdate?.activePlayerId;
+    const activePlayerId = boardUpdate?.activePlayerId;
 
     return (
         <Card className={cn("self-start max-w-[500px]", className)}>

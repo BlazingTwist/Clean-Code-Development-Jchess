@@ -8,7 +8,7 @@ import ChatMessageComponent from "./ChatMessageComponent";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useGameUpdateContext } from "@/src/app/context/game_update_context";
+import { useBoardUpdateContext } from "@/src/app/context/board_update_context";
 import { cn } from "@/src/utils/tailwindMergeUtils";
 
 /**
@@ -24,7 +24,7 @@ export default function ChatComponent({ className }: { className?: string }) {
     // Extract game options and player state using the game context hook.
 
     const gameContext = useGameContext();
-    const { gameUpdate } = useGameUpdateContext();
+    const { boardUpdate } = useBoardUpdateContext();
 
     useEffect(() => {
         if (gameContext.socketConnectionId === localSocketConnId) {
@@ -36,14 +36,14 @@ export default function ChatComponent({ className }: { className?: string }) {
     }, [gameContext]);
 
     const getCurrentUserName = useCallback(() => {
-        let userName = gameContext.gameInfo!.playerNames[gameUpdate?.activePlayerId || 0];
+        let userName = gameContext.gameInfo!.playerNames[boardUpdate?.activePlayerId || 0];
         console.log("Username", userName);
         if (userName === undefined || userName === null || userName === "") {
             console.log("No username found");
             userName = prompt("Please enter your username ") || "no username";
         }
         return userName;
-    }, [gameContext, gameUpdate?.activePlayerId]);
+    }, [gameContext, boardUpdate?.activePlayerId]);
 
     // Websocket
     useEffect(() => {

@@ -1,8 +1,8 @@
 "use client";
 import React, {ReactElement, useCallback, useEffect, useRef, useState} from "react";
 import {useGameContext} from "@/src/app/context/game_context";
-import {useGameUpdateContext} from "@/src/app/context/game_update_context";
-import {Entity} from "@/models/GameUpdate.schema";
+import {useBoardUpdateContext} from "@/src/app/context/board_update_context";
+import {Entity} from "@/models/BoardUpdate.schema";
 import Config from "@/src/utils/config";
 import {postClick} from "@/src/services/rest_api_service";
 import PlayerOverviewComponent from "./PlayerOverviewComponent";
@@ -15,7 +15,7 @@ export default function GameComponent(): ReactElement {
 
     // Contexts
     const gameContext = useGameContext();
-    const {gameUpdate} = useGameUpdateContext(); // this is the current game state coming from the server
+    const {boardUpdate} = useBoardUpdateContext(); // this is the current game state coming from the server
     const {themeHelper} = useThemeHelperContext();
 
     // State
@@ -194,10 +194,10 @@ export default function GameComponent(): ReactElement {
     }, [gameContext.sessionId, showCoordinates, themeHelper]);
 
     /**
-     * @description Renders the board based on the current gameUpdate state and theme.
+     * @description Renders the board based on the current boardUpdate state and theme.
      */
     const renderBoard = useCallback(() => {
-        if (!gameUpdate) {
+        if (!boardUpdate) {
             console.log("waiting for game update.");
             return;
         }
@@ -207,7 +207,7 @@ export default function GameComponent(): ReactElement {
         }
 
         // calculate the min and max tile positions
-        const {maxTilePos, minTilePos} = calculateMinMaxTilePosition(gameUpdate.boardState);
+        const {maxTilePos, minTilePos} = calculateMinMaxTilePosition(boardUpdate.boardState);
 
         // calculate the piece size adjustment and translation offset to ensure clickability of the pieces
         const pieceSizeAdjustment = 0.7; // this is needed so the bounding box of the piece is not overlapping with other pieces
@@ -218,12 +218,12 @@ export default function GameComponent(): ReactElement {
         const canvas = getBoardCanvas(
             maxTilePos,
             minTilePos,
-            gameUpdate.boardState,
+            boardUpdate.boardState,
             pieceSizeAdjustment,
             translationString
         );
         setBoard(canvas);
-    }, [gameUpdate, getBoardCanvas, themeHelper]);
+    }, [boardUpdate, getBoardCanvas, themeHelper]);
 
     const handleResize = useCallback(() => {
         renderBoard();
