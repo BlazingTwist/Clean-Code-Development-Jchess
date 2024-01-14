@@ -28,7 +28,7 @@ public class EnPassant implements ISpecialRule {
         this.pawnDoubleMoveDirections = pawnDoubleMoveDirections;
         this.pawnCaptureDirections = pawnCaptureDirections;
 
-        game.getEventManager().<PieceMoveEvent>getEvent(PieceMoveEvent.class).addListener(this::onPieceMove);
+        game.getEventManager().getEvent(PieceMoveEvent.class).addListener(this::onPieceMove);
     }
 
     private void onPieceMove(PieceMoveEvent.PieceMove move) {

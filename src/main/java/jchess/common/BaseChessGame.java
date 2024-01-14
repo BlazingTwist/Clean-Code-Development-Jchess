@@ -52,6 +52,8 @@ public abstract class BaseChessGame implements IChessGame {
 
     protected abstract Entity getEntityAtPosition(int x, int y);
 
+    protected abstract Integer[] computeGameOverScores();
+
     protected void onBoardClicked(int x, int y) {
         Entity clickedEntity = getEntityAtPosition(x, y);
         if (clickedEntity == null) {
@@ -124,7 +126,7 @@ public abstract class BaseChessGame implements IChessGame {
 
         if (gameOver) {
             logger.info("Game Over! Losing Player: {}", activePlayerId);
-            eventManager.getEvent(GameOverEvent.class).fire(null);
+            eventManager.getEvent(GameOverEvent.class).fire(computeGameOverScores());
 
             // TODO erja, compute player scores
             // TODO erja, send game over event to frontend
@@ -160,7 +162,7 @@ public abstract class BaseChessGame implements IChessGame {
         toTile.piece = fromTile.piece;
         fromTile.piece = null;
 
-        eventManager.<PieceMoveEvent>getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(fromTile, toTile, moveType));
+        eventManager.getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(fromTile, toTile, moveType));
         eventManager.getEvent(ComputeAttackInfoEvent.class).fire(null);
 
         // end turn

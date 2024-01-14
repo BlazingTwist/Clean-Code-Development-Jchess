@@ -47,7 +47,7 @@ public class Castling implements ISpecialRule {
         this.leftRookDirection = leftRookDirection;
 
         game.getEventManager().getEvent(BoardInitializedEvent.class).addListener(_void -> lookupRooks());
-        game.getEventManager().<PieceMoveEvent>getEvent(PieceMoveEvent.class).addListener(this::onPieceMove);
+        game.getEventManager().getEvent(PieceMoveEvent.class).addListener(this::onPieceMove);
     }
 
     private void lookupRooks() {

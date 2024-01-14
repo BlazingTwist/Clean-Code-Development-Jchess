@@ -95,7 +95,7 @@ public class JChessServer {
         String sessionId = gameManager.createSession(gameData).sessionId;
 
         game.getEventManager().getEvent(RenderEvent.class).addListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
-        game.getEventManager().<OfferPieceSelectionEvent>getEvent(OfferPieceSelectionEvent.class).addListener(x -> pieceSelectionWebsocket.onOfferPieceSelectionEvent(sessionId, x));
+        game.getEventManager().getEvent(OfferPieceSelectionEvent.class).addListener(x -> pieceSelectionWebsocket.onOfferPieceSelectionEvent(sessionId, x));
         logger.info("Starting new game. Mode '{}'. SessionId '{}'", layoutId, sessionId);
         game.start();
 

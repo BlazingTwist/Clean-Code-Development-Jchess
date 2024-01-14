@@ -23,7 +23,7 @@ public class SpecialFirstMove implements ISpecialRule {
         this.pieceIdentifier = pieceIdentifier;
         this.compiledFirstMove = firstMove.compile(pieceIdentifier);
 
-        game.getEventManager().<PieceMoveEvent>getEvent(PieceMoveEvent.class).addListener(move -> {
+        game.getEventManager().getEvent(PieceMoveEvent.class).addListener(move -> {
             if (move.toTile().piece.identifier == this.pieceIdentifier) {
                 hasMoved = true;
             }

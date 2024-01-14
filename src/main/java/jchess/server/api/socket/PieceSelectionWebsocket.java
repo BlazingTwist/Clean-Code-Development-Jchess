@@ -107,7 +107,7 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
                 return;
             }
             PieceSelected pieceSel = mapper.treeToValue(dataNode, PieceSelected.class);
-            game.getEventManager().<PieceOfferSelectedEvent>getEvent(PieceOfferSelectedEvent.class).fire(pieceSel);
+            game.getEventManager().getEvent(PieceOfferSelectedEvent.class).fire(pieceSel);
         }
 
         public void offerPieceSelection(OfferPieceSelectionEvent.PieceSelection pieceSelection) {
