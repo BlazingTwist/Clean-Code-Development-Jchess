@@ -1,0 +1,22 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "BoardUpdate",
+    "type": "object",
+    "javaType": "dx.schema.message.BoardUpdate",
+    "properties": {
+        "boardState": {
+            "type": "array",
+            "items": {
+                "$ref": "../types/Entity.schema.json"
+            }
+        },
+        "activePlayerId": {
+            "type": "integer"
+        }
+    },
+    "required": [
+        "boardState",
+        "activePlayerId"
+    ],
+    "additionalProperties": false
+}
