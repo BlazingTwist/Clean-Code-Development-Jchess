@@ -31,7 +31,7 @@ public enum ResourceHelper {
                     resourceRoot = fs.getPath("/");
                 } else {
                     FileSystem fs = FileSystems.getDefault();
-                    if (jarFile.startsWith("/")) {
+                    if (jarFile.matches("^/.:.*")) {
                         jarFile = jarFile.substring(1);
                     }
                     resourceRoot = fs.getPath(jarFile);
