@@ -1,10 +1,7 @@
 package jchess.gamemode.hex3p;
 
 import dx.schema.types.PieceType;
-import jchess.common.moveset.special.Castling;
-import jchess.common.moveset.special.EnPassant;
-import jchess.common.moveset.special.PawnPromotion;
-import jchess.common.moveset.special.SpecialFirstMove;
+import jchess.common.moveset.special.*;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
 import jchess.el.TileExpression;
@@ -38,7 +35,11 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
     )),
     Pawn(PieceType.PAWN, new PieceStore.PieceDefinition(
             "",
-            TileExpression.or(
+            TileExpression.filter(TileExpression.regex("0 0.0 30 30.30 60 60.60 90 90.90 120 120.120 150 150.150 180 180.180 210 210.210 240 240.240 270 270.270 300 300.300 330 330.330", false),
+                    TileExpression.FILTER_EMPTY_TILE)
+            ,
+            (game, pawnIdentifier) -> new RangedAttack(game, pawnIdentifier)
+            /**TileExpression.or(
                     TileExpression.filter(TileExpression.neighbor(330, 30), TileExpression.FILTER_EMPTY_TILE),
                     TileExpression.filter(TileExpression.neighbor(300, 60), TileExpression.FILTER_CAPTURE)
             ),
@@ -53,8 +54,15 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
                         game, getPromotionTilePredicate(TileExpression.neighbor(330, 30).compile(pawnId)),
                         Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(dx.schema.message.Piece[]::new)
                 );
-            }
-    ));
+            }**/
+    ));//,
+    /**Archer(PieceType.ARCHER,new PieceStore.PieceDefinition(
+            "A",
+            TileExpression.filter(TileExpression.regex("0 0.0 30 30.30 60 60.60 90 90.90 120 120.120 150 150.150 180 180.180 210 210.210 240 240.240 270 270.270 300 300.300 330 330.330", false),
+            TileExpression.FILTER_EMPTY_TILE)
+            ,
+            (game, archerId) -> new RangedAttack(game, archerId)
+    ));**/
 
     private final PieceType pieceType;
     private final PieceStore.PieceDefinition pieceDefinition;

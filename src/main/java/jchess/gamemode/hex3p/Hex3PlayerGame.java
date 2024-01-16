@@ -157,6 +157,8 @@ public class Hex3PlayerGame extends BaseChessGame {
             placePawn(29 - i, 9 - i, PLAYER_MEDIUM);
             placePawn(11 - i, 1 + i, PLAYER_DARK);
         }
+
+        //placeArcher(18, 13, PLAYER_LIGHT);
     }
 
     private void placeRook(int x, int y, int playerColor) {
@@ -182,6 +184,10 @@ public class Hex3PlayerGame extends BaseChessGame {
     private void placePawn(int x, int y, int playerColor) {
         placePiece(x, y, playerColor, Hex3pPieces.Pawn);
     }
+
+    //private void placeArcher(int x, int y, int playerColor) {
+    //    placePiece(x, y, playerColor, Hex3pPieces.Archer);
+   // }
 
     private void placePiece(int x, int y, int playerColor, Hex3pPieces piece) {
         Entity tile = getEntityAtPosition(x, y);
