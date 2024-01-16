@@ -1,0 +1,34 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "GameInfo",
+    "type": "object",
+    "javaType": "dx.schema.message.GameInfo",
+    "properties": {
+        "layoutId": {
+            "description": "Id the layout to be used",
+            "$ref": "../types/LayoutId.schema.json"
+        },
+        "themeName": {
+            "description": "The selected Theme name",
+            "type": "string"
+        },
+        "playerNames": {
+            "description": "The display-names of the players",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "playerPerspective": {
+            "description": "The index of the players whose perspective is shown",
+            "type": "integer"
+        }
+    },
+    "required": [
+        "layoutId",
+        "themeName",
+        "playerNames",
+        "playerPerspective"
+    ],
+    "additionalProperties": false
+}

@@ -15,7 +15,7 @@ paths:
         - in: body
           name: GameProperties
           schema:
-            $ref: 'schema/message/GameCreate.schema.json'
+            $ref: 'schema/message/GameInfo.schema.json'
       responses:
         '201':
           description: Game Created
@@ -27,6 +27,30 @@ paths:
           schema:
             description: the error message
             type: string
+
+  /api/game/info/{SessionId}:
+    get:
+      summary: Obtain info on an active Game Session
+      parameters:
+        - in: path
+          name: SessionId
+          required: true
+          schema:
+            type: string
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Game Found
+          schema:
+            $ref: 'schema/message/GameInfo.schema.json'
+        '404':
+          description: Game not Found
+          schema:
+            type: null
+
   /api/game/clicked:
     post:
       summary: Notify the Backend of a player clicking on the board
@@ -40,6 +64,7 @@ paths:
       responses:
         '200':
           description: Click accepted
+
   /api/themes:
     get:
       summary: Lists all available themes
@@ -50,6 +75,7 @@ paths:
           description: List of available themes
           schema:
             $ref: 'schema/message/Themes.schema.json'
+
   /api/modes:
     get:
       summary: Lists all available game-modes

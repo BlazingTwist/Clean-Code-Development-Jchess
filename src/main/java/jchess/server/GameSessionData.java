@@ -1,5 +1,6 @@
 package jchess.server;
 
+import dx.schema.message.GameInfo;
 import jchess.common.IChessGame;
 import jchess.server.api.socket.BoardUpdateWebsocket;
 import jchess.server.api.socket.ChatWebsocket;
@@ -10,13 +11,15 @@ import java.io.IOException;
 
 public class GameSessionData implements ISessionData {
     public final IChessGame game;
+    public final GameInfo gameInfo;
     public final ChatWebsocket.ChatHandler chatHandler = new ChatWebsocket.ChatHandler();
     public final PieceSelectionWebsocket.PieceSelectionHandler pieceSelectionHandler;
     public final BoardUpdateWebsocket.Handler boardUpdateHandler = new BoardUpdateWebsocket.Handler();
 
-    public GameSessionData(IChessGame game) {
+    public GameSessionData(IChessGame game, GameInfo gameInfo) {
         this.game = game;
         pieceSelectionHandler = new PieceSelectionWebsocket.PieceSelectionHandler(game);
+        this.gameInfo = gameInfo;
     }
 
     @Override
