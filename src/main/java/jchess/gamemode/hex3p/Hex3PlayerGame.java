@@ -187,7 +187,11 @@ public class Hex3PlayerGame extends BaseChessGame {
 
     //private void placeArcher(int x, int y, int playerColor) {
     //    placePiece(x, y, playerColor, Hex3pPieces.Archer);
-   // }
+    //}
+
+    //private void placePegasus(int x, int y, int playerColor) {
+    //    placePiece(x, y, playerColor, Hex3pPieces.Pegasus);
+    //}
 
     private void placePiece(int x, int y, int playerColor, Hex3pPieces piece) {
         Entity tile = getEntityAtPosition(x, y);
