@@ -16,26 +16,46 @@ import java.util.stream.Stream;
 public class RangedAttack implements ISpecialRule {
     private final IChessGame game;
     private final PieceIdentifier thisRangedPieceID;
-    public RangedAttack(IChessGame game, PieceIdentifier thisRangedPieceID){
+    private final int maxRange;
+    public RangedAttack(IChessGame game, PieceIdentifier thisRangedPieceID, int maxRange){
         this.game=game;
         this.thisRangedPieceID=thisRangedPieceID;
+        this.maxRange=maxRange;
 
     }
 
     @Override
     public Stream<MoveIntention> getSpecialMoves(Entity thisRangedPiece, Stream<MoveIntention> baseMoves) {
         List<MoveIntention> result = new ArrayList<>();
-        for(int i=0; i<12;i++) {
-            Entity targetTile= TileExpression.neighbor(i*30).compile(thisRangedPieceID).findTiles(thisRangedPiece).findFirst().orElse(null);
-            if(targetTile != null ){
-                if(targetTile.piece != null){
-                    if(thisRangedPieceID.ownerId() != targetTile.piece.identifier.ownerId()) {
-                        result.add(getRangedAttackMove(thisRangedPiece, targetTile));
-                    }
+        //
+        if(this.maxRange==1){
+            calculateSurroundingTargetTiles(result, thisRangedPiece);
+        } else if(this.maxRange==2){
+            for(int i=0; i<6;i++) {
+                Entity firstTile = TileExpression.neighbor(i*60).compile(thisRangedPieceID).findTiles(thisRangedPiece).findFirst().orElse(null);
+            }
+        } else if(this.maxRange==3){
+
+        }
+        return Stream.concat(baseMoves, result.stream());
+    }
+
+    private void addTileToResult(List<MoveIntention> result, Entity thisRangedPiece,Entity targetTile){
+        if(targetTile != null ){
+            if(targetTile.piece != null){
+                if(thisRangedPieceID.ownerId() != targetTile.piece.identifier.ownerId()) {
+                    result.add(getRangedAttackMove(thisRangedPiece, targetTile));
                 }
             }
         }
-        return Stream.concat(baseMoves, result.stream());
+    }
+    private void calculateSurroundingTargetTiles(List<MoveIntention> result, Entity thisRangedPiece){
+        for(int i=0; i<12;i++) {
+            Entity targetTile= TileExpression.neighbor(i*30).compile(thisRangedPieceID).findTiles(thisRangedPiece).findFirst().orElse(null);
+            //Entity targetTile= TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330",false), 0,1, false).
+            //compile(thisRangedPieceID).findTiles(thisRangedPiece).findFirst().orElse(null);
+            addTileToResult(result,thisRangedPiece,targetTile);
+        }
     }
 
     private MoveIntention getRangedAttackMove(Entity thisRangedPiece, Entity targetTile) {

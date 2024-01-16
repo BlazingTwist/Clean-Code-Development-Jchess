@@ -38,7 +38,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             TileExpression.filter(TileExpression.regex("0 0.0 30 30.30 60 60.60 90 90.90 120 120.120 150 150.150 180 180.180 210 210.210 240 240.240 270 270.270 300 300.300 330 330.330", false),
                     TileExpression.FILTER_EMPTY_TILE)
             ,
-            (game, pawnIdentifier) -> new RangedAttack(game, pawnIdentifier)
+            (game, pawnIdentifier) -> new RangedAttack(game, pawnIdentifier, 1)
             /**TileExpression.or(
                     TileExpression.filter(TileExpression.neighbor(330, 30), TileExpression.FILTER_EMPTY_TILE),
                     TileExpression.filter(TileExpression.neighbor(300, 60), TileExpression.FILTER_CAPTURE)
