@@ -76,7 +76,7 @@ public class PieceComponent {
                 return false;
             }
 
-            boolean kingInCheckAfterMove = game.getEntityManager().getEntities().stream()
+            boolean kingInCheckAfterMove = game.getEntityManager().getEntities().parallelStream()
                     .filter(entity -> entity.piece != null && entity.piece.identifier.ownerId() != ownPlayerId)
                     .anyMatch(entity -> entity
                             .findValidMoves(false)
