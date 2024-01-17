@@ -17,9 +17,11 @@ public class RangedAttack implements ISpecialRule {
     private final IChessGame game;
     private final PieceIdentifier thisRangedPieceID;
     private final int maxRange;
-    public RangedAttack(IChessGame game, PieceIdentifier thisRangedPieceID, int maxRange){
+    private final int minRange;
+    public RangedAttack(IChessGame game, PieceIdentifier thisRangedPieceID, int minRange, int maxRange){
         this.game=game;
         this.thisRangedPieceID=thisRangedPieceID;
+        this.minRange=minRange;
         this.maxRange=maxRange;
 
     }
@@ -27,16 +29,7 @@ public class RangedAttack implements ISpecialRule {
     @Override
     public Stream<MoveIntention> getSpecialMoves(Entity thisRangedPiece, Stream<MoveIntention> baseMoves) {
         List<MoveIntention> result = new ArrayList<>();
-        //
-        if(this.maxRange==1){
-            calculateSurroundingTargetTiles(result, thisRangedPiece);
-        } else if(this.maxRange==2){
-            for(int i=0; i<6;i++) {
-                Entity firstTile = TileExpression.neighbor(i*60).compile(thisRangedPieceID).findTiles(thisRangedPiece).findFirst().orElse(null);
-            }
-        } else if(this.maxRange==3){
-
-        }
+        calculateSurroundingTargetTiles(result, thisRangedPiece);
         return Stream.concat(baseMoves, result.stream());
     }
 
@@ -50,11 +43,20 @@ public class RangedAttack implements ISpecialRule {
         }
     }
     private void calculateSurroundingTargetTiles(List<MoveIntention> result, Entity thisRangedPiece){
-        for(int i=0; i<12;i++) {
-            Entity targetTile= TileExpression.neighbor(i*30).compile(thisRangedPieceID).findTiles(thisRangedPiece).findFirst().orElse(null);
-            //Entity targetTile= TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330",false), 0,1, false).
-            //compile(thisRangedPieceID).findTiles(thisRangedPiece).findFirst().orElse(null);
-            addTileToResult(result,thisRangedPiece,targetTile);
+        if (minRange < 0) throw new IllegalArgumentException("argument 'minRange' may not be negative. Got '" + minRange + "'");
+        if (minRange >= maxRange) throw new IllegalArgumentException("argument 'minRange' may not be greater or equal than 'maxRange'. minRange= '" + minRange + "', maxRange= '" + maxRange + "'");
+        List<Entity> potentialTargetTile= TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330", true), 0, maxRange, true).
+                compile(thisRangedPieceID).findTiles(thisRangedPiece).toList();
+        List<Entity> noTargetTile= TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330",true), 0, minRange, true).
+                compile(thisRangedPieceID).findTiles(thisRangedPiece).toList();
+        List<Entity> targetTile = new ArrayList<>();
+        for (Entity value: potentialTargetTile) {
+            if (!noTargetTile.contains(value)){
+                targetTile.add(value);
+            }
+        }
+        for (Entity entity : targetTile) {
+            addTileToResult(result, thisRangedPiece, entity);
         }
     }
 
@@ -80,53 +82,3 @@ public class RangedAttack implements ISpecialRule {
         }
     }
 }
-
-/* archive kamikaze(single target, stirbt dabei
- public class RangedAttack implements ISpecialRule {
- private final IChessGame game;
- private final PieceIdentifier thisRangedPieceID;
- public RangedAttack(IChessGame game, PieceIdentifier thisRangedPieceID){
- this.game=game;
- this.thisRangedPieceID=thisRangedPieceID;
-
- }
-
- @Override
- public Stream<MoveIntention> getSpecialMoves(Entity thisRangedPiece, Stream<MoveIntention> baseMoves) {
- List<MoveIntention> result = new ArrayList<>();
- for(int i=0; i<12;i++) {
- Entity targetTile= TileExpression.neighbor(i*30).compile(thisRangedPieceID).findTiles(thisRangedPiece).findFirst().orElse(null);
- if(targetTile != null ){
- if(targetTile.piece != null){
- if(thisRangedPieceID.ownerId() != targetTile.piece.identifier.ownerId()) {
- result.add(getRangedAttackMove(thisRangedPiece, targetTile));
- }
- }
- }
- }
- return Stream.concat(baseMoves, result.stream());
- }
-
- private MoveIntention getRangedAttackMove(Entity thisRangedPiece, Entity targetTile) {
- return new MoveIntention(targetTile, () ->{
- targetTile.piece=null;
- game.movePiece(thisRangedPiece,thisRangedPiece, RangedAttack.class);
- }, new RangedAttackSimulator(thisRangedPiece, targetTile.piece,targetTile));
- }
-
- private record RangedAttackSimulator(
- Entity attackerTile, PieceComponent attackedPiece, Entity attackedPieceTile
- ) implements MoveIntention.IMoveSimulator {
-
- @Override
- public void simulate() {
- attackedPieceTile.piece = null;
- }
-
- @Override
- public void revert() {
- attackedPieceTile.piece = attackedPiece;
- }
- }
- }
- */
