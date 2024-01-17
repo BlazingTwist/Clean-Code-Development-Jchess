@@ -112,7 +112,7 @@ public class TileExpression {
      * @param mergeOperator operator to use for merging expressions
      * @return the merged expression
      */
-    public static CompiledExpression _mergeOpTree(CompiledExpression[] expressions, int start, int end, BinaryOperator<CompiledExpression> mergeOperator) {
+    static CompiledExpression mergeOpTree(CompiledExpression[] expressions, int start, int end, BinaryOperator<CompiledExpression> mergeOperator) {
         if (start >= end) {
             return expressions[start];
         }
@@ -122,8 +122,8 @@ public class TileExpression {
 
         int mid = (end - start) / 2;
         return mergeOperator.apply(
-                _mergeOpTree(expressions, start, mid, mergeOperator),
-                _mergeOpTree(expressions, mid + 1, end, mergeOperator)
+                mergeOpTree(expressions, start, mid, mergeOperator),
+                mergeOpTree(expressions, mid + 1, end, mergeOperator)
         );
     }
 
@@ -134,7 +134,7 @@ public class TileExpression {
      * @param numRecurse the maximum recursion depth
      * @return all elements obtained by recursively applying the 0 to numRecursive many times.
      */
-    public static Stream<Entity> _recursiveMap(Stream<Entity> baseStream, CompiledExpression mapper, int numRecurse) {
+    static Stream<Entity> recursiveMap(Stream<Entity> baseStream, CompiledExpression mapper, int numRecurse) {
         if (numRecurse <= 0) {
             return baseStream;
         }
@@ -147,7 +147,7 @@ public class TileExpression {
         Stream<Entity> oneApplicationStream = mapper.apply(zeroApplicationList.stream());
         return Stream.of(
                 zeroApplicationList.stream(),
-                _recursiveMap(oneApplicationStream, mapper, numRecurse - 1)
+                recursiveMap(oneApplicationStream, mapper, numRecurse - 1)
         ).flatMap(s -> s);
     }
 

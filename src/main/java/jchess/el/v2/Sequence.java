@@ -22,6 +22,6 @@ final class Sequence implements ExpressionCompiler {
         }
         final TileExpression.CompiledExpression[] expressions = compilers.map(compiler -> compiler.compile(movingPiece)).toArray(TileExpression.CompiledExpression[]::new);
 
-        return TileExpression._mergeOpTree(expressions, 0, expressions.length - 1, (before, after) -> startTiles -> after.apply(before.apply(startTiles)));
+        return TileExpression.mergeOpTree(expressions, 0, expressions.length - 1, (before, after) -> startTiles -> after.apply(before.apply(startTiles)));
     }
 }

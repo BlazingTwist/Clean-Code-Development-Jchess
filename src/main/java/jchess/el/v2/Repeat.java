@@ -33,7 +33,7 @@ final class Repeat implements ExpressionCompiler {
             }
 
             int maxDepth = repeatMax >= 0 ? (repeatMax - repeatMin) : Integer.MAX_VALUE;
-            return TileExpression._recursiveMap(startTiles, moveExpression, maxDepth);
+            return TileExpression.recursiveMap(startTiles, moveExpression, maxDepth);
         };
     }
 }
