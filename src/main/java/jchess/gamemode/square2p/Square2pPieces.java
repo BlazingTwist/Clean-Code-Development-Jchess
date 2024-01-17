@@ -7,7 +7,7 @@ import jchess.common.moveset.special.EnPassant;
 import jchess.common.moveset.special.PawnPromotion;
 import jchess.common.moveset.special.SpecialFirstMove;
 import jchess.ecs.Entity;
-import jchess.el.TileExpression;
+import jchess.el.v2.TileExpression;
 import jchess.gamemode.PieceStore;
 
 import java.awt.Point;
@@ -40,7 +40,7 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
             "",
             TileExpression.or(
                     TileExpression.filter(TileExpression.neighbor(0), TileExpression.FILTER_EMPTY_TILE),
-                    TileExpression.filter(TileExpression.neighbor(45, 315), TileExpression.FILTER_CAPTURE)
+                    TileExpression.filter2(TileExpression.neighbor(45, 315), TileExpression.FILTER_CAPTURE)
             ),
             (game, pawnIdentifier) -> new SpecialFirstMove(
                     game, pawnIdentifier,
