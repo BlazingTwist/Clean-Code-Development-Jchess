@@ -2,7 +2,7 @@ package jchess.gamemode;
 
 import dx.schema.types.PieceType;
 import jchess.common.moveset.ISpecialRuleProvider;
-import jchess.el.TileExpression;
+import jchess.el.v2.ExpressionCompiler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ public final class PieceStore {
         return pieceDefinitions.keySet();
     }
 
-    public record PieceDefinition(String shortName, TileExpression baseMoves, ISpecialRuleProvider... specialRules) {
+    public record PieceDefinition(String shortName, ExpressionCompiler baseMoves, ISpecialRuleProvider... specialRules) {
     }
 
     public interface IPieceDefinitionProvider {

@@ -8,7 +8,7 @@ import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
-import jchess.el.TileExpression;
+import jchess.el.v2.ExpressionCompiler;
 
 import java.util.stream.Stream;
 
@@ -18,10 +18,10 @@ public class SpecialFirstMove implements ISpecialRule {
     private final CompiledTileExpression compiledFirstMove;
     private boolean hasMoved = false;
 
-    public SpecialFirstMove(IChessGame game, PieceIdentifier pieceIdentifier, TileExpression firstMove) {
+    public SpecialFirstMove(IChessGame game, PieceIdentifier pieceIdentifier, ExpressionCompiler firstMove) {
         this.game = game;
         this.pieceIdentifier = pieceIdentifier;
-        this.compiledFirstMove = firstMove.compile(pieceIdentifier);
+        this.compiledFirstMove = firstMove.toV1(pieceIdentifier);
 
         game.getEventManager().getEvent(PieceMoveEvent.class).addListener(move -> {
             assert move.toTile().piece != null; // move always contains moved piece in toTile

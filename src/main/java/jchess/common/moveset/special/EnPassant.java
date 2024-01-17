@@ -8,9 +8,13 @@ import jchess.common.events.PieceMoveEvent;
 import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
-import jchess.el.TileExpression;
+import jchess.el.CompiledTileExpression;
+import jchess.el.v2.TileExpression;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class EnPassant implements ISpecialRule {
@@ -18,7 +22,7 @@ public class EnPassant implements ISpecialRule {
     private final PieceIdentifier thisPawnId;
     private final PieceType pawnTypeId;
     private final int[] pawnDoubleMoveDirections;
-    private final int[] pawnCaptureDirections;
+    private final CompiledTileExpression captureTiles;
     private final Map<Integer, PieceMoveEvent.PieceMove> doubleMovesByPlayer = new HashMap<>();
 
     public EnPassant(IChessGame game, PieceIdentifier thisPawnId, PieceType pawnTypeId, int[] pawnDoubleMoveDirections, int[] pawnCaptureDirections) {
@@ -26,7 +30,7 @@ public class EnPassant implements ISpecialRule {
         this.thisPawnId = thisPawnId;
         this.pawnTypeId = pawnTypeId;
         this.pawnDoubleMoveDirections = pawnDoubleMoveDirections;
-        this.pawnCaptureDirections = pawnCaptureDirections;
+        this.captureTiles = TileExpression.neighbor(pawnCaptureDirections).toV1(thisPawnId);
 
         game.getEventManager().getEvent(PieceMoveEvent.class).addListener(this::onPieceMove);
     }
@@ -75,8 +79,7 @@ public class EnPassant implements ISpecialRule {
     }
 
     private Entity findEnPassantTargetTile(PieceMoveEvent.PieceMove doubleMove, PieceIdentifier doubleMovedPawn, Entity thisPawn) {
-        for (int captureDirection : pawnCaptureDirections) {
-            Entity captureTile = TileExpression.neighbor(captureDirection).compile(thisPawnId).findTiles(thisPawn).findFirst().orElse(null);
+        for (Entity captureTile : captureTiles.findTiles(thisPawn).toList()) {
             if (captureTile == null || captureTile.piece != null) {
                 // tile is out of bounds || tile can already be captured by normal move
                 continue;
@@ -84,8 +87,9 @@ public class EnPassant implements ISpecialRule {
 
             for (int doubleMoveDirection : pawnDoubleMoveDirections) {
                 // enPassantTile must be reachable by doubleMovedPawn in 1 step, and must also be our captureTile
-                Entity enPassantTile = TileExpression.filter(TileExpression.neighbor(doubleMoveDirection), tile -> tile == captureTile)
-                        .compile(doubleMovedPawn).findTiles(doubleMove.fromTile())
+                Entity enPassantTile = TileExpression.filter(TileExpression.neighbor(doubleMoveDirection), entity -> entity == captureTile)
+                        .toV1(doubleMovedPawn)
+                        .findTiles(doubleMove.fromTile())
                         .findFirst().orElse(null);
                 if (enPassantTile == null) {
                     continue;
@@ -93,7 +97,8 @@ public class EnPassant implements ISpecialRule {
 
                 // enPassantTile must reach the moveResult-Tile in 1 step.
                 boolean isValidEnPassant = TileExpression.neighbor(doubleMoveDirection)
-                        .compile(doubleMovedPawn).findTiles(enPassantTile)
+                        .toV1(doubleMovedPawn)
+                        .findTiles(enPassantTile)
                         .anyMatch(tile -> tile == doubleMove.toTile());
                 if (isValidEnPassant) {
                     return enPassantTile;
