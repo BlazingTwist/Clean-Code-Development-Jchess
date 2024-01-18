@@ -2,10 +2,7 @@ package jchess.gamemode.square2p;
 
 import dx.schema.message.Piece;
 import dx.schema.types.PieceType;
-import jchess.common.moveset.special.Castling;
-import jchess.common.moveset.special.EnPassant;
-import jchess.common.moveset.special.PawnPromotion;
-import jchess.common.moveset.special.SpecialFirstMove;
+import jchess.common.moveset.special.*;
 import jchess.ecs.Entity;
 import jchess.el.TileExpression;
 import jchess.gamemode.PieceStore;
@@ -54,6 +51,18 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
                         Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(Piece[]::new)
                 );
             }
+    )),
+    Archer(PieceType.ARCHER,new PieceStore.PieceDefinition(
+            "A",
+            TileExpression.filter(TileExpression.regex("0 0.0 45 45.45 90 90.90 135 135.135 180 180.180 225 225.225 270 270.270 315 315.315", false),
+                    TileExpression.FILTER_EMPTY_TILE)
+            ,
+            (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 0, 2)
+    )),
+
+    Pegasus(PieceType.PEGASUS,new PieceStore.PieceDefinition(
+            "PE",
+            TileExpression.repeat(TileExpression.regex("0 45 90 135 180 225 270 315",true), 0,3, true)
     ));
 
     private final PieceType pieceType;
