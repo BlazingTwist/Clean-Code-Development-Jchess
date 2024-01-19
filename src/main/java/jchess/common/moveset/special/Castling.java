@@ -9,7 +9,8 @@ import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
-import jchess.el.TileExpression;
+import jchess.el.v2.ExpressionCompiler;
+import jchess.el.v2.TileExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +22,14 @@ public class Castling implements ISpecialRule {
     private static final Logger logger = LoggerFactory.getLogger(Castling.class);
 
     private final IChessGame game;
-    private final TileExpression kingMoveLeft;
-    private final TileExpression kingMoveRight;
+    private final CompiledTileExpression kingMoveLeft;
+    private final CompiledTileExpression kingMoveRight;
     private final PieceIdentifier kingId;
     private final PieceType rookTypeId;
     private final int rightRookDirection;
     private final int leftRookDirection;
+    private final CompiledTileExpression stepLeftExpression;
+    private final CompiledTileExpression stepRightExpression;
 
     private PieceIdentifier leftRookId;
     private PieceIdentifier rightRookId;
@@ -36,15 +39,17 @@ public class Castling implements ISpecialRule {
 
     public Castling(
             IChessGame game, PieceIdentifier kingId, PieceType rookTypeId, int rightRookDirection, int leftRookDirection,
-            TileExpression kingMoveLeft, TileExpression kingMoveRight
+            ExpressionCompiler kingMoveLeft, ExpressionCompiler kingMoveRight
     ) {
         this.game = game;
-        this.kingMoveLeft = kingMoveLeft;
-        this.kingMoveRight = kingMoveRight;
+        this.kingMoveLeft = kingMoveLeft.toV1(kingId);
+        this.kingMoveRight = kingMoveRight.toV1(kingId);
         this.kingId = kingId;
         this.rookTypeId = rookTypeId;
         this.rightRookDirection = rightRookDirection;
         this.leftRookDirection = leftRookDirection;
+        this.stepRightExpression = TileExpression.neighbor(rightRookDirection).toV1(kingId);
+        this.stepLeftExpression = TileExpression.neighbor(leftRookDirection).toV1(kingId);
 
         game.getEventManager().getEvent(BoardInitializedEvent.class).addListener(_void -> lookupRooks());
         game.getEventManager().getEvent(PieceMoveEvent.class).addListener(this::onPieceMove);
@@ -84,7 +89,8 @@ public class Castling implements ISpecialRule {
 
     private List<Entity> findRooks(Entity fromTile, int direction) {
         assert fromTile.piece != null;
-        return TileExpression.repeat(TileExpression.neighbor(direction), 1, -1, true).compile(fromTile.piece.identifier)
+        return TileExpression.repeat(TileExpression.neighbor(direction), 1, -1, true)
+                .toV1(fromTile.piece.identifier)
                 .findTiles(fromTile)
                 .filter(tile -> tile.piece != null && tile.piece.identifier.pieceType() == rookTypeId)
                 .toList();
@@ -107,17 +113,17 @@ public class Castling implements ISpecialRule {
     }
 
     private MoveIntention getLeftCastle(Entity king) {
-        return getCastleMove(king, kingMoveLeft, leftRookId, leftRookMoved, rightRookDirection, leftRookDirection);
+        return getCastleMove(king, kingMoveLeft, leftRookId, leftRookMoved, stepRightExpression, stepLeftExpression);
     }
 
     private MoveIntention getRightCastle(Entity king) {
-        return getCastleMove(king, kingMoveRight, rightRookId, rightRookMoved, leftRookDirection, rightRookDirection);
+        return getCastleMove(king, kingMoveRight, rightRookId, rightRookMoved, stepLeftExpression, stepRightExpression);
     }
 
     private MoveIntention getCastleMove(
-            Entity king, TileExpression kingMove,
+            Entity king, CompiledTileExpression kingMove,
             PieceIdentifier rookId, boolean rookHasMoved,
-            int rookToKingDirection, int kingToRookDirection
+            CompiledTileExpression stepRookToKing, CompiledTileExpression stepKingToRook
     ) {
         assert king.piece != null;
         if (rookHasMoved) {
@@ -128,9 +134,6 @@ public class Castling implements ISpecialRule {
         if (kingMoveTile == null) { // tile not empty, or king would be attacked on the path
             return null;
         }
-
-        CompiledTileExpression stepRookToKing = TileExpression.neighbor(rookToKingDirection).compile(king.piece.identifier);
-        CompiledTileExpression stepKingToRook = TileExpression.neighbor(kingToRookDirection).compile(king.piece.identifier);
 
         Entity rookMoveTile = stepRookToKing.findTiles(kingMoveTile).findFirst().orElse(null);
         Entity rookTile = kingMoveTile;
@@ -150,11 +153,11 @@ public class Castling implements ISpecialRule {
         }
     }
 
-    private Entity checkKingMoveTile(Entity king, TileExpression kingMove) {
+    private Entity checkKingMoveTile(Entity king, CompiledTileExpression kingMove) {
         assert king.piece != null;
-        return TileExpression.filter(kingMove, tile -> tile.piece == null && !tile.isAttacked())
-                .compile(king.piece.identifier)
-                .findTiles(king)
+        // TODO erja - checkDetection is not correct.
+        return kingMove.findTiles(king)
+                .filter(tile -> tile.piece == null && !tile.isAttacked())
                 .findFirst().orElse(null);
     }
 

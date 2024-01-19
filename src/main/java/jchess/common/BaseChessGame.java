@@ -153,7 +153,6 @@ public abstract class BaseChessGame implements IChessGame {
         if (gameOver) {
             logger.info("Game Over! Losing Player: {}", activePlayerId);
             eventManager.getEvent(GameOverEvent.class).fire(computeMateResult().score);
-            // TODO erja, send game over event to frontend
         }
 
     }

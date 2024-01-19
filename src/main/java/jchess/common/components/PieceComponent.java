@@ -1,14 +1,14 @@
 package jchess.common.components;
 
 import dx.schema.types.PieceType;
-import jchess.ecs.Entity;
 import jchess.common.IChessGame;
 import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.ISpecialRuleProvider;
 import jchess.common.moveset.MoveIntention;
 import jchess.common.moveset.NormalMove;
+import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
-import jchess.el.TileExpression;
+import jchess.el.v2.ExpressionCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +24,10 @@ public class PieceComponent {
     public final CompiledTileExpression baseMoveSet;
     public final List<ISpecialRule> specialMoveSet = new ArrayList<>();
 
-    public PieceComponent(IChessGame game, PieceIdentifier identifier, TileExpression baseMoveSet) {
+    public PieceComponent(IChessGame game, PieceIdentifier identifier, ExpressionCompiler baseMoveSet) {
         this.game = game;
         this.identifier = identifier;
-        this.baseMoveSet = baseMoveSet.compile(identifier);
+        this.baseMoveSet = baseMoveSet.toV1(identifier);
     }
 
     public void addSpecialMoves(ISpecialRuleProvider... specialRuleProviders) {
@@ -76,7 +76,7 @@ public class PieceComponent {
                 return false;
             }
 
-            boolean kingInCheckAfterMove = game.getEntityManager().getEntities().stream()
+            boolean kingInCheckAfterMove = game.getEntityManager().getEntities().parallelStream()
                     .filter(entity -> entity.piece != null && entity.piece.identifier.ownerId() != ownPlayerId)
                     .anyMatch(entity -> entity
                             .findValidMoves(false)
