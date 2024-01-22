@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { PieceType, Vector2I } from "@/models/Themes.schema";
-import { MarkerComponent, PieceComponent, TileComponent } from "@/models/GameUpdate.schema";
+import { MarkerComponent, PieceComponent, TileComponent } from "@/models/BoardUpdate.schema";
 import { useServerDataContext } from "@/src/app/context/server_data_context";
 import { useGameContext } from "@/src/app/context/game_context";
 

@@ -94,9 +94,7 @@ public class Hex3PlayerGame extends BaseChessGame {
             int x0 = Math.abs(8 - y);
             int x1 = 32 - x0;
             for (int x = x0; x <= x1; x += 2) {
-                TileComponent tile = new TileComponent();
-                tile.colorIndex = x % 3;
-                tile.position = new Point(x, y);
+                TileComponent tile = new TileComponent(new Point(x, y), x % 3);
 
                 tile.neighborsByDirection.put(0, getEntityAtPosition(x, y - 2));
                 tile.neighborsByDirection.put(30, getEntityAtPosition(x + 1, y - 1));

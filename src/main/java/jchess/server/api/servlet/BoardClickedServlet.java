@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jchess.common.components.TileComponent;
 import jchess.common.events.BoardClickedEvent;
-import jchess.ecs.EcsEvent;
 import jchess.server.GameSessionData;
 import jchess.server.util.HttpUtils;
 import jchess.server.util.JsonUtils;
@@ -27,7 +26,7 @@ public class BoardClickedServlet extends HttpServlet {
         }
 
         Point tilePosition = TileComponent.getTilePosition(clickInfo.getClickedTile());
-        game.game.getEventManager().<EcsEvent<Point>>getEvent(BoardClickedEvent.class).fire(tilePosition);
+        game.game.getEventManager().getEvent(BoardClickedEvent.class).fire(tilePosition);
         resp.setStatus(StatusCodes.OK);
     }
 }

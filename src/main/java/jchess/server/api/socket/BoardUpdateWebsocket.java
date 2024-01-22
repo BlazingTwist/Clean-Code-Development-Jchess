@@ -1,7 +1,7 @@
 package jchess.server.api.socket;
 
 import dx.schema.message.BoardUpdateSubscribe;
-import dx.schema.message.GameUpdate;
+import dx.schema.message.BoardUpdate;
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedTextMessage;
@@ -34,7 +34,7 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
             return;
         }
 
-        session.boardUpdateHandler.sendGameUpdate(game);
+        session.boardUpdateHandler.sendBoardUpdate(game);
     }
 
     @Override
@@ -73,14 +73,14 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
     }
 
     private static String getUpdateMessage(IChessGame game, int perspective) {
-        GameUpdate gameUpdateObject = new GameUpdate();
-        gameUpdateObject.setActivePlayerId(game.getActivePlayerId());
-        gameUpdateObject.setBoardState(game.getEntityManager().getEntities().stream()
+        BoardUpdate boardUpdateObject = new BoardUpdate();
+        boardUpdateObject.setActivePlayerId(game.getActivePlayerId());
+        boardUpdateObject.setBoardState(game.getEntityManager().getEntities().stream()
                 .map(EntityAdapter.Instance::convert)
                 .map(entity -> game.applyPerspective(entity, perspective))
                 .toList());
 
-        return JsonUtils.serialize(gameUpdateObject);
+        return JsonUtils.serialize(boardUpdateObject);
     }
 
     public static class Handler implements Closeable {
@@ -91,7 +91,7 @@ public class BoardUpdateWebsocket extends AbstractReceiveListener implements Web
             channels.add(channel);
         }
 
-        public void sendGameUpdate(IChessGame game) {
+        public void sendBoardUpdate(IChessGame game) {
             int channelsNotified = 0;
             for (Map.Entry<Integer, List<WebSocketChannel>> entry : channelsByPerspective.entrySet()) {
                 int perspective = entry.getKey();

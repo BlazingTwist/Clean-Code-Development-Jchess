@@ -11,7 +11,7 @@ public class EcsEventManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends EcsEvent<?>> T getEvent(Class<? extends EcsEvent<?>> eventClass) {
+    public <V, T extends EcsEvent<V>> T getEvent(Class<? extends EcsEvent<V>> eventClass) {
         return (T) events.get(eventClass);
     }
 }

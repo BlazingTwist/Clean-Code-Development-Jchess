@@ -1,13 +1,15 @@
 package jchess.gamemode.hex3p;
 
 import dx.schema.types.PieceType;
+import jchess.common.components.PieceIdentifier;
 import jchess.common.moveset.special.Castling;
 import jchess.common.moveset.special.EnPassant;
 import jchess.common.moveset.special.PawnPromotion;
 import jchess.common.moveset.special.SpecialFirstMove;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
-import jchess.el.TileExpression;
+import jchess.el.v2.ExpressionCompiler;
+import jchess.el.v2.TileExpression;
 import jchess.gamemode.PieceStore;
 
 import java.util.function.Predicate;
@@ -40,7 +42,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             "",
             TileExpression.or(
                     TileExpression.filter(TileExpression.neighbor(330, 30), TileExpression.FILTER_EMPTY_TILE),
-                    TileExpression.filter(TileExpression.neighbor(300, 60), TileExpression.FILTER_CAPTURE)
+                    TileExpression.filter2(TileExpression.neighbor(300, 60), TileExpression.FILTER_CAPTURE)
             ),
             (game, pawnIdentifier) -> new SpecialFirstMove(
                     game, pawnIdentifier,
@@ -50,7 +52,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             (game, pawnId) -> {
                 int owner = pawnId.ownerId();
                 return new PawnPromotion(
-                        game, getPromotionTilePredicate(TileExpression.neighbor(330, 30).compile(pawnId)),
+                        game, getPromotionTilePredicate(TileExpression.neighbor(330, 30), pawnId),
                         Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(dx.schema.message.Piece[]::new)
                 );
             }
@@ -64,12 +66,13 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
         this.pieceDefinition = pieceDefinition;
     }
 
-    private static Predicate<Entity> getPromotionTilePredicate(CompiledTileExpression forwardTiles) {
+    private static Predicate<Entity> getPromotionTilePredicate(ExpressionCompiler forwardTiles, PieceIdentifier pawnId) {
+        CompiledTileExpression forwardExpression = forwardTiles.toV1(pawnId);
         return tile -> {
             if (tile.tile == null) return false;
 
             // if both forward tiles exit the board bounds (= empty result) -> pawn can promote
-            return forwardTiles.findTiles(tile).findAny().isEmpty();
+            return forwardExpression.findTiles(tile).findAny().isEmpty();
         };
     }
 

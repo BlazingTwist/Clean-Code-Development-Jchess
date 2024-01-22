@@ -1,0 +1,16 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "GameOverSubscribe",
+    "type": "object",
+    "javaType": "dx.schema.message.GameOverSubscribe",
+    "properties": {
+        "sessionId": {
+            "type": "string",
+            "description": "the sessionId of the game instance to register with"
+        }
+    },
+    "required": [
+        "sessionId"
+    ],
+    "additionalProperties": false
+}

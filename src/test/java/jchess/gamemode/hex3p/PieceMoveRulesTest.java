@@ -21,108 +21,108 @@ public class PieceMoveRulesTest {
 
     private Entity[] generateLittleTestField() {
         Entity[] out = new Entity[13];
+        TileComponent[] tiles = new TileComponent[out.length];
         for (int i = 0; i < out.length; i++) {
-            Entity entity = new Entity();
-            TileComponent tile = new TileComponent();
-            out[i] = entity;
-            out[i].tile = tile;
+            tiles[i] = new TileComponent(null, 0);
+            out[i] = new Entity();
+            out[i].tile = tiles[i];
         }
-        out[0].tile.neighborsByDirection.put(90, out[1]);
-        out[0].tile.neighborsByDirection.put(60, out[10]);
-        out[0].tile.neighborsByDirection.put(120, out[5]);
-        out[0].tile.neighborsByDirection.put(150, out[4]);
-        out[0].tile.neighborsByDirection.put(180, out[11]);
+        tiles[0].neighborsByDirection.put(90, out[1]);
+        tiles[0].neighborsByDirection.put(60, out[10]);
+        tiles[0].neighborsByDirection.put(120, out[5]);
+        tiles[0].neighborsByDirection.put(150, out[4]);
+        tiles[0].neighborsByDirection.put(180, out[11]);
 
-        out[1].tile.neighborsByDirection.put(30, out[10]);
-        out[1].tile.neighborsByDirection.put(90, out[2]);
-        out[1].tile.neighborsByDirection.put(120, out[6]);
-        out[1].tile.neighborsByDirection.put(150, out[5]);
-        out[1].tile.neighborsByDirection.put(180, out[7]);
-        out[1].tile.neighborsByDirection.put(210, out[4]);
-        out[1].tile.neighborsByDirection.put(270, out[0]);
+        tiles[1].neighborsByDirection.put(30, out[10]);
+        tiles[1].neighborsByDirection.put(90, out[2]);
+        tiles[1].neighborsByDirection.put(120, out[6]);
+        tiles[1].neighborsByDirection.put(150, out[5]);
+        tiles[1].neighborsByDirection.put(180, out[7]);
+        tiles[1].neighborsByDirection.put(210, out[4]);
+        tiles[1].neighborsByDirection.put(270, out[0]);
 
-        out[2].tile.neighborsByDirection.put(90, out[3]);
-        out[2].tile.neighborsByDirection.put(150, out[6]);
-        out[2].tile.neighborsByDirection.put(180, out[8]);
-        out[2].tile.neighborsByDirection.put(210, out[5]);
-        out[2].tile.neighborsByDirection.put(240, out[4]);
-        out[2].tile.neighborsByDirection.put(270, out[1]);
-        out[2].tile.neighborsByDirection.put(330, out[10]);
+        tiles[2].neighborsByDirection.put(90, out[3]);
+        tiles[2].neighborsByDirection.put(150, out[6]);
+        tiles[2].neighborsByDirection.put(180, out[8]);
+        tiles[2].neighborsByDirection.put(210, out[5]);
+        tiles[2].neighborsByDirection.put(240, out[4]);
+        tiles[2].neighborsByDirection.put(270, out[1]);
+        tiles[2].neighborsByDirection.put(330, out[10]);
 
-        out[3].tile.neighborsByDirection.put(180, out[12]);
-        out[3].tile.neighborsByDirection.put(210, out[6]);
-        out[3].tile.neighborsByDirection.put(240, out[5]);
-        out[3].tile.neighborsByDirection.put(270, out[2]);
-        out[3].tile.neighborsByDirection.put(300, out[10]);
+        tiles[3].neighborsByDirection.put(180, out[12]);
+        tiles[3].neighborsByDirection.put(210, out[6]);
+        tiles[3].neighborsByDirection.put(240, out[5]);
+        tiles[3].neighborsByDirection.put(270, out[2]);
+        tiles[3].neighborsByDirection.put(300, out[10]);
 
-        out[4].tile.neighborsByDirection.put(30, out[1]);
-        out[4].tile.neighborsByDirection.put(60, out[2]);
-        out[4].tile.neighborsByDirection.put(90, out[5]);
-        out[4].tile.neighborsByDirection.put(120, out[8]);
-        out[4].tile.neighborsByDirection.put(150, out[7]);
-        out[4].tile.neighborsByDirection.put(210, out[11]);
-        out[4].tile.neighborsByDirection.put(330, out[0]);
+        tiles[4].neighborsByDirection.put(30, out[1]);
+        tiles[4].neighborsByDirection.put(60, out[2]);
+        tiles[4].neighborsByDirection.put(90, out[5]);
+        tiles[4].neighborsByDirection.put(120, out[8]);
+        tiles[4].neighborsByDirection.put(150, out[7]);
+        tiles[4].neighborsByDirection.put(210, out[11]);
+        tiles[4].neighborsByDirection.put(330, out[0]);
 
-        out[5].tile.neighborsByDirection.put(0, out[10]);
-        out[5].tile.neighborsByDirection.put(30, out[2]);
-        out[5].tile.neighborsByDirection.put(60, out[3]);
-        out[5].tile.neighborsByDirection.put(90, out[6]);
-        out[5].tile.neighborsByDirection.put(120, out[12]);
-        out[5].tile.neighborsByDirection.put(150, out[8]);
-        out[5].tile.neighborsByDirection.put(180, out[9]);
-        out[5].tile.neighborsByDirection.put(210, out[7]);
-        out[5].tile.neighborsByDirection.put(240, out[11]);
-        out[5].tile.neighborsByDirection.put(270, out[4]);
-        out[5].tile.neighborsByDirection.put(300, out[0]);
-        out[5].tile.neighborsByDirection.put(330, out[1]);
+        tiles[5].neighborsByDirection.put(0, out[10]);
+        tiles[5].neighborsByDirection.put(30, out[2]);
+        tiles[5].neighborsByDirection.put(60, out[3]);
+        tiles[5].neighborsByDirection.put(90, out[6]);
+        tiles[5].neighborsByDirection.put(120, out[12]);
+        tiles[5].neighborsByDirection.put(150, out[8]);
+        tiles[5].neighborsByDirection.put(180, out[9]);
+        tiles[5].neighborsByDirection.put(210, out[7]);
+        tiles[5].neighborsByDirection.put(240, out[11]);
+        tiles[5].neighborsByDirection.put(270, out[4]);
+        tiles[5].neighborsByDirection.put(300, out[0]);
+        tiles[5].neighborsByDirection.put(330, out[1]);
 
-        out[6].tile.neighborsByDirection.put(30, out[3]);
-        out[6].tile.neighborsByDirection.put(150, out[12]);
-        out[6].tile.neighborsByDirection.put(210, out[8]);
-        out[6].tile.neighborsByDirection.put(240, out[7]);
-        out[6].tile.neighborsByDirection.put(270, out[5]);
-        out[6].tile.neighborsByDirection.put(300, out[1]);
-        out[6].tile.neighborsByDirection.put(330, out[2]);
+        tiles[6].neighborsByDirection.put(30, out[3]);
+        tiles[6].neighborsByDirection.put(150, out[12]);
+        tiles[6].neighborsByDirection.put(210, out[8]);
+        tiles[6].neighborsByDirection.put(240, out[7]);
+        tiles[6].neighborsByDirection.put(270, out[5]);
+        tiles[6].neighborsByDirection.put(300, out[1]);
+        tiles[6].neighborsByDirection.put(330, out[2]);
 
-        out[7].tile.neighborsByDirection.put(0, out[1]);
-        out[7].tile.neighborsByDirection.put(30, out[5]);
-        out[7].tile.neighborsByDirection.put(60, out[6]);
-        out[7].tile.neighborsByDirection.put(90, out[8]);
-        out[7].tile.neighborsByDirection.put(150, out[9]);
-        out[7].tile.neighborsByDirection.put(270, out[11]);
-        out[7].tile.neighborsByDirection.put(330, out[4]);
+        tiles[7].neighborsByDirection.put(0, out[1]);
+        tiles[7].neighborsByDirection.put(30, out[5]);
+        tiles[7].neighborsByDirection.put(60, out[6]);
+        tiles[7].neighborsByDirection.put(90, out[8]);
+        tiles[7].neighborsByDirection.put(150, out[9]);
+        tiles[7].neighborsByDirection.put(270, out[11]);
+        tiles[7].neighborsByDirection.put(330, out[4]);
 
-        out[8].tile.neighborsByDirection.put(0, out[2]);
-        out[8].tile.neighborsByDirection.put(30, out[6]);
-        out[8].tile.neighborsByDirection.put(90, out[12]);
-        out[8].tile.neighborsByDirection.put(210, out[9]);
-        out[8].tile.neighborsByDirection.put(270, out[7]);
-        out[8].tile.neighborsByDirection.put(300, out[4]);
-        out[8].tile.neighborsByDirection.put(330, out[5]);
+        tiles[8].neighborsByDirection.put(0, out[2]);
+        tiles[8].neighborsByDirection.put(30, out[6]);
+        tiles[8].neighborsByDirection.put(90, out[12]);
+        tiles[8].neighborsByDirection.put(210, out[9]);
+        tiles[8].neighborsByDirection.put(270, out[7]);
+        tiles[8].neighborsByDirection.put(300, out[4]);
+        tiles[8].neighborsByDirection.put(330, out[5]);
 
-        out[9].tile.neighborsByDirection.put(0, out[5]);
-        out[9].tile.neighborsByDirection.put(30, out[8]);
-        out[9].tile.neighborsByDirection.put(60, out[12]);
-        out[9].tile.neighborsByDirection.put(300, out[11]);
-        out[9].tile.neighborsByDirection.put(330, out[7]);
+        tiles[9].neighborsByDirection.put(0, out[5]);
+        tiles[9].neighborsByDirection.put(30, out[8]);
+        tiles[9].neighborsByDirection.put(60, out[12]);
+        tiles[9].neighborsByDirection.put(300, out[11]);
+        tiles[9].neighborsByDirection.put(330, out[7]);
 
-        out[10].tile.neighborsByDirection.put(120, out[3]);
-        out[10].tile.neighborsByDirection.put(150, out[2]);
-        out[10].tile.neighborsByDirection.put(180, out[5]);
-        out[10].tile.neighborsByDirection.put(210, out[1]);
-        out[10].tile.neighborsByDirection.put(240, out[0]);
+        tiles[10].neighborsByDirection.put(120, out[3]);
+        tiles[10].neighborsByDirection.put(150, out[2]);
+        tiles[10].neighborsByDirection.put(180, out[5]);
+        tiles[10].neighborsByDirection.put(210, out[1]);
+        tiles[10].neighborsByDirection.put(240, out[0]);
 
-        out[11].tile.neighborsByDirection.put(0, out[0]);
-        out[11].tile.neighborsByDirection.put(30, out[4]);
-        out[11].tile.neighborsByDirection.put(60, out[5]);
-        out[11].tile.neighborsByDirection.put(90, out[7]);
-        out[11].tile.neighborsByDirection.put(120, out[9]);
+        tiles[11].neighborsByDirection.put(0, out[0]);
+        tiles[11].neighborsByDirection.put(30, out[4]);
+        tiles[11].neighborsByDirection.put(60, out[5]);
+        tiles[11].neighborsByDirection.put(90, out[7]);
+        tiles[11].neighborsByDirection.put(120, out[9]);
 
-        out[12].tile.neighborsByDirection.put(0, out[3]);
-        out[12].tile.neighborsByDirection.put(240, out[9]);
-        out[12].tile.neighborsByDirection.put(270, out[8]);
-        out[12].tile.neighborsByDirection.put(300, out[5]);
-        out[12].tile.neighborsByDirection.put(330, out[6]);
+        tiles[12].neighborsByDirection.put(0, out[3]);
+        tiles[12].neighborsByDirection.put(240, out[9]);
+        tiles[12].neighborsByDirection.put(270, out[8]);
+        tiles[12].neighborsByDirection.put(300, out[5]);
+        tiles[12].neighborsByDirection.put(330, out[6]);
 
         return out;
     }

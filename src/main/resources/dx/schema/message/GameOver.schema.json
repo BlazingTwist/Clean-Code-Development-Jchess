@@ -1,0 +1,19 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "GameOver",
+    "type": "object",
+    "javaType": "dx.schema.message.GameOver",
+    "properties": {
+        "playerScores": {
+            "type": "array",
+            "description": "array of player scores, keyed by playerId",
+            "items": {
+                "type": "integer"
+            }
+        }
+    },
+    "required": [
+        "playerScores"
+    ],
+    "additionalProperties": false
+}

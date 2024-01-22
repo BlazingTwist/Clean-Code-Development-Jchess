@@ -20,10 +20,10 @@ import jchess.server.util.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class PieceSelectionWebsocket extends AbstractReceiveListener implements WebSocketConnectionCallback {
@@ -77,9 +77,10 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
         channel.getReceiveSetter().set(handler);
     }
 
-    public static class PieceSelectionHandler extends AbstractReceiveListener {
+    public static class PieceSelectionHandler extends AbstractReceiveListener implements Closeable {
         private final IChessGame game;
         private final List<WebSocketChannel> channels = new ArrayList<>();
+
         public PieceSelectionHandler(IChessGame game) {
             this.game = game;
         }
@@ -107,28 +108,28 @@ public class PieceSelectionWebsocket extends AbstractReceiveListener implements 
                 return;
             }
             PieceSelected pieceSel = mapper.treeToValue(dataNode, PieceSelected.class);
-            game.getEventManager().<PieceOfferSelectedEvent>getEvent(PieceOfferSelectedEvent.class).fire(pieceSel);
+            game.getEventManager().getEvent(PieceOfferSelectedEvent.class).fire(pieceSel);
         }
 
         public void offerPieceSelection(OfferPieceSelectionEvent.PieceSelection pieceSelection) {
-            OfferPieceSelection payload = new OfferPieceSelection();
-            payload.setTitle(pieceSelection.windowTitle());
-            payload.setPieces(Arrays.asList(pieceSelection.piecesToOffer()));
+            OfferPieceSelection messageObj = new OfferPieceSelection();
+            messageObj.setTitle(pieceSelection.windowTitle());
+            messageObj.setPieces(Arrays.asList(pieceSelection.piecesToOffer()));
+            final String message = JsonUtils.serialize(messageObj);
 
-            int socketsNotified = 0;
-            Iterator<WebSocketChannel> iterator = channels.iterator();
-            while (iterator.hasNext()) {
-                WebSocketChannel channel = iterator.next();
-                if (channel.getCloseCode() >= 0) {
-                    iterator.remove();
-                    continue;
-                }
-
-                WebSockets.sendText(JsonUtils.serialize(payload), channel, null);
-                socketsNotified++;
+            channels.removeIf(channel -> channel.getCloseCode() >= 0);
+            for (WebSocketChannel channel : channels) {
+                WebSockets.sendText(message, channel, null);
             }
-            logger.debug("Notified {} WebSockets of offerPieceSelection", socketsNotified);
+            logger.debug("Notified {} WebSockets of offerPieceSelection", channels.size());
         }
 
+        @Override
+        public void close() throws IOException {
+            for (WebSocketChannel channel : channels) {
+                SocketUtils.close(channel, "Session has expired");
+            }
+            channels.clear();
+        }
     }
 }

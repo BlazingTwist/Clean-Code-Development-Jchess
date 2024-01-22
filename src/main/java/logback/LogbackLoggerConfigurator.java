@@ -59,8 +59,7 @@ public class LogbackLoggerConfigurator extends ContextAwareBase implements Confi
         encoder.setPattern("%white(%date{HH:mm:ss.SSS})"
                 + " %cyan([%-16.16thread])"
                 + " %highlightConsole(%-5level) :"
-                + " %magenta(%-24logger{24})"
-                + " [%C]"
+                + " %magenta(%-24.24logger{24})"
                 + " - %msg"
                 + "%n%nopex%highlightConsole(%ex)");
         encoder.setContext(this.context);

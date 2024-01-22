@@ -4,6 +4,7 @@ import dx.schema.message.GameInfo;
 import jchess.common.IChessGame;
 import jchess.server.api.socket.BoardUpdateWebsocket;
 import jchess.server.api.socket.ChatWebsocket;
+import jchess.server.api.socket.GameOverWebsocket;
 import jchess.server.api.socket.PieceSelectionWebsocket;
 import jchess.server.session.ISessionData;
 
@@ -15,6 +16,7 @@ public class GameSessionData implements ISessionData {
     public final ChatWebsocket.ChatHandler chatHandler = new ChatWebsocket.ChatHandler();
     public final PieceSelectionWebsocket.PieceSelectionHandler pieceSelectionHandler;
     public final BoardUpdateWebsocket.Handler boardUpdateHandler = new BoardUpdateWebsocket.Handler();
+    public final GameOverWebsocket.Handler gameOverHandler = new GameOverWebsocket.Handler();
 
     public GameSessionData(IChessGame game, GameInfo gameInfo) {
         this.game = game;
@@ -30,6 +32,8 @@ public class GameSessionData implements ISessionData {
     @Override
     public void close() throws IOException {
         chatHandler.close();
+        pieceSelectionHandler.close();
         boardUpdateHandler.close();
+        gameOverHandler.close();
     }
 }

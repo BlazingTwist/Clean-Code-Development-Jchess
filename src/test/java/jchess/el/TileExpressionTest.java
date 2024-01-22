@@ -4,6 +4,8 @@ import jchess.common.components.PieceComponent;
 import jchess.common.components.PieceIdentifier;
 import jchess.common.components.TileComponent;
 import jchess.ecs.Entity;
+import jchess.el.v2.ExpressionCompiler;
+import jchess.el.v2.TileExpression;
 import jchess.gamemode.PieceStore;
 import jchess.gamemode.hex3p.Hex3pPieces;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TileExpressionTest {
     private static Entity createPiece(Hex3pPieces pieceType, int player) {
@@ -37,21 +42,30 @@ public class TileExpressionTest {
 
         Entity emptyTile = new Entity();
 
+        assert piece_1a.piece != null;
+        assert piece_1b.piece != null;
+        assert piece_2a.piece != null;
+        assert piece_2b.piece != null;
+
         // can capture opponent pieces
-        Assertions.assertTrue(TileExpression.FILTER_CAPTURE.test(piece_1a.piece.identifier, piece_2a));
-        Assertions.assertTrue(TileExpression.FILTER_CAPTURE.test(piece_1a.piece.identifier, piece_2b));
-        Assertions.assertTrue(TileExpression.FILTER_CAPTURE.test(piece_2a.piece.identifier, piece_1a));
-        Assertions.assertTrue(TileExpression.FILTER_CAPTURE.test(piece_2a.piece.identifier, piece_1b));
+        Assertions.assertTrue(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_1a.piece.identifier, piece_2a));
+        Assertions.assertTrue(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_1a.piece.identifier, piece_2b));
+        Assertions.assertTrue(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_2a.piece.identifier, piece_1a));
+        Assertions.assertTrue(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_2a.piece.identifier, piece_1b));
 
         // can not capture own pieces
-        Assertions.assertFalse(TileExpression.FILTER_CAPTURE.test(piece_1a.piece.identifier, piece_1b));
-        Assertions.assertFalse(TileExpression.FILTER_CAPTURE.test(piece_1b.piece.identifier, piece_1a));
-        Assertions.assertFalse(TileExpression.FILTER_CAPTURE.test(piece_2a.piece.identifier, piece_2b));
-        Assertions.assertFalse(TileExpression.FILTER_CAPTURE.test(piece_2b.piece.identifier, piece_2a));
+        Assertions.assertFalse(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_1a.piece.identifier, piece_1b));
+        Assertions.assertFalse(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_1b.piece.identifier, piece_1a));
+        Assertions.assertFalse(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_2a.piece.identifier, piece_2b));
+        Assertions.assertFalse(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_2b.piece.identifier, piece_2a));
 
         // can not capture on empty tile
-        Assertions.assertFalse(TileExpression.FILTER_CAPTURE.test(piece_1a.piece.identifier, emptyTile));
-        Assertions.assertFalse(TileExpression.FILTER_CAPTURE.test(piece_2b.piece.identifier, emptyTile));
+        Assertions.assertFalse(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_1a.piece.identifier, emptyTile));
+        Assertions.assertFalse(filterAcceptsTile(TileExpression.FILTER_CAPTURE, piece_2b.piece.identifier, emptyTile));
+    }
+
+    private static boolean filterAcceptsTile(ExpressionCompiler expression, PieceIdentifier pieceId, Entity tile) {
+        return expression.toV1(pieceId).findTiles(tile).collect(Collectors.toSet()).contains(tile);
     }
 
     @ParameterizedTest
@@ -73,7 +87,7 @@ public class TileExpressionTest {
         PieceIdentifier pieceIdentifier = new PieceIdentifier(pawn.getPieceType(), pawnDef.shortName(), 0, forwardBasis);
 
         //noinspection ResultOfMethodCallIgnored
-        TileExpression.neighbor(neighborDirection).compile(pieceIdentifier).findTiles(entity).toList();
+        TileExpression.neighbor(neighborDirection).compile(pieceIdentifier).apply(Stream.of(entity)).toList();
         Mockito.verify(tile, Mockito.atLeastOnce()).getTile(expectedDirection);
         Mockito.verify(tile, Mockito.never()).getTile(unexpectedDirection);
     }
