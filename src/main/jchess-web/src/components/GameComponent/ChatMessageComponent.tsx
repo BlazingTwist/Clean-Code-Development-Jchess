@@ -1,4 +1,4 @@
-import { ChatMessage } from "@/models/message/ChatMessage.schema";
+import { ChatMessage } from "@/models/ChatMessage.schema";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 

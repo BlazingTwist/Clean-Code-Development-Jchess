@@ -2,7 +2,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { useGameContext } from "@/src/app/context/game_context";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChatMessage } from "@/models/message/ChatMessage.schema";
+import { ChatMessage } from "@/models/ChatMessage.schema";
 import { ScrollArea } from "../ui/scroll-area";
 import ChatMessageComponent from "./ChatMessageComponent";
 import { Separator } from "../ui/separator";
