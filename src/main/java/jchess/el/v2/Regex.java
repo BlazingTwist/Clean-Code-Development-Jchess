@@ -13,18 +13,12 @@ class Regex implements ExpressionCompiler {
                 .map(expr -> {
                     ExpressionCompiler[] sequence = Arrays.stream(expr.split("\\."))
                             .map(exp2 -> {
-                                boolean repeatStar = exp2.endsWith("*");
-                                boolean repeatPlus = exp2.endsWith("+");
-                                int direction = Integer.parseInt((repeatStar || repeatPlus)
-                                        ? exp2.substring(0, exp2.length() - 1)
-                                        : exp2);
-
-                                if (repeatStar) {
-                                    return new Repeat(new Neighbor(direction), 0, -1, aerial);
-                                } else if (repeatPlus) {
-                                    return new Repeat(new Neighbor(direction), 1, -1, aerial);
+                                RepetitionParseResult repetition = parseRepetition(exp2);
+                                int neighbor = Integer.parseInt(repetition.repeatedExpression);
+                                if (repetition.minRepetitions == 1 && repetition.maxRepetitions == 1) {
+                                    return new Neighbor(neighbor);
                                 } else {
-                                    return new Neighbor(direction);
+                                    return new Repeat(new Neighbor(neighbor), repetition.minRepetitions, repetition.maxRepetitions, aerial);
                                 }
                             }).toArray(ExpressionCompiler[]::new);
                     return new Sequence(aerial, sequence);
@@ -37,5 +31,28 @@ class Regex implements ExpressionCompiler {
     @Override
     public TileExpression.CompiledExpression compile(PieceIdentifier movingPiece) {
         return this.compiler.compile(movingPiece);
+    }
+
+    private static RepetitionParseResult parseRepetition(String expression) {
+        if (expression.endsWith("*")) {
+            return new RepetitionParseResult(expression.substring(0, expression.length() - 1), 0, -1);
+        }
+        if (expression.endsWith("+")) {
+            return new RepetitionParseResult(expression.substring(0, expression.length() - 1), 1, -1);
+        }
+        if (expression.endsWith("}")) {
+            String[] expSplit = expression.substring(0, expression.length() - 1).split("\\{");
+            String direction = expSplit[0];
+            String[] rangeSplit = expSplit[1].split(",");
+            if (rangeSplit.length >= 2) {
+                return new RepetitionParseResult(direction, Integer.parseInt(rangeSplit[0]), Integer.parseInt(rangeSplit[1]));
+            } else {
+                return new RepetitionParseResult(direction, Integer.parseInt(rangeSplit[0]), -1);
+            }
+        }
+        return new RepetitionParseResult(expression, 1, 1);
+    }
+
+    private record RepetitionParseResult(String repeatedExpression, int minRepetitions, int maxRepetitions) {
     }
 }
