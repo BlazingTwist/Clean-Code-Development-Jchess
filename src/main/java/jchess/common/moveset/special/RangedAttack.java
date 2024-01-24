@@ -7,8 +7,8 @@ import jchess.common.events.PieceMoveEvent;
 import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
-import jchess.el.TileExpression;
-
+import jchess.el.v2.TileExpression;
+import jchess.el.CompiledTileExpression;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -45,17 +45,17 @@ public class RangedAttack implements ISpecialRule {
     private void calculateSurroundingTargetTiles(List<MoveIntention> result, Entity thisRangedPiece){
         if (minRange < 0) throw new IllegalArgumentException("argument 'minRange' may not be negative. Got '" + minRange + "'");
         if (minRange >= maxRange) throw new IllegalArgumentException("argument 'minRange' may not be greater or equal than 'maxRange'. minRange= '" + minRange + "', maxRange= '" + maxRange + "'");
-        List<Entity> potentialTargetTile= TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330", true), 0, maxRange, true).
-                compile(thisRangedPieceID).findTiles(thisRangedPiece).toList();
-        List<Entity> noTargetTile= TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330",true), 0, minRange, true).
+        List<Entity> potentialTargetTile= TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330",true), minRange, maxRange, true).
+                toV1(thisRangedPieceID).findTiles(thisRangedPiece).toList();
+        /*List<Entity> noTargetTile= TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330",true), 0, minRange, true).
                 compile(thisRangedPieceID).findTiles(thisRangedPiece).toList();
         List<Entity> targetTile = new ArrayList<>();
         for (Entity value: potentialTargetTile) {
             if (!noTargetTile.contains(value)){
                 targetTile.add(value);
             }
-        }
-        for (Entity entity : targetTile) {
+        }*/
+        for (Entity entity : potentialTargetTile) {
             addTileToResult(result, thisRangedPiece, entity);
         }
     }

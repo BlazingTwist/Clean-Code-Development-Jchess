@@ -6,6 +6,7 @@ import jchess.common.moveset.special.Castling;
 import jchess.common.moveset.special.EnPassant;
 import jchess.common.moveset.special.PawnPromotion;
 import jchess.common.moveset.special.SpecialFirstMove;
+import jchess.common.moveset.special.RangedAttack;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
 import jchess.el.v2.ExpressionCompiler;
@@ -59,10 +60,10 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
     )),
     Archer(PieceType.ARCHER,new PieceStore.PieceDefinition(
             "A",
-            TileExpression.filter(TileExpression.regex("0 0.0 30 30.30 60 60.60 90 90.90 120 120.120 150 150.150 180 180.180 210 210.210 240 240.240 270 270.270 300 300.300 330 330.330", false),
+            TileExpression.filter(TileExpression.regex("0{1,2} 30{1,2} 60{1,2} 90{1,2} 120{1,2} 150{1,2} 180{1,2} 210{1,2} 240{1,2} 270{1,2} 300{1,2} 330{1,2}", false),
             TileExpression.FILTER_EMPTY_TILE)
             ,
-     (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 0, 2)
+     (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 3, 4)
     )),
 
      Pegasus(PieceType.PEGASUS,new PieceStore.PieceDefinition(

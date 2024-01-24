@@ -231,7 +231,7 @@ public abstract class BaseChessGame implements IChessGame {
     }
     @Override
     public void movePieceStationary(Entity tile, Class<?> moveType) {
-        eventManager.<PieceMoveEvent>getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(tile, tile, moveType));
+        eventManager.getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(tile, tile, moveType));
         eventManager.getEvent(ComputeAttackInfoEvent.class).fire(null);
 
         // end turn
