@@ -35,7 +35,7 @@ public class RangedAttack implements ISpecialRule {
 
     private void calculateSurroundingTargetTiles(List<MoveIntention> result, Entity thisRangedPiece){
         if (minRange < 0) throw new IllegalArgumentException("argument 'minRange' may not be negative. Got '" + minRange + "'");
-        if (minRange >= maxRange) throw new IllegalArgumentException("argument 'minRange' may not be greater or equal than 'maxRange'. minRange= '" + minRange + "', maxRange= '" + maxRange + "'");
+        if (minRange > maxRange) throw new IllegalArgumentException("argument 'minRange' may not be greater than 'maxRange'. minRange= '" + minRange + "', maxRange= '" + maxRange + "'");
         List<Entity> targetTile= TileExpression.or(
                 TileExpression.repeat(TileExpression.regex("0 30 60", true),minRange, maxRange, true),
                 TileExpression.repeat(TileExpression.regex("60 90 120", true),minRange, maxRange, true),

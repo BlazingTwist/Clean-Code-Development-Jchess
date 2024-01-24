@@ -145,11 +145,15 @@ public class Hex3PlayerGame extends BaseChessGame {
         placeKing(27, 3, PLAYER_MEDIUM);
         placeKing(3, 5, PLAYER_DARK);
 
-        for (int i = 0; i < 5; i++) {
-            placePawn(7 + (i * 6), 15, PLAYER_LIGHT);
-            placePawn(31 - (i * 3), 9 - (i * 3), PLAYER_MEDIUM);
-            placePawn(10 - (i * 3), (i * 3), PLAYER_DARK);
-        }
+        placePawn(7, 15, PLAYER_LIGHT);
+        placePawn(25, 15, PLAYER_LIGHT);
+
+        placePawn(31, 9, PLAYER_MEDIUM);
+        placePawn(22, 0, PLAYER_MEDIUM);
+
+        placePawn(10, 0, PLAYER_DARK);
+        placePawn(1, 9, PLAYER_DARK);
+
         for (int i = 0; i < 9; i++) {
             placePawn(8 + (i * 2), 14, PLAYER_LIGHT);
             placePawn(29 - i, 9 - i, PLAYER_MEDIUM);
@@ -179,6 +183,15 @@ public class Hex3PlayerGame extends BaseChessGame {
 
         placePegasus(8, 2, PLAYER_DARK);
         placePegasus(3, 7, PLAYER_DARK);
+
+        placeCatapult(13,15, PLAYER_LIGHT);
+        placeCatapult(19,15, PLAYER_LIGHT);
+
+        placeCatapult(28, 6, PLAYER_MEDIUM);
+        placeCatapult(25, 3, PLAYER_MEDIUM);
+
+        placeCatapult(7, 3, PLAYER_DARK);
+        placeCatapult(4, 6, PLAYER_DARK);
     }
 
     private void placeRook(int x, int y, int playerColor) {
@@ -213,6 +226,9 @@ public class Hex3PlayerGame extends BaseChessGame {
         placePiece(x, y, playerColor, Hex3pPieces.Pegasus);
     }
 
+    private void placeCatapult(int x, int y, int playerColor) {
+        placePiece(x, y, playerColor, Hex3pPieces.Catapult);
+    }
     private void placePiece(int x, int y, int playerColor, Hex3pPieces piece) {
         Entity tile = getEntityAtPosition(x, y);
         if (tile == null) {

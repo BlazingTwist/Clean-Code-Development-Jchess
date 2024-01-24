@@ -118,6 +118,11 @@
                 "pieceType": "Pegasus",
                 "pathPrefix": "./default/piece/Pegasus",
                 "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Catapult",
+                "pathPrefix": "./default/piece/Catapult",
+                "pathSuffix": ".png"
             }
         ]
     }

@@ -54,7 +54,7 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
     )),
     Archer(PieceType.ARCHER,new PieceStore.PieceDefinition(
             "A",
-            TileExpression.filter(TileExpression.regex("0 0.0 45 45.45 90 90.90 135 135.135 180 180.180 225 225.225 270 270.270 315 315.315", false),
+            TileExpression.filter(TileExpression.regex("0{1,2} 45{1,2} 90{1,2} 135{1,2} 180{1,2} 225{1,2} 270{1,2} 315{1,2}", false),
                     TileExpression.FILTER_EMPTY_TILE)
             ,
             (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 0, 2)
@@ -63,6 +63,13 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
     Pegasus(PieceType.PEGASUS,new PieceStore.PieceDefinition(
             "PE",
             TileExpression.repeat(TileExpression.regex("0 45 90 135 180 225 270 315",true), 0,3, true)
+    )),
+    Catapult(PieceType.CATAPULT,new PieceStore.PieceDefinition(
+            "A",
+            TileExpression.filter(TileExpression.regex("0 45 90 135 180 225 270 315", false),
+                    TileExpression.FILTER_EMPTY_TILE)
+            ,
+            (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 3, 3)
     ));
 
     private final PieceType pieceType;

@@ -40,8 +40,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
                     TileExpression.regex("270.270.270", true), TileExpression.regex("90.90", true))
     )),
     Pawn(PieceType.PAWN, new PieceStore.PieceDefinition(
-            "",
-            TileExpression.or(
+            "",TileExpression.or(
                     TileExpression.filter(TileExpression.neighbor(330, 30), TileExpression.FILTER_EMPTY_TILE),
                     TileExpression.filter2(TileExpression.neighbor(300, 60), TileExpression.FILTER_CAPTURE)
             ),
@@ -69,7 +68,14 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
      Pegasus(PieceType.PEGASUS,new PieceStore.PieceDefinition(
         "PE",
         TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330",true), 0,3, true)
-     ));
+     )),
+    Catapult(PieceType.CATAPULT,new PieceStore.PieceDefinition(
+            "A",
+            TileExpression.filter(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330", false),
+                    TileExpression.FILTER_EMPTY_TILE)
+            ,
+            (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 3, 3)
+    ));
 
 
     private final PieceType pieceType;

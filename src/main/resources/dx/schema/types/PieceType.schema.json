@@ -10,7 +10,8 @@
         "King",
         "Pawn",
         "Archer",
-        "Pegasus"
+        "Pegasus",
+        "Catapult"
     ],
     "additionalProperties": false
 }
