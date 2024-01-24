@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { useGameContext } from "@/src/app/context/game_context";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChatMessage } from "@/models/ChatMessage.schema";
 import { ScrollArea } from "../ui/scroll-area";
 import ChatMessageComponent from "./ChatMessageComponent";
@@ -11,6 +11,15 @@ import { Button } from "../ui/button";
 import { useBoardUpdateContext } from "@/src/app/context/board_update_context";
 import { cn } from "@/src/utils/tailwindMergeUtils";
 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
+
 /**
  * ChatComponent allows Multiplayer users to chat with each other.
  */
@@ -18,6 +27,7 @@ export default function ChatComponent({ className }: { className?: string }) {
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState<string>("");
     const [localSocketConnId, setLocalSocketConnId] = useState<number>(-1);
+    const [playerName, setPlayerName] = useState<string | undefined>(undefined);
 
     const scrollAreaRef = useRef<{ scrollToBottom: () => void }>(null);
 
@@ -35,20 +45,10 @@ export default function ChatComponent({ className }: { className?: string }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameContext]);
 
-    const getCurrentUserName = useCallback(() => {
-        let userName = gameContext.gameInfo!.playerNames[boardUpdate?.activePlayerId || 0];
-        console.log("Username", userName);
-        if (userName === undefined || userName === null || userName === "") {
-            console.log("No username found");
-            userName = prompt("Please enter your username ") || "no username";
-        }
-        return userName;
-    }, [gameContext, boardUpdate?.activePlayerId]);
-
     // Websocket
     useEffect(() => {
         if (localSocketConnId < 0) return;
-        if (boardUpdate?.activePlayerId === undefined) return; // Don't subscribe to chat if the context is not ready yet.
+        if (playerName === undefined) return; // Don't subscribe to chat if the player hasn't chosen a username yet.
 
         console.log(`Subscribing to chat. socketId: ${localSocketConnId}`);
 
@@ -57,11 +57,11 @@ export default function ChatComponent({ className }: { className?: string }) {
             setChatMessages((oldMessages) => [...oldMessages, ...messages]);
         });
 
-        const message = { sessionId: gameContext.sessionId, msgType: "subscribe", userName: getCurrentUserName() };
+        const message = { sessionId: gameContext.sessionId, msgType: "subscribe", userName: playerName };
         gameContext.chatSocket.sendMessage(JSON.stringify(message));
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [localSocketConnId, boardUpdate?.activePlayerId !== undefined]);
+    }, [localSocketConnId, playerName]);
 
     /**
      * Scroll to the bottom of the chat when a new message is received.
@@ -76,41 +76,63 @@ export default function ChatComponent({ className }: { className?: string }) {
                 <CardTitle>Chat</CardTitle>
                 <Separator />
             </CardHeader>
-            {chatMessages.length > 0 && (
-                <CardContent>
-                    <ScrollArea className="h-[200px]" ref={scrollAreaRef}>
-                        {chatMessages.map((chatMessage, index) => (
-                            <ChatMessageComponent key={index} chatMessage={chatMessage} index={index} />
-                        ))}
-                    </ScrollArea>
+            {playerName === undefined && (
+                <CardContent className="flex flex-col justify-center">
+                    <p className="text-center mb-4">Choose a username to participate in the chat.</p>
 
-                    <Separator className="my-2" />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger>
+                            <Button>Choose</Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            {Array.from(gameContext.gameInfo?.playerNames ?? []).map((value) => (
+                                <DropdownMenuItem key={value} onClick={() => setPlayerName(value)}>
+                                    {value}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </CardContent>
             )}
-            <CardFooter>
-                <form
-                    className="flex flex-row justify-between flex-grow"
-                    onSubmit={(event) => {
-                        event.preventDefault();
-                        console.log("Sending message", input);
-                        const message = {
-                            msgType: "submit",
-                            data: input,
-                        };
-                        gameContext.chatSocket.sendMessage(JSON.stringify(message));
-                        setInput("");
-                    }}
-                >
-                    <Input
-                        placeholder="Send a message"
-                        value={input}
-                        onChange={(event) => setInput(event.target.value)}
-                    />
-                    <Button className="ml-2" type="submit">
-                        Send
-                    </Button>
-                </form>
-            </CardFooter>
+            {playerName !== undefined && (
+                <>
+                    {chatMessages.length > 0 && (
+                        <CardContent>
+                            <ScrollArea className="h-[200px]" ref={scrollAreaRef}>
+                                {chatMessages.map((chatMessage, index) => (
+                                    <ChatMessageComponent key={index} chatMessage={chatMessage} index={index} />
+                                ))}
+                            </ScrollArea>
+
+                            <Separator className="my-2" />
+                        </CardContent>
+                    )}
+                    <CardFooter>
+                        <form
+                            className="flex flex-row justify-between flex-grow"
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                console.log("Sending message", input);
+                                const message = {
+                                    msgType: "submit",
+                                    data: input,
+                                };
+                                gameContext.chatSocket.sendMessage(JSON.stringify(message));
+                                setInput("");
+                            }}
+                        >
+                            <Input
+                                placeholder="Send a message"
+                                value={input}
+                                onChange={(event) => setInput(event.target.value)}
+                            />
+                            <Button className="ml-2" type="submit">
+                                Send
+                            </Button>
+                        </form>
+                    </CardFooter>
+                </>
+            )}
         </Card>
     );
 }
