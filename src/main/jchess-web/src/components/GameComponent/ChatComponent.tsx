@@ -48,21 +48,20 @@ export default function ChatComponent({ className }: { className?: string }) {
     // Websocket
     useEffect(() => {
         if (localSocketConnId < 0) return;
+        if (boardUpdate?.activePlayerId === undefined) return; // Don't subscribe to chat if the context is not ready yet.
 
         console.log(`Subscribing to chat. socketId: ${localSocketConnId}`);
 
-        gameContext.chatSocket.addListener(event => {
+        gameContext.chatSocket.addListener((event) => {
             const messages: ChatMessage[] = JSON.parse(event.data);
             setChatMessages((oldMessages) => [...oldMessages, ...messages]);
         });
 
-        /* TODO aktuell ist der username immer name[0], da der gameContext noch nicht bereit ist...
-        *   Ggf. reicht das schon, wenn man die Komponenten erst rendert, wenn der Kontext bereit ist - weiß aber nicht, wie sich das beim starten eines neuen spiels verhält*/
-        const message = { sessionId: gameContext.sessionId, msgType: "subscribe", userName: getCurrentUserName() }
+        const message = { sessionId: gameContext.sessionId, msgType: "subscribe", userName: getCurrentUserName() };
         gameContext.chatSocket.sendMessage(JSON.stringify(message));
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [localSocketConnId]);
+    }, [localSocketConnId, boardUpdate?.activePlayerId !== undefined]);
 
     /**
      * Scroll to the bottom of the chat when a new message is received.
@@ -75,17 +74,17 @@ export default function ChatComponent({ className }: { className?: string }) {
         <Card className={cn("self-start", className)}>
             <CardHeader>
                 <CardTitle>Chat</CardTitle>
-                <Separator/>
+                <Separator />
             </CardHeader>
             {chatMessages.length > 0 && (
                 <CardContent>
                     <ScrollArea className="h-[200px]" ref={scrollAreaRef}>
                         {chatMessages.map((chatMessage, index) => (
-                            <ChatMessageComponent key={index} chatMessage={chatMessage} index={index}/>
+                            <ChatMessageComponent key={index} chatMessage={chatMessage} index={index} />
                         ))}
                     </ScrollArea>
 
-                    <Separator className="my-2"/>
+                    <Separator className="my-2" />
                 </CardContent>
             )}
             <CardFooter>
