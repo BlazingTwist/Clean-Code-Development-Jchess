@@ -108,6 +108,16 @@
                 "pieceType": "Pawn",
                 "pathPrefix": "./default/piece/Pawn",
                 "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Archer",
+                "pathPrefix": "./default/piece/Archer",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Pegasus",
+                "pathPrefix": "./default/piece/Pegasus",
+                "pathSuffix": ".png"
             }
         ]
     }

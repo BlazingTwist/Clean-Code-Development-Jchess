@@ -56,7 +56,20 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
                         Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(dx.schema.message.Piece[]::new)
                 );
             }
-    ));
+    )),
+    Archer(PieceType.ARCHER,new PieceStore.PieceDefinition(
+            "A",
+            TileExpression.filter(TileExpression.regex("0 0.0 30 30.30 60 60.60 90 90.90 120 120.120 150 150.150 180 180.180 210 210.210 240 240.240 270 270.270 300 300.300 330 330.330", false),
+            TileExpression.FILTER_EMPTY_TILE)
+            ,
+     (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 0, 2)
+    )),
+
+     Pegasus(PieceType.PEGASUS,new PieceStore.PieceDefinition(
+        "PE",
+        TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330",true), 0,3, true)
+     ));
+
 
     private final PieceType pieceType;
     private final PieceStore.PieceDefinition pieceDefinition;

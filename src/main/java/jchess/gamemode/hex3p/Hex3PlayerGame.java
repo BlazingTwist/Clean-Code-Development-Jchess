@@ -145,16 +145,40 @@ public class Hex3PlayerGame extends BaseChessGame {
         placeKing(27, 3, PLAYER_MEDIUM);
         placeKing(3, 5, PLAYER_DARK);
 
-        for (int i = 0; i < 10; i++) {
-            placePawn(7 + (i * 2), 15, PLAYER_LIGHT);
-            placePawn(31 - i, 9 - i, PLAYER_MEDIUM);
-            placePawn(10 - i, i, PLAYER_DARK);
+        for (int i = 0; i < 5; i++) {
+            placePawn(7 + (i * 6), 15, PLAYER_LIGHT);
+            placePawn(31 - (i * 3), 9 - (i * 3), PLAYER_MEDIUM);
+            placePawn(10 - (i * 3), (i * 3), PLAYER_DARK);
         }
         for (int i = 0; i < 9; i++) {
             placePawn(8 + (i * 2), 14, PLAYER_LIGHT);
             placePawn(29 - i, 9 - i, PLAYER_MEDIUM);
             placePawn(11 - i, 1 + i, PLAYER_DARK);
         }
+
+        placeArcher(9, 15, PLAYER_LIGHT);
+        placeArcher(15, 15, PLAYER_LIGHT);
+        placeArcher(17, 15, PLAYER_LIGHT);
+        placeArcher(23, 15, PLAYER_LIGHT);
+
+        placeArcher(30, 8, PLAYER_MEDIUM);
+        placeArcher(27, 5, PLAYER_MEDIUM);
+        placeArcher(26, 4, PLAYER_MEDIUM);
+        placeArcher(23, 1, PLAYER_MEDIUM);
+
+        placeArcher(9, 1, PLAYER_DARK);
+        placeArcher(6, 4, PLAYER_DARK);
+        placeArcher(5, 5, PLAYER_DARK);
+        placeArcher(2, 8, PLAYER_DARK);
+
+        placePegasus(11, 15, PLAYER_LIGHT);
+        placePegasus(21, 15, PLAYER_LIGHT);
+
+        placePegasus(29, 7, PLAYER_MEDIUM);
+        placePegasus(24, 2, PLAYER_MEDIUM);
+
+        placePegasus(8, 2, PLAYER_DARK);
+        placePegasus(3, 7, PLAYER_DARK);
     }
 
     private void placeRook(int x, int y, int playerColor) {
@@ -179,6 +203,14 @@ public class Hex3PlayerGame extends BaseChessGame {
 
     private void placePawn(int x, int y, int playerColor) {
         placePiece(x, y, playerColor, Hex3pPieces.Pawn);
+    }
+
+    private void placeArcher(int x, int y, int playerColor) {
+        placePiece(x, y, playerColor, Hex3pPieces.Archer);
+    }
+
+    private void placePegasus(int x, int y, int playerColor) {
+        placePiece(x, y, playerColor, Hex3pPieces.Pegasus);
     }
 
     private void placePiece(int x, int y, int playerColor, Hex3pPieces piece) {
