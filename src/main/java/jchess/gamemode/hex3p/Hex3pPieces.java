@@ -62,7 +62,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             TileExpression.filter(TileExpression.regex("0{1,2} 30{1,2} 60{1,2} 90{1,2} 120{1,2} 150{1,2} 180{1,2} 210{1,2} 240{1,2} 270{1,2} 300{1,2} 330{1,2}", false),
             TileExpression.FILTER_EMPTY_TILE)
             ,
-     (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 1, 2)
+     (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 1, 2, true)
     )),
 
      Pegasus(PieceType.PEGASUS,new PieceStore.PieceDefinition(
@@ -74,7 +74,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             TileExpression.filter(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330", false),
                     TileExpression.FILTER_EMPTY_TILE)
             ,
-            (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 3, 3)
+            (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 4, 6, false)
     ));
 
 

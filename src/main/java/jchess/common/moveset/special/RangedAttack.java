@@ -18,11 +18,13 @@ public class RangedAttack implements ISpecialRule {
     private final PieceIdentifier thisRangedPieceID;
     private final int maxRange;
     private final int minRange;
-    public RangedAttack(IChessGame game, PieceIdentifier thisRangedPieceID, int minRange, int maxRange){
+    private final boolean includeDiagonals;
+    public RangedAttack(IChessGame game, PieceIdentifier thisRangedPieceID, int minRange, int maxRange, boolean includeDiagonals){
         this.game=game;
         this.thisRangedPieceID=thisRangedPieceID;
         this.minRange=minRange;
         this.maxRange=maxRange;
+        this.includeDiagonals=includeDiagonals;
 
     }
 
@@ -36,14 +38,27 @@ public class RangedAttack implements ISpecialRule {
     private void calculateSurroundingTargetTiles(List<MoveIntention> result, Entity thisRangedPiece){
         if (minRange < 0) throw new IllegalArgumentException("argument 'minRange' may not be negative. Got '" + minRange + "'");
         if (minRange > maxRange) throw new IllegalArgumentException("argument 'minRange' may not be greater than 'maxRange'. minRange= '" + minRange + "', maxRange= '" + maxRange + "'");
-        List<Entity> targetTile= TileExpression.or(
-                TileExpression.repeat(TileExpression.regex("0 30 60", true),minRange, maxRange, true),
-                TileExpression.repeat(TileExpression.regex("60 90 120", true),minRange, maxRange, true),
-                TileExpression.repeat(TileExpression.regex("120 150 180", true),minRange, maxRange, true),
-                TileExpression.repeat(TileExpression.regex("180 210 240", true),minRange, maxRange, true),
-                TileExpression.repeat(TileExpression.regex("240 270 300", true),minRange, maxRange, true),
-                TileExpression.repeat(TileExpression.regex("0 300 330", true),minRange, maxRange, true)
-        ).toV1(thisRangedPieceID).findTiles(thisRangedPiece).toList();
+        List<Entity> targetTile;
+        if(includeDiagonals){
+            targetTile= TileExpression.or(
+                    TileExpression.repeat(TileExpression.regex("0 30 60", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("60 90 120", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("120 150 180", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("180 210 240", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("240 270 300", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("0 300 330", true),minRange, maxRange, true)
+            ).toV1(thisRangedPieceID).findTiles(thisRangedPiece).toList();
+        }
+        else{
+            targetTile= TileExpression.or(
+                    TileExpression.repeat(TileExpression.regex("30 90", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("90 150", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("150 210", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("210 270", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("270 330", true),minRange, maxRange, true),
+                    TileExpression.repeat(TileExpression.regex("30 330", true),minRange, maxRange, true)
+            ).toV1(thisRangedPieceID).findTiles(thisRangedPiece).toList();
+        }
         for (Entity entity : targetTile) {
             addTileToResult(result, thisRangedPiece, entity);
         }
