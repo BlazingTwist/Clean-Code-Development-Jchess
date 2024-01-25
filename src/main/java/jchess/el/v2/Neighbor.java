@@ -36,4 +36,23 @@ final class Neighbor implements ExpressionCompiler {
                     .filter(Objects::nonNull);
         });
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Neighbor other = (Neighbor) o;
+        return Arrays.equals(directions, other.directions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(directions);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(directions);
+    }
 }

@@ -25,10 +25,33 @@ final class Or implements ExpressionCompiler {
             return expressions[0];
         }
 
+        return or(expressions);
+    }
+
+    static TileExpression.CompiledExpression or(TileExpression.CompiledExpression[] orExpressions) {
         return startTiles -> {
             // have to collect to a list, because we have to construct one stream for each OR-ed expression
             List<Entity> startTileList = startTiles.toList();
-            return Arrays.stream(expressions).flatMap(expression -> expression.apply(startTileList.stream()));
+            return Arrays.stream(orExpressions).flatMap(expression -> expression.apply(startTileList.stream()));
         };
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Or other = (Or) o;
+        return Arrays.equals(orCompilers, other.orCompilers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(orCompilers);
+    }
+
+    @Override
+    public String toString() {
+        return "Or(" + Arrays.toString(orCompilers) + ")";
     }
 }
