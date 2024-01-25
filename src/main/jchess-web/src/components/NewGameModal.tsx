@@ -10,6 +10,7 @@ import { Label } from "@/src/components/ui/label";
 import { postCreateGame } from "@/src/services/rest_api_service";
 import { GameMode } from "@/models/GameModes.schema";
 import { useServerDataContext } from "@/src/app/context/server_data_context";
+import { useGameContext } from "../app/context/game_context";
 
 /**
  * @function NewGameModal
@@ -18,6 +19,7 @@ import { useServerDataContext } from "@/src/app/context/server_data_context";
 export function NewGameModal(): ReactElement | null {
     const router = useRouter();
     const serverData = useServerDataContext();
+    const gameContext = useGameContext();
 
     const gameModes = serverData.allGameModes?.modes ?? [];
 
@@ -28,7 +30,7 @@ export function NewGameModal(): ReactElement | null {
     const onGameModeChanged = (newGameMode: GameMode | undefined) => {
         setGameMode(newGameMode);
         setSelectedTheme(undefined);
-    }
+    };
 
     /**
      * @function renderNameInputs
@@ -44,7 +46,7 @@ export function NewGameModal(): ReactElement | null {
                 <div key={i}>
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor={`player-${i}`}>Name of Player {i}</Label>
-                        <Input id={`player-${i}`} placeholder={`Name of Player ${i}`} required/>
+                        <Input id={`player-${i}`} placeholder={`Name of Player ${i}`} required />
                     </div>
                 </div>
             );
@@ -61,9 +63,14 @@ export function NewGameModal(): ReactElement | null {
         }
 
         return (
-            <Select key={`theme-select__${selectedTheme}`} onValueChange={setSelectedTheme} value={selectedTheme} required>
+            <Select
+                key={`theme-select__${selectedTheme}`}
+                onValueChange={setSelectedTheme}
+                value={selectedTheme}
+                required
+            >
                 <SelectTrigger id="them-selection">
-                    <SelectValue placeholder="Select Theme"/>
+                    <SelectValue placeholder="Select Theme" />
                 </SelectTrigger>
                 <SelectContent position="popper">
                     {Array.from(gameMode.themeIds).map((value) => (
@@ -88,7 +95,7 @@ export function NewGameModal(): ReactElement | null {
             <Select onValueChange={setPlayerPerspective} value={playerPerspective} required>
                 <Label htmlFor={"player-perspective"}>Perspective</Label>
                 <SelectTrigger id="perspective-selection">
-                    <SelectValue placeholder="Select Perspective"/>
+                    <SelectValue placeholder="Select Perspective" />
                 </SelectTrigger>
                 <SelectContent position="popper" id="player-perspective">
                     {Array.from(Array(gameMode.numPlayers).keys()).map((index) => (
@@ -123,9 +130,10 @@ export function NewGameModal(): ReactElement | null {
             layoutId: gameMode!.layoutId!,
             themeName: selectedTheme!,
             playerNames: playerNames,
-            playerPerspective: +playerPerspective
+            playerPerspective: +playerPerspective,
         }).then((sessionId) => {
             console.log("sessionId:" + sessionId);
+            gameContext.setIsGameOver(false);
             router.push("/?sessionId=" + sessionId);
         });
     };
@@ -143,7 +151,7 @@ export function NewGameModal(): ReactElement | null {
                             <Label htmlFor="framework">Game Mode</Label>
                             <Select onValueChange={(index) => onGameModeChanged(gameModes[+index])} required>
                                 <SelectTrigger id="board-layout">
-                                    <SelectValue placeholder="Select Game Mode"/>
+                                    <SelectValue placeholder="Select Game Mode" />
                                 </SelectTrigger>
                                 <SelectContent position="popper">
                                     {gameModes.map((mode, index) => (
