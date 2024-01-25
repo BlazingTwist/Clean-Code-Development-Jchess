@@ -3,7 +3,6 @@ package jchess.server.api.servlet;
 import dx.schema.conf.Theme;
 import dx.schema.message.GameModes;
 import dx.schema.types.GameMode;
-import dx.schema.types.LayoutId;
 import io.undertow.util.StatusCodes;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,21 +22,21 @@ public class GameModesServlet extends HttpServlet {
         resp.setContentType("text/json");
 
         List<GameMode> gameModes = new ArrayList<>();
-        for (LayoutId layout : LayoutId.values()) {
-            GameModeStore.GameModeProvider provider = GameModeStore.getGameMode(layout);
+        for (String modeId : GameModeStore.getGameModeIds()) {
+            GameModeStore.GameModeProvider provider = GameModeStore.getGameMode(modeId);
             if (provider == null) {
                 continue;
             }
 
-            List<String> supportedThemes = ThemeStore.INSTANCE.getThemes(layout).stream()
+            List<String> supportedThemes = ThemeStore.INSTANCE.getThemes(provider).stream()
                     .map(Theme::getDisplayName)
                     .collect(Collectors.toList());
 
             GameMode gameMode = new GameMode();
-            gameMode.setModeId(layout.value());
-            gameMode.setDisplayName(provider.getDisplayName());
-            gameMode.setNumPlayers(provider.getNumPlayers());
-            gameMode.setLayoutId(layout);
+            gameMode.setModeId(modeId);
+            gameMode.setDisplayName(provider.displayName());
+            gameMode.setNumPlayers(provider.numPlayers());
+            gameMode.setLayoutId(provider.layoutId());
             gameMode.setThemeIds(supportedThemes);
             gameModes.add(gameMode);
         }

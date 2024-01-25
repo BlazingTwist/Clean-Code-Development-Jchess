@@ -3,58 +3,54 @@ package jchess.gamemode;
 import dx.schema.types.LayoutId;
 import jchess.common.IChessGame;
 import jchess.gamemode.hex3p.Hex3PlayerGame;
+import jchess.gamemode.hex3p.Hex3pPieceLayouts;
 import jchess.gamemode.hex3p.Hex3pPieces;
 import jchess.gamemode.square2p.Square2PlayerGame;
+import jchess.gamemode.square2p.Square2pPieceLayouts;
 import jchess.gamemode.square2p.Square2pPieces;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.Set;
 
 public class GameModeStore {
 
-    private static final Map<LayoutId, GameModeProvider> gameModeProviders = new HashMap<>();
+    private static final Map<String, GameModeProvider> gameModeProviders = new HashMap<>();
 
     static {
-        gameModeProviders.put(LayoutId.HEX_3_P, new GameModeProvider(
-                Hex3PlayerGame::new, "3 Player Hexagonal Chess", 3, new PieceStore(Hex3pPieces.values())
-        ));
-        gameModeProviders.put(LayoutId.SQUARE_2_P, new GameModeProvider(
-                Square2PlayerGame::new, "2 Player Classic Chess", 2, new PieceStore(Square2pPieces.values())
-        ));
-    }
-
-    public static GameModeProvider getGameMode(LayoutId layout) {
-        return gameModeProviders.get(layout);
-    }
-
-    public static final class GameModeProvider {
-        private final Supplier<IChessGame> gameConstructor;
-        private final String displayName;
-        private final int numPlayers;
-        private final PieceStore pieceStore;
-
-        public GameModeProvider(Supplier<IChessGame> gameConstructor, String displayName, int numPlayers, PieceStore pieceStore) {
-            this.gameConstructor = gameConstructor;
-            this.displayName = displayName;
-            this.numPlayers = numPlayers;
-            this.pieceStore = pieceStore;
+        for (Hex3pPieceLayouts pieceLayout : Hex3pPieceLayouts.values()) {
+            gameModeProviders.put(LayoutId.HEX_3_P.name() + "." + pieceLayout.name(), new GameModeProvider(
+                    Hex3PlayerGame::new, LayoutId.HEX_3_P, "3 Player Hexagonal Chess - " + pieceLayout.name(), 3,
+                    new PieceStore(Hex3pPieces.values()), pieceLayout
+            ));
         }
 
+        for (Square2pPieceLayouts pieceLayout : Square2pPieceLayouts.values()) {
+            gameModeProviders.put(LayoutId.SQUARE_2_P.name() + "." + pieceLayout.name(), new GameModeProvider(
+                    Square2PlayerGame::new, LayoutId.SQUARE_2_P, "2 Player Classic Chess - " + pieceLayout.name(), 2,
+                    new PieceStore(Square2pPieces.values()), pieceLayout
+            ));
+        }
+    }
+
+    public static Set<String> getGameModeIds() {
+        return gameModeProviders.keySet();
+    }
+
+    public static GameModeProvider getGameMode(String modeId) {
+        return gameModeProviders.get(modeId);
+    }
+
+    public record GameModeProvider(
+            GameConstructor gameConstructor, LayoutId layoutId, String displayName, int numPlayers, PieceStore pieceStore, IPieceLayoutProvider pieceLayout
+    ) {
         public IChessGame newGame() {
-            return gameConstructor.get();
+            return gameConstructor.newGame(pieceStore, pieceLayout);
         }
+    }
 
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        public int getNumPlayers() {
-            return numPlayers;
-        }
-
-        public PieceStore getPieceStore() {
-            return pieceStore;
-        }
+    @FunctionalInterface
+    public interface GameConstructor {
+        IChessGame newGame(PieceStore pieceStore, IPieceLayoutProvider layoutProvider);
     }
 }

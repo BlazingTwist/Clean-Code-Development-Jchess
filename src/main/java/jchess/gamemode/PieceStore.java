@@ -22,6 +22,10 @@ public final class PieceStore {
         return pieceDefinitions.keySet();
     }
 
+    public IPieceDefinitionProvider getPiece(PieceType pieceType) {
+        return pieceDefinitions.get(pieceType);
+    }
+
     public record PieceDefinition(String shortName, ExpressionCompiler baseMoves, ISpecialRuleProvider... specialRules) {
     }
 
