@@ -3,6 +3,7 @@ package jchess.el.v2;
 import jchess.common.components.PieceIdentifier;
 import jchess.ecs.Entity;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
 final class Filter implements ExpressionCompiler {
@@ -34,5 +35,27 @@ final class Filter implements ExpressionCompiler {
         TileExpression.CompiledExpression compiledExpression = filteredExpression.compile(movingPiece);
         TileExpression.CompiledExpression filterExpression = filterCompiler.compile(movingPiece);
         return startTiles -> filterExpression.apply(compiledExpression.apply(startTiles));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Filter other = (Filter) o;
+        if (!Objects.equals(this.filterCompiler, other.filterCompiler)) return false;
+        if (!Objects.equals(this.filteredExpression, other.filteredExpression)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.filterCompiler.hashCode() + this.filteredExpression.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + filteredExpression + ").filter(" + filterCompiler + ")";
     }
 }

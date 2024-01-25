@@ -105,6 +105,14 @@ public class TileExpression {
     }
 
     /**
+     * @param expression   expression to be rotated
+     * @param numRotations the number of rotations to create (e.g. 6 = 6 rotations, each 60 degrees apart)
+     */
+    public static ExpressionCompiler rotations(ExpressionCompiler expression, int numRotations) {
+        return new Rotations(expression, numRotations);
+    }
+
+    /**
      * Apply a binary operator to a list of expression as a balanced tree to minimize callstack depth
      * @param expressions   expressions to merge
      * @param start         index of first element (inclusive)
