@@ -10,17 +10,32 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/src/components/ui/dialog";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table";
 
 import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
 import { Medal } from "lucide-react";
 
-export default function GameOverComponent(): ReactElement {
+interface GameOverComponentProps {
+    externalOpen: boolean;
+    onExternalOpenChange: (newOpen: boolean) => void;
+}
+
+export default function GameOverComponent({
+    externalOpen,
+    onExternalOpenChange,
+}: GameOverComponentProps): ReactElement {
     const [localSocketConnId, setLocalSocketConnId] = useState<number>(-1);
 
     const gameContext = useGameContext();
     const [gameOver, setGameOver] = useState<GameOver | undefined>(undefined);
+    const [open, setOpen] = useState(externalOpen);
+
+    useEffect(() => {
+        if (externalOpen !== open) {
+            setOpen(externalOpen);
+        }
+    }, [externalOpen, open]);
 
     useEffect(() => {
         if (gameContext.socketConnectionId === localSocketConnId) {
@@ -41,6 +56,7 @@ export default function GameOverComponent(): ReactElement {
             let data: GameOver = JSON.parse(event.data);
             console.log("GameOver WebSocket message received", data);
             setGameOver(data);
+            setOpen(true);
         });
 
         const subscribeMessage: GameOverSubscribe = {
@@ -68,8 +84,8 @@ export default function GameOverComponent(): ReactElement {
             .sort(([scoreA], [scoreB]) => scoreB - scoreA)
             .forEach(([score, playerNames], index) => {
                 const element = (
-                    <TableRow>
-                        <TableCell>
+                    <TableRow key={`tablerow-${playerNames}`}>
+                        <TableCell key={`tablecell-${playerNames}`}>
                             {index == 0 ? (
                                 <span className="flex justify-start items-center gap-3">
                                     <Medal /> {playerNames.join(", ")}
@@ -78,8 +94,10 @@ export default function GameOverComponent(): ReactElement {
                                 playerNames.join(", ")
                             )}
                         </TableCell>
-                        <TableCell>{score}</TableCell>
-                        <TableCell className="font-medium text-right">{index + 1}.</TableCell>
+                        <TableCell key={`tablerow-${score}`}>{score}</TableCell>
+                        <TableCell key={`tablerow-placement-${index + 1}`} className="font-medium text-right">
+                            {index + 1}.
+                        </TableCell>
                     </TableRow>
                 );
                 inputs.push(element);
@@ -93,7 +111,13 @@ export default function GameOverComponent(): ReactElement {
     }
 
     return (
-        <Dialog defaultOpen={true}>
+        <Dialog
+            open={open}
+            onOpenChange={(newOpen) => {
+                setOpen(newOpen);
+                onExternalOpenChange(newOpen);
+            }}
+        >
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle className="text-2xl">Game Over</DialogTitle>
@@ -101,8 +125,7 @@ export default function GameOverComponent(): ReactElement {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Player/s</TableHead>
-
+                                    <TableHead className="w-[100px]">Player/s</TableHead>
                                     <TableHead>Score</TableHead>
                                     <TableHead className="text-right w-[50px]">Placement</TableHead>
                                 </TableRow>
