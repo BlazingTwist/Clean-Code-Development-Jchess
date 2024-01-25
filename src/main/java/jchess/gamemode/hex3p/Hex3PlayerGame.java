@@ -184,8 +184,8 @@ public class Hex3PlayerGame extends BaseChessGame {
         placePegasus(8, 2, PLAYER_DARK);
         placePegasus(3, 7, PLAYER_DARK);
 
-        placeCatapult(13,15, PLAYER_LIGHT);
-        placeCatapult(19,15, PLAYER_LIGHT);
+        placeCatapult(13, 15, PLAYER_LIGHT);
+        placeCatapult(19, 15, PLAYER_LIGHT);
 
         placeCatapult(28, 6, PLAYER_MEDIUM);
         placeCatapult(25, 3, PLAYER_MEDIUM);
@@ -229,6 +229,7 @@ public class Hex3PlayerGame extends BaseChessGame {
     private void placeCatapult(int x, int y, int playerColor) {
         placePiece(x, y, playerColor, Hex3pPieces.Catapult);
     }
+
     private void placePiece(int x, int y, int playerColor, Hex3pPieces piece) {
         Entity tile = getEntityAtPosition(x, y);
         if (tile == null) {

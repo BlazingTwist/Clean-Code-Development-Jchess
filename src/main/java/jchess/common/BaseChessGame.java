@@ -229,6 +229,7 @@ public abstract class BaseChessGame implements IChessGame {
         activePlayerId = (activePlayerId + 1) % numPlayers;
         checkGameOver();
     }
+
     @Override
     public void movePieceStationary(Entity tile, Class<?> moveType) {
         eventManager.getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(tile, tile, moveType));
