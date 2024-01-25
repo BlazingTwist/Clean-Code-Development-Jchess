@@ -29,10 +29,10 @@ class SocketHandler {
         };
         this.socket.onmessage = (event) => {
             handlerInstance.onMessageReceived(event);
-        }
+        };
         this.socket.onclose = (event) => {
-            console.log(`socket to '${this.socketUrl}' closed`, event)
-        }
+            console.log(`socket to '${this.socketUrl}' closed`, event);
+        };
     }
 
     close() {
@@ -62,11 +62,11 @@ class SocketHandler {
         } else {
             this.messageQueue.push(data);
         }
-    };
+    }
 
     addListener(listener: (event: MessageEvent<any>) => void): void {
         this.listeners.push(listener);
-    };
+    }
 }
 
 /**
@@ -82,6 +82,9 @@ export interface SessionData {
     pieceSelectionSocket: SocketHandler;
     gameOverSocket: SocketHandler;
 
+    isGameOver: boolean;
+    setIsGameOver: (isGameOver: boolean) => void;
+
     updateState: (sessionId: string | undefined) => void;
 }
 
@@ -91,9 +94,10 @@ const defaultContext: SessionData = {
     chatSocket: new SocketHandler(`${Config.socketServerUri}/api/chat`),
     pieceSelectionSocket: new SocketHandler(`${Config.socketServerUri}/api/pieceSelection`),
     gameOverSocket: new SocketHandler(`${Config.socketServerUri}/api/board/gameOver`),
-    updateState: (_) => {
-    }
-}
+    isGameOver: false,
+    setIsGameOver: (_) => {},
+    updateState: (_) => {},
+};
 
 /**
  * The context for managing the state of the chess game.
@@ -112,13 +116,13 @@ interface GameProviderProps {
  */
 export const GameProvider: React.FC<GameProviderProps> = (props: GameProviderProps) => {
     const [state, setState] = useState<SessionData>(defaultContext);
-
+    const [isGameOver, setIsGameOver] = useState<boolean>(false);
     const context: SessionData = {
         ...state,
         updateState(sessionId) {
             console.log(`update game_context. state.sessionId: ${state.sessionId} | sessionId: ${sessionId}`);
             if (state.sessionId === sessionId) {
-                console.log("updated State with identical sessionId?")
+                console.log("updated State with identical sessionId?");
                 return;
             }
 
@@ -129,15 +133,15 @@ export const GameProvider: React.FC<GameProviderProps> = (props: GameProviderPro
                 state.gameOverSocket.close();
 
                 console.log("Clearing SessionData");
-                setState({ ...state, sessionId: undefined, gameInfo: undefined })
+                setState({ ...state, sessionId: undefined, gameInfo: undefined, isGameOver: false });
             } else {
                 console.log(`fetching game info, state: ${JSON.stringify(state)}`);
-                getGameInfo(sessionId).then(info => {
+                getGameInfo(sessionId).then((info) => {
                     setState({
                         ...state,
                         socketConnectionId: state.socketConnectionId + 1,
                         sessionId: sessionId,
-                        gameInfo: info
+                        gameInfo: info,
                     });
 
                     if (info) {
@@ -148,13 +152,13 @@ export const GameProvider: React.FC<GameProviderProps> = (props: GameProviderPro
                     }
                 });
             }
-        }
+        },
+        isGameOver: isGameOver,
+        setIsGameOver: setIsGameOver,
     };
 
     // Provide the context to the children components
-    return <GameContext.Provider value={context}>
-        {props.children}
-    </GameContext.Provider>;
+    return <GameContext.Provider value={context}>{props.children}</GameContext.Provider>;
 };
 
 /**
