@@ -120,6 +120,9 @@ export default function GameComponent(): ReactElement {
                                 className="absolute w-full h-full"
                                 src={"api/" + iconPath}
                                 onClick={() => {
+                                    if (gameContext.isGameOver) {
+                                        return;
+                                    }
                                     console.log("Clicked: " + tileKey);
 
                                     postClick({
