@@ -16,18 +16,22 @@ import jchess.gamemode.PieceStore;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static jchess.el.v2.TileExpression.neighbor;
+import static jchess.el.v2.TileExpression.regex;
+import static jchess.el.v2.TileExpression.rotations;
+
 public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
     Rook(PieceType.ROOK, new PieceStore.PieceDefinition(
             "R",
-            TileExpression.regex("30+ 90+ 150+ 210+ 270+ 330+", false)
+            rotations(regex("30+", false), 6)
     )),
     Knight(PieceType.KNIGHT, new PieceStore.PieceDefinition(
             "N",
-            TileExpression.regex("30.0 30.60 90.60 90.120 150.120 150.180 210.180 210.240 270.240 270.300 330.300 330.0", true)
+            rotations(regex("30.0 30.60", true), 6)
     )),
     Bishop(PieceType.BISHOP, new PieceStore.PieceDefinition(
             "B",
-            TileExpression.regex("0+ 60+ 120+ 180+ 240+ 300+", false)
+            rotations(regex("0+", false), 6)
     )),
     Queen(PieceType.QUEEN, new PieceStore.PieceDefinition(
             "Q",
@@ -35,9 +39,11 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
     )),
     King(PieceType.KING, new PieceStore.PieceDefinition(
             "K",
-            TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330", false),
-            (game, kingIdentifier) -> new Castling(game, kingIdentifier, Rook.pieceType, 90, 270,
-                    TileExpression.regex("270.270.270", true), TileExpression.regex("90.90", true))
+            rotations(regex("0", false), 12),
+            (game, kingIdentifier) -> new Castling(
+                    game, kingIdentifier, Rook.pieceType, 90, 270,
+                    regex("270.270.270", true), regex("90.90", true)
+            )
     )),
     Pawn(PieceType.PAWN, new PieceStore.PieceDefinition(
             "",
@@ -47,7 +53,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             ),
             (game, pawnIdentifier) -> new SpecialFirstMove(
                     game, pawnIdentifier,
-                    TileExpression.filter(TileExpression.regex("330.330 30.30", false), TileExpression.FILTER_EMPTY_TILE)
+                    TileExpression.filter(regex("330.330 30.30", false), TileExpression.FILTER_EMPTY_TILE)
             ),
             (game, pawnId) -> new EnPassant(game, pawnId, PieceType.PAWN, new int[]{330, 30}, new int[]{300, 60}),
             (game, pawnId) -> {
@@ -61,22 +67,26 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
     Archer(PieceType.ARCHER, new PieceStore.PieceDefinition(
             "A",
             TileExpression.filter(
-                    TileExpression.regex("0{1,2} 30{1,2} 60{1,2} 90{1,2} 120{1,2} 150{1,2} 180{1,2} 210{1,2} 240{1,2} 270{1,2} 300{1,2} 330{1,2}", false),
+                    rotations(regex("0{1,2}", false), 12),
                     TileExpression.FILTER_EMPTY_TILE
             ),
-            (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 1, 2, true)
+            (game, archerIdentifier) -> new RangedAttack(
+                    game, archerIdentifier,
+                    TileExpression.rotations(regex("(0 30 60){1,2}", true), 6)
+            )
     )),
 
     Pegasus(PieceType.PEGASUS, new PieceStore.PieceDefinition(
             "PE",
-            TileExpression.repeat(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330", true), 0, 3, true)
+            rotations(regex("(30 90){1,3}", true), 6)
     )),
     Catapult(PieceType.CATAPULT, new PieceStore.PieceDefinition(
             "C",
-            TileExpression.filter(TileExpression.regex("0 30 60 90 120 150 180 210 240 270 300 330", false),
-                    TileExpression.FILTER_EMPTY_TILE)
-            ,
-            (game, catapultId) -> new RangedAttack(game, catapultId, 4, 6, false)
+            TileExpression.filter(rotations(neighbor(0), 12), TileExpression.FILTER_EMPTY_TILE),
+            (game, catapultId) -> new RangedAttack(
+                    game, catapultId,
+                    TileExpression.rotations(regex("(30 90){4,6}", true), 6)
+            )
     ));
 
 
