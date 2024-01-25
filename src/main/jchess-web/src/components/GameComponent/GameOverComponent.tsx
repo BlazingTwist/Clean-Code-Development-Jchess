@@ -29,11 +29,11 @@ export default function GameOverComponent({
 
     const gameContext = useGameContext();
     const [gameOver, setGameOver] = useState<GameOver | undefined>(undefined);
-    const [open, setOpen] = useState(externalOpen);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         if (externalOpen !== open) {
-            setOpen(externalOpen);
+            setOpen(true);
         }
     }, [externalOpen, open]);
 
@@ -55,6 +55,7 @@ export default function GameOverComponent({
         gameContext.gameOverSocket.addListener((event) => {
             let data: GameOver = JSON.parse(event.data);
             console.log("GameOver WebSocket message received", data);
+            gameContext.setIsGameOver(true);
             setGameOver(data);
             setOpen(true);
         });

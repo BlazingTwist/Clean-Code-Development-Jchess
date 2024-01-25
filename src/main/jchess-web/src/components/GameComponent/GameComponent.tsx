@@ -257,6 +257,12 @@ export default function GameComponent(): ReactElement {
         };
     }, [handleResize, renderBoard]);
 
+    const handleBoardClicked = () => {
+        if (gameContext.isGameOver) {
+            setIsGameOverOpen(true);
+        }
+    };
+
     return (
         <div className="p-12 max-w-[2000px] mx-auto flex flex-col xl:flex-row items-center md:justify-center gap-12">
             <div
@@ -265,7 +271,7 @@ export default function GameComponent(): ReactElement {
             >
                 <PieceSelectionComponent />
                 <GameOverComponent externalOpen={isGameOverOpen} onExternalOpenChange={handleGameOverOpenChange} />
-                <div onClick={() => setIsGameOverOpen(true)}>{board}</div>
+                <div onClick={handleBoardClicked}>{board}</div>
             </div>
 
             <div className="flex flex-col sm:flex-row xl:flex-col gap-2">
