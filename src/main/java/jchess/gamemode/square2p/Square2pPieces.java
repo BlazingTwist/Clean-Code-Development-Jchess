@@ -10,18 +10,22 @@ import jchess.gamemode.PieceStore;
 import java.awt.Point;
 import java.util.stream.Stream;
 
+import static jchess.el.v2.TileExpression.neighbor;
+import static jchess.el.v2.TileExpression.regex;
+import static jchess.el.v2.TileExpression.rotations;
+
 public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
     Rook(PieceType.ROOK, new PieceStore.PieceDefinition(
             "R",
-            TileExpression.regex("0+ 90+ 180+ 270+", false)
+            rotations(regex("0+", false), 4)
     )),
     Knight(PieceType.KNIGHT, new PieceStore.PieceDefinition(
             "N",
-            TileExpression.regex("0.315 0.45 90.45 90.135 180.135 180.225 270.225 270.315", true)
+            rotations(regex("0.315 0.45", true), 4)
     )),
     Bishop(PieceType.BISHOP, new PieceStore.PieceDefinition(
             "B",
-            TileExpression.regex("45+ 135+ 225+ 315+", false)
+            rotations(regex("45+", false), 4)
     )),
     Queen(PieceType.QUEEN, new PieceStore.PieceDefinition(
             "Q",
@@ -29,9 +33,11 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
     )),
     King(PieceType.KING, new PieceStore.PieceDefinition(
             "K",
-            TileExpression.regex("0 45 90 135 180 225 270 315", false),
-            (game, kingIdentifier) -> new Castling(game, kingIdentifier, Rook.pieceType, 90, 270,
-                    TileExpression.regex("270.270", true), TileExpression.regex("90.90", true))
+            rotations(regex("0", false), 8),
+            (game, kingIdentifier) -> new Castling(
+                    game, kingIdentifier, Rook.pieceType, 90, 270,
+                    regex("270.270", true), regex("90.90", true)
+            )
     )),
     Pawn(PieceType.PAWN, new PieceStore.PieceDefinition(
             "",
@@ -41,7 +47,7 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
             ),
             (game, pawnIdentifier) -> new SpecialFirstMove(
                     game, pawnIdentifier,
-                    TileExpression.filter(TileExpression.regex("0.0", false), TileExpression.FILTER_EMPTY_TILE)
+                    TileExpression.filter(regex("0.0", false), TileExpression.FILTER_EMPTY_TILE)
             ),
             (game, pawnIdentifier) -> new EnPassant(game, pawnIdentifier, PieceType.PAWN, new int[]{0}, new int[]{45, 315}),
             (game, pawnIdentifier) -> {
@@ -55,20 +61,26 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
     Archer(PieceType.ARCHER, new PieceStore.PieceDefinition(
             "A",
             TileExpression.filter(
-                    TileExpression.regex("0{1,2} 45{1,2} 90{1,2} 135{1,2} 180{1,2} 225{1,2} 270{1,2} 315{1,2}", false),
+                    rotations(regex("0{1,2}", false), 8),
                     TileExpression.FILTER_EMPTY_TILE
             ),
-            (game, archerIdentifier) -> new RangedAttack(game, archerIdentifier, 0, 2, true)
+            (game, archerIdentifier) -> new RangedAttack(
+                    game, archerIdentifier,
+                    rotations(regex("(0 45){1,3}", false), 8)
+            )
     )),
 
     Pegasus(PieceType.PEGASUS, new PieceStore.PieceDefinition(
             "PE",
-            TileExpression.repeat(TileExpression.regex("0 45 90 135 180 225 270 315", true), 0, 3, true)
+            rotations(regex("(0 45){1,2}", true), 8)
     )),
     Catapult(PieceType.CATAPULT, new PieceStore.PieceDefinition(
             "C",
-            TileExpression.filter(TileExpression.regex("0 45 90 135 180 225 270 315", false), TileExpression.FILTER_EMPTY_TILE),
-            (game, catapultId) -> new RangedAttack(game, catapultId, 3, 3, true)
+            TileExpression.filter(rotations(neighbor(0), 8), TileExpression.FILTER_EMPTY_TILE),
+            (game, catapultId) -> new RangedAttack(
+                    game, catapultId,
+                    rotations(regex("(0 45){3}", true), 8)
+            )
     ));
 
     private final PieceType pieceType;

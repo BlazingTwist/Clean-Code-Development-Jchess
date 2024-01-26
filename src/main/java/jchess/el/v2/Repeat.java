@@ -2,6 +2,8 @@ package jchess.el.v2;
 
 import jchess.common.components.PieceIdentifier;
 
+import java.util.Objects;
+
 final class Repeat implements ExpressionCompiler {
     private final ExpressionCompiler repeatedExpression;
     private final int repeatMin;
@@ -35,5 +37,33 @@ final class Repeat implements ExpressionCompiler {
             int maxDepth = repeatMax >= 0 ? (repeatMax - repeatMin) : Integer.MAX_VALUE;
             return TileExpression.recursiveMap(startTiles, moveExpression, maxDepth);
         };
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Repeat other = (Repeat) o;
+        if (repeatMin != other.repeatMin) return false;
+        if (repeatMax != other.repeatMax) return false;
+        if (aerial != other.aerial) return false;
+        if (!Objects.equals(repeatedExpression, other.repeatedExpression)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = repeatedExpression != null ? repeatedExpression.hashCode() : 0;
+        result = 31 * result + repeatMin;
+        result = 31 * result + repeatMax;
+        result = 31 * result + (aerial ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Repeat(min=" + repeatMin + ",max=" + repeatMax + ",aerial=" + aerial + "," + repeatedExpression + ")";
     }
 }

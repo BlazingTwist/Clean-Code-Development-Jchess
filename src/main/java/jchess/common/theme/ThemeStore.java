@@ -8,7 +8,6 @@ import dx.schema.conf.Marker;
 import dx.schema.conf.Piece;
 import dx.schema.conf.PiecesTheme;
 import dx.schema.conf.Theme;
-import dx.schema.types.LayoutId;
 import dx.schema.types.PieceType;
 import jchess.gamemode.GameModeStore;
 import jchess.server.util.JsonUtils;
@@ -92,20 +91,18 @@ public enum ThemeStore {
         return themes;
     }
 
-    public List<Theme> getThemes(LayoutId layoutId) {
-        GameModeStore.GameModeProvider gameMode = GameModeStore.getGameMode(layoutId);
-
+    public List<Theme> getThemes(GameModeStore.GameModeProvider gameModeProvider) {
         return themes.stream()
                 .filter(theme -> {
                     if (theme.getBoardTheme() == null) return false;
-                    return theme.getBoardTheme().getLayouts().stream().anyMatch(layout -> layout.getLayoutId() == layoutId);
+                    return theme.getBoardTheme().getLayouts().stream().anyMatch(layout -> layout.getLayoutId() == gameModeProvider.layoutId());
                 })
-                .filter(theme -> theme.getPiecesTheme() != null && theme.getPiecesTheme().getPlayerColors().size() >= gameMode.getNumPlayers())
+                .filter(theme -> theme.getPiecesTheme() != null && theme.getPiecesTheme().getPlayerColors().size() >= gameModeProvider.numPlayers())
                 .filter(theme -> {
                     if (theme.getPiecesTheme() == null) return false;
 
                     Set<PieceType> themePieceTypes = theme.getPiecesTheme().getPieces().stream().map(Piece::getPieceType).collect(Collectors.toSet());
-                    Set<PieceType> modePieceTypes = gameMode.getPieceStore().getPieces();
+                    Set<PieceType> modePieceTypes = gameModeProvider.pieceStore().getPieces();
                     return themePieceTypes.containsAll(modePieceTypes); // require that theme supports all pieces of the gameMode
                 })
                 .toList();

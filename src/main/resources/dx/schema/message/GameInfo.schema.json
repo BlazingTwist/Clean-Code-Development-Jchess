@@ -4,8 +4,12 @@
     "type": "object",
     "javaType": "dx.schema.message.GameInfo",
     "properties": {
+        "gameModeId": {
+            "description": "Id of the gameMode to be used",
+            "type": "string"
+        },
         "layoutId": {
-            "description": "Id the layout to be used",
+            "description": "Id of the layout to be used",
             "$ref": "../types/LayoutId.schema.json"
         },
         "themeName": {
@@ -25,6 +29,7 @@
         }
     },
     "required": [
+        "gameModeId",
         "layoutId",
         "themeName",
         "playerNames",
