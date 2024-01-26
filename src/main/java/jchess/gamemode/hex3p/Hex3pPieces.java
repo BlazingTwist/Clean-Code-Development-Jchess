@@ -7,6 +7,7 @@ import jchess.common.moveset.special.EnPassant;
 import jchess.common.moveset.special.PawnPromotion;
 import jchess.common.moveset.special.SpecialFirstMove;
 import jchess.common.moveset.special.RangedAttack;
+import jchess.common.moveset.special.ShapeShifting;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
 import jchess.el.v2.ExpressionCompiler;
@@ -77,6 +78,13 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
                     TileExpression.FILTER_EMPTY_TILE)
             ,
             (game, catapultId) -> new RangedAttack(game, catapultId, 4, 6, false)
+    )),
+    Skrull(PieceType.SKRULL, new PieceStore.PieceDefinition(
+            "S",
+            Pawn.pieceDefinition.baseMoves(),
+            (game, skrullId) -> new ShapeShifting(game, skrullId, 1, 2,
+                    PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.ARCHER, PieceType.CATAPULT, PieceType.PAWN
+            )
     ));
 
 

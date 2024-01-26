@@ -11,7 +11,8 @@
         "Pawn",
         "Archer",
         "Pegasus",
-        "Catapult"
+        "Catapult",
+        "Skrull"
     ],
     "additionalProperties": false
 }

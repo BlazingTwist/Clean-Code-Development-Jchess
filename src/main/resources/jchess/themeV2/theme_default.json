@@ -123,6 +123,11 @@
                 "pieceType": "Catapult",
                 "pathPrefix": "./default/piece/Catapult",
                 "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Skrull",
+                "pathPrefix": "./default/piece/Skrull",
+                "pathSuffix": ".png"
             }
         ]
     }

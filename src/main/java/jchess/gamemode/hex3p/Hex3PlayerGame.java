@@ -145,14 +145,14 @@ public class Hex3PlayerGame extends BaseChessGame {
         placeKing(27, 3, PLAYER_MEDIUM);
         placeKing(3, 5, PLAYER_DARK);
 
-        placePawn(7, 15, PLAYER_LIGHT);
-        placePawn(25, 15, PLAYER_LIGHT);
+        placeSkrull(7, 15, PLAYER_LIGHT);
+        placeSkrull(25, 15, PLAYER_LIGHT);
 
-        placePawn(31, 9, PLAYER_MEDIUM);
-        placePawn(22, 0, PLAYER_MEDIUM);
+        placeSkrull(31, 9, PLAYER_MEDIUM);
+        placeSkrull(22, 0, PLAYER_MEDIUM);
 
-        placePawn(10, 0, PLAYER_DARK);
-        placePawn(1, 9, PLAYER_DARK);
+        placeSkrull(10, 0, PLAYER_DARK);
+        placeSkrull(1, 9, PLAYER_DARK);
 
         for (int i = 0; i < 9; i++) {
             placePawn(8 + (i * 2), 14, PLAYER_LIGHT);
@@ -228,6 +228,10 @@ public class Hex3PlayerGame extends BaseChessGame {
 
     private void placeCatapult(int x, int y, int playerColor) {
         placePiece(x, y, playerColor, Hex3pPieces.Catapult);
+    }
+
+    private void placeSkrull(int x, int y, int playerColor) {
+        placePiece(x, y, playerColor, Hex3pPieces.Skrull);
     }
 
     private void placePiece(int x, int y, int playerColor, Hex3pPieces piece) {
