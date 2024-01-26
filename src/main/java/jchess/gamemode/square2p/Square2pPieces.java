@@ -2,7 +2,11 @@ package jchess.gamemode.square2p;
 
 import dx.schema.message.Piece;
 import dx.schema.types.PieceType;
-import jchess.common.moveset.special.*;
+import jchess.common.moveset.special.Castling;
+import jchess.common.moveset.special.EnPassant;
+import jchess.common.moveset.special.PawnPromotion;
+import jchess.common.moveset.special.RangedAttack;
+import jchess.common.moveset.special.SpecialFirstMove;
 import jchess.ecs.Entity;
 import jchess.el.v2.TileExpression;
 import jchess.gamemode.PieceStore;
@@ -42,8 +46,8 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
     Pawn(PieceType.PAWN, new PieceStore.PieceDefinition(
             "",
             TileExpression.or(
-                    TileExpression.filter(TileExpression.neighbor(0), TileExpression.FILTER_EMPTY_TILE),
-                    TileExpression.filter2(TileExpression.neighbor(45, 315), TileExpression.FILTER_CAPTURE)
+                    TileExpression.filter(neighbor(0), TileExpression.FILTER_EMPTY_TILE),
+                    TileExpression.filter2(neighbor(45, 315), TileExpression.FILTER_CAPTURE)
             ),
             (game, pawnIdentifier) -> new SpecialFirstMove(
                     game, pawnIdentifier,

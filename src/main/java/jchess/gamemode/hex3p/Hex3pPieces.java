@@ -2,9 +2,13 @@ package jchess.gamemode.hex3p;
 
 import dx.schema.types.PieceType;
 import jchess.common.components.PieceIdentifier;
-import jchess.common.moveset.special.*;
 import jchess.ecs.Entity;
+import jchess.common.moveset.special.Castling;
+import jchess.common.moveset.special.EnPassant;
+import jchess.common.moveset.special.PawnPromotion;
+import jchess.common.moveset.special.RangedAttack;
 import jchess.common.moveset.special.ShapeShifting;
+import jchess.common.moveset.special.SpecialFirstMove;
 import jchess.el.CompiledTileExpression;
 import jchess.el.v2.ExpressionCompiler;
 import jchess.el.v2.TileExpression;
@@ -45,8 +49,8 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
     Pawn(PieceType.PAWN, new PieceStore.PieceDefinition(
             "",
             TileExpression.or(
-                    TileExpression.filter(TileExpression.neighbor(330, 30), TileExpression.FILTER_EMPTY_TILE),
-                    TileExpression.filter2(TileExpression.neighbor(300, 60), TileExpression.FILTER_CAPTURE)
+                    TileExpression.filter(neighbor(330, 30), TileExpression.FILTER_EMPTY_TILE),
+                    TileExpression.filter2(neighbor(300, 60), TileExpression.FILTER_CAPTURE)
             ),
             (game, pawnIdentifier) -> new SpecialFirstMove(
                     game, pawnIdentifier,
@@ -56,7 +60,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             (game, pawnId) -> {
                 int owner = pawnId.ownerId();
                 return new PawnPromotion(
-                        game, getPromotionTilePredicate(TileExpression.neighbor(330, 30), pawnId),
+                        game, getPromotionTilePredicate(neighbor(330, 30), pawnId),
                         Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(dx.schema.message.Piece[]::new)
                 );
             }
@@ -69,7 +73,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             ),
             (game, archerIdentifier) -> new RangedAttack(
                     game, archerIdentifier,
-                    TileExpression.rotations(regex("(0 30 60){1,2}", true), 6)
+                    rotations(regex("(0 30 60){1,2}", true), 6)
             )
     )),
 
@@ -82,7 +86,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             TileExpression.filter(rotations(neighbor(0), 12), TileExpression.FILTER_EMPTY_TILE),
             (game, catapultId) -> new RangedAttack(
                     game, catapultId,
-                    TileExpression.rotations(regex("(30 90){4,6}", true), 6)
+                    rotations(regex("(30 90){4,6}", true), 6)
             )
     )),
     Skrull(PieceType.SKRULL, new PieceStore.PieceDefinition(
