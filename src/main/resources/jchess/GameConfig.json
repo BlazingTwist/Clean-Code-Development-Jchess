@@ -1,5 +1,6 @@
 {
     "themes": [
-        "./themeV2/theme_default.json"
+        "./themeV2/theme_default.json",
+        "./themeV2/theme_matlak.json"
     ]
 }
