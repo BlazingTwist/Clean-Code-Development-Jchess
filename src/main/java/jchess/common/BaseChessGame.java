@@ -16,6 +16,8 @@ import jchess.common.moveset.MoveIntention;
 import jchess.ecs.EcsEventManager;
 import jchess.ecs.Entity;
 import jchess.ecs.EntityManager;
+import jchess.gamemode.IPieceLayoutProvider;
+import jchess.gamemode.PieceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +28,17 @@ public abstract class BaseChessGame implements IChessGame {
     protected final EntityManager entityManager;
     protected final EcsEventManager eventManager;
     protected final int numPlayers;
+    protected final PieceStore pieceStore;
+    protected final IPieceLayoutProvider pieceLayout;
 
     protected int activePlayerId = 0;
 
-    public BaseChessGame(int numPlayers) {
+    public BaseChessGame(int numPlayers, PieceStore pieceStore, IPieceLayoutProvider pieceLayout) {
         this.entityManager = new EntityManager();
         this.eventManager = new EcsEventManager();
         this.numPlayers = numPlayers;
+        this.pieceStore = pieceStore;
+        this.pieceLayout = pieceLayout;
 
         eventManager.registerEvent(new GameOverEvent());
         eventManager.registerEvent(new RenderEvent());
@@ -197,6 +203,7 @@ public abstract class BaseChessGame implements IChessGame {
     @Override
     public void start() {
         generateBoard();
+        pieceLayout.placePieces(this, this::getEntityAtPosition);
         eventManager.getEvent(BoardInitializedEvent.class).fire(null);
         eventManager.getEvent(RenderEvent.class).fire(null);
         checkGameOver();
@@ -223,6 +230,16 @@ public abstract class BaseChessGame implements IChessGame {
         fromTile.piece = null;
 
         eventManager.getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(fromTile, toTile, moveType));
+        eventManager.getEvent(ComputeAttackInfoEvent.class).fire(null);
+
+        // end turn
+        activePlayerId = (activePlayerId + 1) % numPlayers;
+        checkGameOver();
+    }
+
+    @Override
+    public void movePieceStationary(Entity tile, Class<?> moveType) {
+        eventManager.getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(tile, tile, moveType));
         eventManager.getEvent(ComputeAttackInfoEvent.class).fire(null);
 
         // end turn

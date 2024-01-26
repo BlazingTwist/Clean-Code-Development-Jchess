@@ -5,8 +5,9 @@ import jchess.common.BaseChessGame;
 import jchess.common.components.PieceComponent;
 import jchess.common.components.PieceIdentifier;
 import jchess.common.components.TileComponent;
-import jchess.common.events.PieceMoveEvent;
 import jchess.ecs.Entity;
+import jchess.gamemode.IPieceLayoutProvider;
+import jchess.gamemode.PieceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +20,8 @@ public class Square2PlayerGame extends BaseChessGame {
     private final Entity[][] tiles = new Entity[numTiles][numTiles];
 
 
-    public Square2PlayerGame() {
-        super(2);
-
-        PieceMoveEvent pieceMoveEvent = eventManager.getEvent(PieceMoveEvent.class);
-        pieceMoveEvent.addListener(event -> {
-            // TODO erja, update the move history here.
-        });
+    public Square2PlayerGame(PieceStore pieceStore, IPieceLayoutProvider layoutProvider) {
+        super(2, pieceStore, layoutProvider);
     }
 
     @Override
@@ -92,68 +88,6 @@ public class Square2PlayerGame extends BaseChessGame {
                 tileRow[x].tile = tile;
             }
         }
-
-        placeRook(0, 0, false);
-        placeRook(7, 0, false);
-        placeRook(0, 7, true);
-        placeRook(7, 7, true);
-
-        placeKnight(1, 0, false);
-        placeKnight(6, 0, false);
-        placeKnight(1, 7, true);
-        placeKnight(6, 7, true);
-
-        placeBishop(2, 0, false);
-        placeBishop(5, 0, false);
-        placeBishop(2, 7, true);
-        placeBishop(5, 7, true);
-
-        placeQueen(3, 0, false);
-        placeQueen(3, 7, true);
-
-        placeKing(4, 0, false);
-        placeKing(4, 7, true);
-
-        for (int x = 0; x < numTiles; x++) {
-            placePawn(x, 1, false);
-            placePawn(x, 6, true);
-        }
-    }
-
-    private void placeRook(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, Square2pPieces.Rook);
-    }
-
-    private void placeKnight(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, Square2pPieces.Knight);
-    }
-
-    private void placeBishop(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, Square2pPieces.Bishop);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private void placeQueen(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, Square2pPieces.Queen);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private void placeKing(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, Square2pPieces.King);
-    }
-
-    private void placePawn(int x, int y, boolean isWhite) {
-        placePiece(x, y, isWhite, Square2pPieces.Pawn);
-    }
-
-    private void placePiece(int x, int y, boolean isWhite, Square2pPieces pieceType) {
-        Entity tile = getEntityAtPosition(x, y);
-        if (tile == null) {
-            logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
-            return;
-        }
-
-        placePiece(tile, isWhite ? 0 : 1, isWhite ? 0 : 180, pieceType);
     }
 
     private void placePiece(Entity tile, int ownerId, int direction, Square2pPieces pieceType) {

@@ -6,9 +6,10 @@ import jchess.common.BaseChessGame;
 import jchess.common.components.PieceComponent;
 import jchess.common.components.PieceIdentifier;
 import jchess.common.components.TileComponent;
-import jchess.common.events.PieceMoveEvent;
 import jchess.ecs.Entity;
+import jchess.gamemode.IPieceLayoutProvider;
 import jchess.gamemode.PieceStore;
+import jchess.gamemode.PieceStore.IPieceDefinitionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,19 +19,11 @@ public class Hex3PlayerGame extends BaseChessGame {
     private static final Logger logger = LoggerFactory.getLogger(Hex3PlayerGame.class);
     private static final int numTilesHorizontal = 17 + 16;
     private static final int numTilesVertical = 17;
-    private static final int PLAYER_LIGHT = 0;
-    private static final int PLAYER_MEDIUM = 1;
-    private static final int PLAYER_DARK = 2;
 
     private final Entity[][] tiles = new Entity[numTilesVertical][numTilesHorizontal];
 
-    public Hex3PlayerGame() {
-        super(3);
-
-        PieceMoveEvent pieceMoveEvent = eventManager.getEvent(PieceMoveEvent.class);
-        pieceMoveEvent.addListener(event -> {
-            // TODO erja, update the move history here.
-        });
+    public Hex3PlayerGame(PieceStore pieceStore, IPieceLayoutProvider layoutProvider) {
+        super(3, pieceStore, layoutProvider);
     }
 
     @Override
@@ -66,14 +59,14 @@ public class Hex3PlayerGame extends BaseChessGame {
 
     @Override
     public void createPiece(Entity targetTile, PieceType pieceType, int ownerId) {
-        for (Hex3pPieces piece : Hex3pPieces.values()) {
-            if (piece.getPieceType() == pieceType) {
-                int direction = ((ownerId - 3) * (-120)) % 360; // [0, 240, 120]
-                placePiece(targetTile, ownerId, direction, piece);
-                return;
-            }
+        IPieceDefinitionProvider pieceProvider = pieceStore.getPiece(pieceType);
+        if (pieceProvider == null) {
+            logger.error("unable to place piece with pieceType '" + pieceType + "'. PieceType does not exist.");
+            return;
         }
-        logger.error("unable to place piece with pieceType '" + pieceType + "'. PieceType does not exist.");
+
+        int direction = ((ownerId - 3) * (-120)) % 360; // [0, 240, 120]
+        placePiece(targetTile, ownerId, direction, pieceProvider);
     }
 
     @Override
@@ -112,90 +105,12 @@ public class Hex3PlayerGame extends BaseChessGame {
                 tileRow[x].tile = tile;
             }
         }
-
-        placeRook(8, 16, PLAYER_LIGHT);
-        placeRook(24, 16, PLAYER_LIGHT);
-        placeRook(32, 8, PLAYER_MEDIUM);
-        placeRook(24, 0, PLAYER_MEDIUM);
-        placeRook(8, 0, PLAYER_DARK);
-        placeRook(0, 8, PLAYER_DARK);
-
-        placeKnight(10, 16, PLAYER_LIGHT);
-        placeKnight(22, 16, PLAYER_LIGHT);
-        placeKnight(31, 7, PLAYER_MEDIUM);
-        placeKnight(25, 1, PLAYER_MEDIUM);
-        placeKnight(7, 1, PLAYER_DARK);
-        placeKnight(1, 7, PLAYER_DARK);
-
-        placeBishop(12, 16, PLAYER_LIGHT);
-        placeBishop(16, 16, PLAYER_LIGHT);
-        placeBishop(20, 16, PLAYER_LIGHT);
-        placeBishop(30, 6, PLAYER_MEDIUM);
-        placeBishop(28, 4, PLAYER_MEDIUM);
-        placeBishop(26, 2, PLAYER_MEDIUM);
-        placeBishop(6, 2, PLAYER_DARK);
-        placeBishop(4, 4, PLAYER_DARK);
-        placeBishop(2, 6, PLAYER_DARK);
-
-        placeQueen(14, 16, PLAYER_LIGHT);
-        placeQueen(29, 5, PLAYER_MEDIUM);
-        placeQueen(5, 3, PLAYER_DARK);
-
-        placeKing(18, 16, PLAYER_LIGHT);
-        placeKing(27, 3, PLAYER_MEDIUM);
-        placeKing(3, 5, PLAYER_DARK);
-
-        for (int i = 0; i < 10; i++) {
-            placePawn(7 + (i * 2), 15, PLAYER_LIGHT);
-            placePawn(31 - i, 9 - i, PLAYER_MEDIUM);
-            placePawn(10 - i, i, PLAYER_DARK);
-        }
-        for (int i = 0; i < 9; i++) {
-            placePawn(8 + (i * 2), 14, PLAYER_LIGHT);
-            placePawn(29 - i, 9 - i, PLAYER_MEDIUM);
-            placePawn(11 - i, 1 + i, PLAYER_DARK);
-        }
     }
 
-    private void placeRook(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, Hex3pPieces.Rook);
-    }
-
-    private void placeKnight(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, Hex3pPieces.Knight);
-    }
-
-    private void placeBishop(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, Hex3pPieces.Bishop);
-    }
-
-    private void placeQueen(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, Hex3pPieces.Queen);
-    }
-
-    private void placeKing(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, Hex3pPieces.King);
-    }
-
-    private void placePawn(int x, int y, int playerColor) {
-        placePiece(x, y, playerColor, Hex3pPieces.Pawn);
-    }
-
-    private void placePiece(int x, int y, int playerColor, Hex3pPieces piece) {
-        Entity tile = getEntityAtPosition(x, y);
-        if (tile == null) {
-            logger.error("cannot place piece on tile ({}, {}). No tile found.", x, y);
-            return;
-        }
-
-        int direction = ((playerColor - 3) * (-120)) % 360; // [0, 240, 120]
-        placePiece(tile, playerColor, direction, piece);
-    }
-
-    private void placePiece(Entity tile, int ownerId, int direction, Hex3pPieces piece) {
-        PieceStore.PieceDefinition pieceDefinition = piece.getPieceDefinition();
+    private void placePiece(Entity tile, int ownerId, int direction, IPieceDefinitionProvider pieceProvider) {
+        PieceStore.PieceDefinition pieceDefinition = pieceProvider.getPieceDefinition();
         PieceIdentifier pieceIdentifier = new PieceIdentifier(
-                piece.getPieceType(),
+                pieceProvider.getPieceType(),
                 pieceDefinition.shortName(),
                 ownerId,
                 direction

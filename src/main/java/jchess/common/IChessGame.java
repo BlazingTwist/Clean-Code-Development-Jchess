@@ -18,5 +18,7 @@ public interface IChessGame {
 
     void movePiece(Entity fromTile, Entity toTile, Class<?> moveType);
 
+    void movePieceStationary(Entity Tile, Class<?> moveType);
+
     dx.schema.types.Entity applyPerspective(dx.schema.types.Entity tile, int playerIndex);
 }

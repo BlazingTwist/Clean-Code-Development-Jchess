@@ -8,7 +8,11 @@
         "Bishop",
         "Queen",
         "King",
-        "Pawn"
+        "Pawn",
+        "Archer",
+        "Pegasus",
+        "Catapult",
+        "Skrull"
     ],
     "additionalProperties": false
 }

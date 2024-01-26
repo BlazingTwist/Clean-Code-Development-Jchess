@@ -127,6 +127,7 @@ export function NewGameModal(): ReactElement | null {
         // TODO improve error handling
 
         postCreateGame({
+            gameModeId: gameMode?.modeId!,
             layoutId: gameMode!.layoutId!,
             themeName: selectedTheme!,
             playerNames: playerNames,

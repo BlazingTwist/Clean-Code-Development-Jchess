@@ -1,7 +1,6 @@
 package jchess.server;
 
 import dx.schema.message.GameInfo;
-import dx.schema.types.LayoutId;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -89,8 +88,8 @@ public class JChessServer {
     }
 
     public static String startNewGame(GameInfo createInfo) {
-        LayoutId layoutId = createInfo.getLayoutId();
-        IChessGame game = GameModeStore.getGameMode(layoutId).newGame();
+        String modeId = createInfo.getGameModeId();
+        IChessGame game = GameModeStore.getGameMode(modeId).newGame();
 
         GameSessionData gameData = new GameSessionData(game, createInfo);
         SessionManager<GameSessionData> gameManager = SessionMgrController.lookupSessionManager(GameSessionData.class);
@@ -100,7 +99,7 @@ public class JChessServer {
         eventManager.getEvent(RenderEvent.class).addListener(x -> boardUpdateWebsocket.onGameRenderEvent(sessionId, game));
         eventManager.getEvent(OfferPieceSelectionEvent.class).addListener(x -> pieceSelectionWebsocket.onOfferPieceSelectionEvent(sessionId, x));
         eventManager.getEvent(GameOverEvent.class).addListener(x -> gameOverWebsocket.onGameOverEvent(sessionId, x));
-        logger.info("Starting new game. Mode '{}'. SessionId '{}'", layoutId, sessionId);
+        logger.info("Starting new game. Mode '{}'. SessionId '{}'", modeId, sessionId);
         game.start();
 
         return sessionId;

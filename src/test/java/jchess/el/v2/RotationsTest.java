@@ -2,6 +2,8 @@ package jchess.el.v2;
 
 import dx.schema.types.PieceType;
 import jchess.ecs.Entity;
+import jchess.gamemode.IPieceLayoutProvider;
+import jchess.gamemode.PieceStore;
 import jchess.gamemode.square2p.Square2PlayerGame;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,7 @@ public class RotationsTest {
                 TileExpression.repeat(TileExpression.neighbor(270), 1, 2, true)
         );
 
-        Square2pBoardProvider square2pProvider = new Square2pBoardProvider();
+        Square2pBoardProvider square2pProvider = new Square2pBoardProvider(null, null);
         square2pProvider.generateBoard();
         Entity originTile = square2pProvider.getEntityAtPosition(3, 3);
         square2pProvider.createPiece(originTile, PieceType.PAWN, 0);
@@ -36,6 +38,10 @@ public class RotationsTest {
     }
 
     private static final class Square2pBoardProvider extends Square2PlayerGame {
+        public Square2pBoardProvider(PieceStore pieceStore, IPieceLayoutProvider layoutProvider) {
+            super(pieceStore, layoutProvider);
+        }
+
         @Override
         protected Entity getEntityAtPosition(int x, int y) {
             return super.getEntityAtPosition(x, y);
