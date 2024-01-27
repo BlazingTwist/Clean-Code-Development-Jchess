@@ -1,0 +1,134 @@
+{
+    "displayName": "Matlak",
+    "boardTheme": {
+        "layouts": [
+            {
+                "layoutId": "hex3p",
+                "tileSize": {
+                    "x": 30,
+                    "y": 32
+                },
+                "tileStride": {
+                    "x": 15,
+                    "y": 24
+                },
+                "tiles": [
+                    "./matlak/board_hex3/hex-Light.png",
+                    "./matlak/board_hex3/hex-Medium.png",
+                    "./matlak/board_hex3/hex-Dark.png"
+                ],
+                "markers": [
+                    {
+                        "markerType": "yesAction",
+                        "icon": "./matlak/board_hex3/hexMarker_yesAction.png"
+                    },
+                    {
+                        "markerType": "noAction",
+                        "icon": "./matlak/board_hex3/hexMarker_noAction.png"
+                    },
+                    {
+                        "markerType": "selected",
+                        "icon": "./matlak/board_hex3/hexMarker_selected.png"
+                    }
+                ]
+            },
+            {
+                "layoutId": "square2p",
+                "tileSize": {
+                    "x": 50,
+                    "y": 50
+                },
+                "tileStride": {
+                    "x": 50,
+                    "y": 50
+                },
+                "tiles": [
+                    "./matlak/board_square/tile-Light.png",
+                    "./matlak/board_square/tile-Dark.png"
+                ],
+                "markers": [
+                    {
+                        "markerType": "yesAction",
+                        "icon": "./matlak/board_square/tileMarker_yesAction.png"
+                    },
+                    {
+                        "markerType": "noAction",
+                        "icon": "./matlak/board_square/tileMarker_noAction.png"
+                    },
+                    {
+                        "markerType": "selected",
+                        "icon": "./matlak/board_square/tileMarker_selected.png"
+                    }
+                ]
+            }
+        ]
+    },
+    "piecesTheme": {
+        "playerColors": [
+            {
+                "colorCode": "#ffffff",
+                "fileSuffix": "-W"
+            },
+            {
+                "colorCode": "#000000",
+                "fileSuffix": "-B"
+            },
+            {
+                "colorCode": "#dd7373",
+                "fileSuffix": "-M"
+            }
+        ],
+        "pieces": [
+            {
+                "pieceType": "Rook",
+                "pathPrefix": "./matlak/piece/Rook",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Knight",
+                "pathPrefix": "./matlak/piece/Knight",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Bishop",
+                "pathPrefix": "./matlak/piece/Bishop",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Queen",
+                "pathPrefix": "./matlak/piece/Queen",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "King",
+                "pathPrefix": "./matlak/piece/King",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Pawn",
+                "pathPrefix": "./matlak/piece/Pawn",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Archer",
+                "pathPrefix": "./matlak/piece/Archer",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Pegasus",
+                "pathPrefix": "./matlak/piece/Pegasus",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Catapult",
+                "pathPrefix": "./matlak/piece/Catapult",
+                "pathSuffix": ".png"
+            },
+            {
+                "pieceType": "Skrull",
+                "pathPrefix": "./matlak/piece/Skrull",
+                "pathSuffix": ".png"
+            }
+        ]
+    }
+}

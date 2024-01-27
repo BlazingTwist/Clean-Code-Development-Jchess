@@ -30,6 +30,9 @@
                   <Item>
                     <option name="path" value="src/main/resources/jchess/themeV2/theme_default.json" />
                   </Item>
+                  <Item>
+                    <option name="path" value="src/main/resources/jchess/themeV2/theme_matlak.json" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>
