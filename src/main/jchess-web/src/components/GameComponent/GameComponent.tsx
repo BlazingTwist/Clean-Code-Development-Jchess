@@ -1,14 +1,14 @@
 "use client";
-import React, { ReactElement, useCallback, useEffect, useRef, useState } from "react";
-import { useGameContext } from "@/src/app/context/game_context";
-import { useBoardUpdateContext } from "@/src/app/context/board_update_context";
-import { Entity } from "@/models/BoardUpdate.schema";
+import React, {ReactElement, useCallback, useEffect, useRef, useState} from "react";
+import {useGameContext} from "@/src/app/context/game_context";
+import {useBoardUpdateContext} from "@/src/app/context/board_update_context";
+import {Entity} from "@/models/BoardUpdate.schema";
 import Config from "@/src/utils/config";
-import { postClick } from "@/src/services/rest_api_service";
+import {postClick} from "@/src/services/rest_api_service";
 import PlayerOverviewComponent from "./PlayerOverviewComponent";
 import ChatComponent from "./ChatComponent";
 import PieceSelectionComponent from "./PieceSelectionComponent";
-import { useThemeHelperContext } from "@/src/app/context/theme_helper_context";
+import {useThemeHelperContext} from "@/src/app/context/theme_helper_context";
 import GameOverComponent from "@/src/components/GameComponent/GameOverComponent";
 
 export default function GameComponent(): ReactElement {
@@ -22,8 +22,8 @@ export default function GameComponent(): ReactElement {
 
     // Contexts
     const gameContext = useGameContext();
-    const { boardUpdate } = useBoardUpdateContext(); // this is the current game state coming from the server
-    const { themeHelper } = useThemeHelperContext();
+    const {boardUpdate} = useBoardUpdateContext(); // this is the current game state coming from the server
+    const {themeHelper} = useThemeHelperContext();
 
     // State
     const canvasRef = useRef<HTMLInputElement>(null);
@@ -51,7 +51,7 @@ export default function GameComponent(): ReactElement {
             minTilePos = [minX, minY];
             maxTilePos = [maxX, maxY];
         }
-        return { maxTilePos, minTilePos };
+        return {maxTilePos, minTilePos};
     }
 
     /**
@@ -81,7 +81,11 @@ export default function GameComponent(): ReactElement {
             const tileStride = themeHelper.getTileStride();
             const rawBoardWidth = tileSize!.x + tileStride.x * (maxTilePos[0] - minTilePos[0]);
             const rawBoardHeight = tileSize!.y + tileStride.y * (maxTilePos[1] - minTilePos[1]);
+
             let scaleFactor = offsetWidthFromCanvasRef / rawBoardWidth;
+            if (rawBoardHeight * scaleFactor > offsetHeightFromCanvasRef) {
+                scaleFactor = offsetHeightFromCanvasRef / rawBoardHeight;
+            }
 
             const centerX = offsetWidthFromCanvasRef / 2;
             const centerY = offsetHeightFromCanvasRef / 2;
@@ -226,7 +230,7 @@ export default function GameComponent(): ReactElement {
         }
 
         // calculate the min and max tile positions
-        const { maxTilePos, minTilePos } = calculateMinMaxTilePosition(boardUpdate.boardState);
+        const {maxTilePos, minTilePos} = calculateMinMaxTilePosition(boardUpdate.boardState);
 
         // calculate the piece size adjustment and translation offset to ensure clickability of the pieces
         const pieceSizeAdjustment = 0.7; // this is needed so the bounding box of the piece is not overlapping with other pieces
@@ -272,14 +276,14 @@ export default function GameComponent(): ReactElement {
                 ref={canvasRef}
                 className="w-[80vw] h-[80vw] xl:w-[50vw] xl:h-[50vw] md:w-[65vw] md:h-[65vw] min-w-[20px] min-h-[200px] max-w-[80vh] max-h-[80vh] justify-self-center relative"
             >
-                <PieceSelectionComponent />
-                <GameOverComponent externalOpen={isGameOverOpen} onExternalOpenChange={handleGameOverOpenChange} />
+                <PieceSelectionComponent/>
+                <GameOverComponent externalOpen={isGameOverOpen} onExternalOpenChange={handleGameOverOpenChange}/>
                 <div onClick={handleBoardClicked}>{board}</div>
             </div>
 
             <div className="flex flex-col sm:flex-row xl:flex-col gap-2">
-                <PlayerOverviewComponent className="w-full" />
-                <ChatComponent className="w-full sm:col-start-2 sm:col-end-3 sm:row-span-2 sm:row-start-1" />
+                <PlayerOverviewComponent className="w-full"/>
+                <ChatComponent className="w-full sm:col-start-2 sm:col-end-3 sm:row-span-2 sm:row-start-1"/>
             </div>
         </div>
     );

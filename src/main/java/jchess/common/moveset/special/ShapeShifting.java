@@ -8,6 +8,7 @@ import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
 import jchess.el.v2.ExpressionCompiler;
+
 import java.util.Set;
 import java.util.stream.Stream;
 

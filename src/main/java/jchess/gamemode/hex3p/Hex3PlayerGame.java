@@ -1,22 +1,17 @@
 package jchess.gamemode.hex3p;
 
-import dx.schema.types.PieceType;
 import dx.schema.types.Vector2I;
 import jchess.common.BaseChessGame;
-import jchess.common.components.PieceComponent;
-import jchess.common.components.PieceIdentifier;
 import jchess.common.components.TileComponent;
 import jchess.ecs.Entity;
 import jchess.gamemode.IPieceLayoutProvider;
 import jchess.gamemode.PieceStore;
-import jchess.gamemode.PieceStore.IPieceDefinitionProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.Point;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class Hex3PlayerGame extends BaseChessGame {
-    private static final Logger logger = LoggerFactory.getLogger(Hex3PlayerGame.class);
     private static final int numTilesHorizontal = 17 + 16;
     private static final int numTilesVertical = 17;
 
@@ -58,15 +53,8 @@ public class Hex3PlayerGame extends BaseChessGame {
     }
 
     @Override
-    public void createPiece(Entity targetTile, PieceType pieceType, int ownerId) {
-        IPieceDefinitionProvider pieceProvider = pieceStore.getPiece(pieceType);
-        if (pieceProvider == null) {
-            logger.error("unable to place piece with pieceType '" + pieceType + "'. PieceType does not exist.");
-            return;
-        }
-
-        int direction = ((ownerId - 3) * (-120)) % 360; // [0, 240, 120]
-        placePiece(targetTile, ownerId, direction, pieceProvider);
+    protected int getDirectionFromOwnerId(int ownerId) {
+        return ((ownerId - 3) * (-120)) % 360; // [0, 240, 120]
     }
 
     @Override
@@ -78,46 +66,30 @@ public class Hex3PlayerGame extends BaseChessGame {
             int x1 = 32 - x0;
             for (int x = x0; x <= x1; x += 2) {
                 tileRow[x] = entityManager.createEntity();
+                tileRow[x].tile = new TileComponent(new Point(x, y), x % 3);
             }
         }
 
-        // second pass: fill entities with components
-        for (int y = 0; y < numTilesVertical; y++) {
-            Entity[] tileRow = tiles[y];
-            int x0 = Math.abs(8 - y);
-            int x1 = 32 - x0;
-            for (int x = x0; x <= x1; x += 2) {
-                TileComponent tile = new TileComponent(new Point(x, y), x % 3);
-
-                tile.neighborsByDirection.put(0, getEntityAtPosition(x, y - 2));
-                tile.neighborsByDirection.put(30, getEntityAtPosition(x + 1, y - 1));
-                tile.neighborsByDirection.put(60, getEntityAtPosition(x + 3, y - 1));
-                tile.neighborsByDirection.put(90, getEntityAtPosition(x + 2, y));
-                tile.neighborsByDirection.put(120, getEntityAtPosition(x + 3, y + 1));
-                tile.neighborsByDirection.put(150, getEntityAtPosition(x + 1, y + 1));
-                tile.neighborsByDirection.put(180, getEntityAtPosition(x, y + 2));
-                tile.neighborsByDirection.put(210, getEntityAtPosition(x - 1, y + 1));
-                tile.neighborsByDirection.put(240, getEntityAtPosition(x - 3, y + 1));
-                tile.neighborsByDirection.put(270, getEntityAtPosition(x - 2, y));
-                tile.neighborsByDirection.put(300, getEntityAtPosition(x - 3, y - 1));
-                tile.neighborsByDirection.put(330, getEntityAtPosition(x - 1, y - 1));
-
-                tileRow[x].tile = tile;
-            }
-        }
-    }
-
-    private void placePiece(Entity tile, int ownerId, int direction, IPieceDefinitionProvider pieceProvider) {
-        PieceStore.PieceDefinition pieceDefinition = pieceProvider.getPieceDefinition();
-        PieceIdentifier pieceIdentifier = new PieceIdentifier(
-                pieceProvider.getPieceType(),
-                pieceDefinition.shortName(),
-                ownerId,
-                direction
-        );
-
-        PieceComponent pieceComp = new PieceComponent(this, pieceIdentifier, pieceDefinition.baseMoves());
-        pieceComp.addSpecialMoves(pieceDefinition.specialRules());
-        tile.piece = pieceComp;
+        // second pass: generate neighbors
+        Arrays.stream(tiles).flatMap(Arrays::stream)
+                .filter(Objects::nonNull)
+                .forEach(entity -> {
+                    TileComponent tile = entity.tile;
+                    assert tile != null;
+                    int x = tile.position.x;
+                    int y = tile.position.y;
+                    tile.neighborsByDirection.put(0, getEntityAtPosition(x, y - 2));
+                    tile.neighborsByDirection.put(30, getEntityAtPosition(x + 1, y - 1));
+                    tile.neighborsByDirection.put(60, getEntityAtPosition(x + 3, y - 1));
+                    tile.neighborsByDirection.put(90, getEntityAtPosition(x + 2, y));
+                    tile.neighborsByDirection.put(120, getEntityAtPosition(x + 3, y + 1));
+                    tile.neighborsByDirection.put(150, getEntityAtPosition(x + 1, y + 1));
+                    tile.neighborsByDirection.put(180, getEntityAtPosition(x, y + 2));
+                    tile.neighborsByDirection.put(210, getEntityAtPosition(x - 1, y + 1));
+                    tile.neighborsByDirection.put(240, getEntityAtPosition(x - 3, y + 1));
+                    tile.neighborsByDirection.put(270, getEntityAtPosition(x - 2, y));
+                    tile.neighborsByDirection.put(300, getEntityAtPosition(x - 3, y - 1));
+                    tile.neighborsByDirection.put(330, getEntityAtPosition(x - 1, y - 1));
+                });
     }
 }
