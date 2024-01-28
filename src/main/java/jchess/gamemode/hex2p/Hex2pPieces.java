@@ -21,11 +21,11 @@ public enum Hex2pPieces implements PieceStore.IPieceDefinitionProvider {
     )),
     Knight(PieceType.KNIGHT, new PieceStore.PieceDefinition(
             "N",
-            rotations(regex("0.330 0.60", true), 6)
+            rotations(regex("30.0 30.60", true), 6)
     )),
     Bishop(PieceType.BISHOP, new PieceStore.PieceDefinition(
             "B",
-            regex("0+ 60+ 120+ 180+ 240+ 300+", false)
+            rotations(regex("30+", false),6)
     )),
     Queen(PieceType.QUEEN, new PieceStore.PieceDefinition(
             "Q",
@@ -33,21 +33,13 @@ public enum Hex2pPieces implements PieceStore.IPieceDefinitionProvider {
     )),
     King(PieceType.KING, new PieceStore.PieceDefinition(
             "K",
-            rotations(regex("0", false), 12),
-            (game, kingIdentifier) -> new Castling(
-                    game, kingIdentifier, Rook.pieceType, 90, 270,
-                    regex("270.270.270", true), regex("90.90", true)
-            )
+            rotations(regex("0", false), 12)
     )),
     Pawn(PieceType.PAWN, new PieceStore.PieceDefinition(
             "",
             TileExpression.or(
                     TileExpression.filter(neighbor(0), TileExpression.FILTER_EMPTY_TILE),
-                    TileExpression.filter2(neighbor(330, 30), TileExpression.FILTER_CAPTURE)
-            ),
-            (game, pawnIdentifier) -> new SpecialFirstMove(
-                    game, pawnIdentifier,
-                    TileExpression.filter(regex("0.0", false), TileExpression.FILTER_EMPTY_TILE)
+                    TileExpression.filter2(neighbor(300, 60), TileExpression.FILTER_CAPTURE)
             ),
             (game, pawnId) -> new EnPassant(game, pawnId, PieceType.PAWN, new int[]{0}, new int[]{330, 30}),
             (game, pawnId) -> {
@@ -57,7 +49,9 @@ public enum Hex2pPieces implements PieceStore.IPieceDefinitionProvider {
                         Stream.of(Rook, Knight, Bishop, Queen).map(type -> getPiece(type, owner)).toArray(dx.schema.message.Piece[]::new)
                 );
             }
-    )), Archer(PieceType.ARCHER, new PieceStore.PieceDefinition(
+    )),
+    // TODO Movement of Custom Pieces should be adapted to the 2P hexagonal board
+    Archer(PieceType.ARCHER, new PieceStore.PieceDefinition(
             "A",
             TileExpression.filter(
                     rotations(regex("0{1,2}", false), 12),

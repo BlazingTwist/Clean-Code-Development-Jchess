@@ -76,17 +76,17 @@ public class Hex2PlayerGame extends BaseChessGame {
     private void createTileAndSetNeighbors(Entity entity, int x, int y) {
         TileComponent tile = new TileComponent(new Point(x, y), y % 3);
         tile.neighborsByDirection.put(0, getEntityAtPosition(x, y - 2));
-        tile.neighborsByDirection.put(30, getEntityAtPosition(x + 1, y - 1));
-        tile.neighborsByDirection.put(60, getEntityAtPosition(x + 3, y - 1));
+        tile.neighborsByDirection.put(30, getEntityAtPosition(x + 1, y - 3));
+        tile.neighborsByDirection.put(60, getEntityAtPosition(x + 1, y - 1));
         tile.neighborsByDirection.put(90, getEntityAtPosition(x + 2, y));
-        tile.neighborsByDirection.put(120, getEntityAtPosition(x + 3, y + 1));
-        tile.neighborsByDirection.put(150, getEntityAtPosition(x + 1, y + 1));
+        tile.neighborsByDirection.put(120, getEntityAtPosition(x + 1, y + 1));
+        tile.neighborsByDirection.put(150, getEntityAtPosition(x + 1, y + 3));
         tile.neighborsByDirection.put(180, getEntityAtPosition(x, y + 2));
-        tile.neighborsByDirection.put(210, getEntityAtPosition(x - 1, y + 1));
-        tile.neighborsByDirection.put(240, getEntityAtPosition(x - 3, y + 1));
+        tile.neighborsByDirection.put(210, getEntityAtPosition(x - 1, y + 3));
+        tile.neighborsByDirection.put(240, getEntityAtPosition(x - 1, y + 1));
         tile.neighborsByDirection.put(270, getEntityAtPosition(x - 2, y));
-        tile.neighborsByDirection.put(300, getEntityAtPosition(x - 3, y - 1));
-        tile.neighborsByDirection.put(330, getEntityAtPosition(x - 1, y - 1));
+        tile.neighborsByDirection.put(300, getEntityAtPosition(x - 1, y - 1));
+        tile.neighborsByDirection.put(330, getEntityAtPosition(x - 1, y - 3));
 
         entity.tile = tile;
     }
@@ -105,13 +105,31 @@ public class Hex2PlayerGame extends BaseChessGame {
                 x_start = (y % 2 == 0) ? 1 : 0;
                 x_end = numTilesHorizontal;
             } else { // bottom part
-                int tmp_y = y - 15;
-                x_start = tmp_y;
-                x_end = tmp_y + (6 - tmp_y) * 2;
+                x_start = y - 15;
+                x_end = x_start + (6 - x_start) * 2;
             }
 
             for (int x = x_start; x < x_end; x += 2) {
                 tileRow[x] = entityManager.createEntity();
+            }
+        }
+
+        for (int y = 0; y < numTilesVertical; y++) {
+            Entity[] tileRow = tiles[y];
+            int x_start, x_end;
+
+            if (y < 5) { // top part
+                x_start = 5 - y;
+                x_end = x_start + 2 * (y + 1);
+            } else if (y < 16) { // middle part
+                x_start = (y % 2 == 0) ? 1 : 0;
+                x_end = numTilesHorizontal;
+            } else { // bottom part
+                x_start = y - 15;
+                x_end = x_start + (6 - x_start) * 2;
+            }
+
+            for (int x = x_start; x < x_end; x += 2) {
                 createTileAndSetNeighbors(tileRow[x], x, y);
             }
         }

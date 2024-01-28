@@ -35,8 +35,8 @@ public enum Hex2pPieceLayouts implements IPieceLayoutProvider {
         boardController.placeKing(6, 1, PLAYER_DARK);
 
         // place queens
-        //boardController.placeQueen(4, 19, PLAYER_LIGHT);
-        //boardController.placeQueen(4, 1, PLAYER_DARK);
+        boardController.placeQueen(4, 19, PLAYER_LIGHT);
+        boardController.placeQueen(4, 1, PLAYER_DARK);
 
 
         // place bishops
@@ -44,7 +44,7 @@ public enum Hex2pPieceLayouts implements IPieceLayoutProvider {
             boardController.placeBishop(5, i, PLAYER_DARK);
             boardController.placeBishop(5, 20 - i, PLAYER_LIGHT);
         }
-/*
+
         // place knights
         for (int x : new int[]{3, 7}) {
             boardController.placeKnight(x,18, PLAYER_LIGHT);
@@ -57,6 +57,7 @@ public enum Hex2pPieceLayouts implements IPieceLayoutProvider {
             boardController.placeRook(x,3, PLAYER_DARK);
         }
 
+
         // place pawns
         for (int i = 0; i < 5; i++) {
             for (int x : new int[] {1+i, 9-i}) {
@@ -64,13 +65,29 @@ public enum Hex2pPieceLayouts implements IPieceLayoutProvider {
                 boardController.placePawn(x, 4 + i, PLAYER_DARK);
             }
         }
-
-         */
-
     }
 
     private static void populateCustomBoard(BoardController boardController) {
         populateStandardBoard(boardController);
+
+        boardController.placeArcher(4,15, PLAYER_LIGHT);
+        boardController.placeArcher(6,15, PLAYER_LIGHT);
+        boardController.placeArcher(4,5, PLAYER_DARK);
+        boardController.placeArcher(6,5, PLAYER_DARK);
+
+        boardController.placePegasus(5,14, PLAYER_LIGHT);
+        boardController.placePegasus(5,6, PLAYER_DARK);
+
+        boardController.placeSkrull(3,16, PLAYER_LIGHT);
+        boardController.placeSkrull(7,16, PLAYER_LIGHT);
+        boardController.placeSkrull(3,4, PLAYER_DARK);
+        boardController.placeSkrull(7,4, PLAYER_DARK);
+
+        boardController.placeCatapult(4,17, PLAYER_LIGHT);
+        boardController.placeCatapult(6,17, PLAYER_LIGHT);
+        boardController.placeCatapult(4,3, PLAYER_DARK);
+        boardController.placeCatapult(6,3, PLAYER_DARK);
+
     }
 
     private record BoardController(IChessGame game, BiFunction<Integer, Integer, Entity> tileProvider) {
