@@ -6,13 +6,14 @@ import jchess.common.components.MarkerComponent;
 import jchess.common.components.TileComponent;
 import jchess.common.events.BoardClickedEvent;
 import jchess.common.events.BoardInitializedEvent;
-import jchess.common.events.ComputeAttackInfoEvent;
 import jchess.common.events.GameOverEvent;
 import jchess.common.events.OfferPieceSelectionEvent;
 import jchess.common.events.PieceMoveEvent;
 import jchess.common.events.PieceOfferSelectedEvent;
 import jchess.common.events.RenderEvent;
 import jchess.common.moveset.MoveIntention;
+import jchess.common.state.IRevertibleState;
+import jchess.common.state.StateManager;
 import jchess.ecs.EcsEventManager;
 import jchess.ecs.Entity;
 import jchess.ecs.EntityManager;
@@ -27,6 +28,7 @@ public abstract class BaseChessGame implements IChessGame {
     private static final Logger logger = LoggerFactory.getLogger(BaseChessGame.class);
     protected final EntityManager entityManager;
     protected final EcsEventManager eventManager;
+    protected final StateManager stateManager;
     protected final int numPlayers;
     protected final PieceStore pieceStore;
     protected final IPieceLayoutProvider pieceLayout;
@@ -36,6 +38,7 @@ public abstract class BaseChessGame implements IChessGame {
     public BaseChessGame(int numPlayers, PieceStore pieceStore, IPieceLayoutProvider pieceLayout) {
         this.entityManager = new EntityManager();
         this.eventManager = new EcsEventManager();
+        this.stateManager = new StateManager();
         this.numPlayers = numPlayers;
         this.pieceStore = pieceStore;
         this.pieceLayout = pieceLayout;
@@ -45,16 +48,25 @@ public abstract class BaseChessGame implements IChessGame {
         eventManager.registerEvent(new BoardInitializedEvent());
         eventManager.registerEvent(new PieceMoveEvent());
 
-        ComputeAttackInfoEvent computeAttackInfoEvent = new ComputeAttackInfoEvent();
-        eventManager.registerEvent(computeAttackInfoEvent);
-        computeAttackInfoEvent.addListener(_void -> TileComponent.updateAttackInfo(this));
-
         BoardClickedEvent boardClickedEvent = new BoardClickedEvent();
         eventManager.registerEvent(boardClickedEvent);
         boardClickedEvent.addListener(point -> onBoardClicked(point.x, point.y));
 
         eventManager.registerEvent(new OfferPieceSelectionEvent());
         eventManager.registerEvent(new PieceOfferSelectedEvent());
+
+        stateManager.registerState(new IRevertibleState() {
+            @Override
+            public void saveState() {
+                // attackInfo is temporary data, no need to save it
+            }
+
+            @Override
+            public void revertState() {
+                // on revert, "simply" recompute the attackInfo
+                TileComponent.updateAttackInfo(BaseChessGame.this);
+            }
+        });
     }
 
     protected abstract void generateBoard();
@@ -83,7 +95,7 @@ public abstract class BaseChessGame implements IChessGame {
 
             // show the tiles this piece can move to
             boolean isActivePiece = clickedEntity.piece.identifier.ownerId() == activePlayerId;
-            clickedEntity.findValidMoves(true).forEach(move -> createMoveToMarker(move, isActivePiece));
+            clickedEntity.findValidMoves(this, true).forEach(move -> createMoveToMarker(move, isActivePiece));
             createSelectionMarker(clickedEntity);
 
             long endTime = System.currentTimeMillis();
@@ -154,7 +166,7 @@ public abstract class BaseChessGame implements IChessGame {
         // Game is over if the current player is unable to make any moves.
         boolean gameOver = entityManager.getEntities().stream()
                 .filter(entity -> entity.piece != null && entity.piece.identifier.ownerId() == activePlayerId)
-                .allMatch(entity -> entity.findValidMoves(true).findAny().isEmpty());
+                .allMatch(entity -> entity.findValidMoves(this, true).findAny().isEmpty());
 
         if (gameOver) {
             logger.info("Game Over! Losing Player: {}", activePlayerId);
@@ -220,29 +232,28 @@ public abstract class BaseChessGame implements IChessGame {
     }
 
     @Override
+    public StateManager getStateManager() {
+        return stateManager;
+    }
+
+    @Override
     public int getActivePlayerId() {
         return activePlayerId;
     }
 
     @Override
-    public void movePiece(Entity fromTile, Entity toTile, Class<?> moveType) {
-        toTile.piece = fromTile.piece;
-        fromTile.piece = null;
-
-        eventManager.getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(fromTile, toTile, moveType));
-        eventManager.getEvent(ComputeAttackInfoEvent.class).fire(null);
-
-        // end turn
-        activePlayerId = (activePlayerId + 1) % numPlayers;
-        checkGameOver();
+    public int getNumPlayers() {
+        return numPlayers;
     }
 
     @Override
-    public void movePieceStationary(Entity tile, Class<?> moveType) {
-        eventManager.getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(tile, tile, moveType));
-        eventManager.getEvent(ComputeAttackInfoEvent.class).fire(null);
+    public void notifyPieceMove(Entity fromTile, Entity toTile, Class<?> moveType) {
+        eventManager.getEvent(PieceMoveEvent.class).fire(new PieceMoveEvent.PieceMove(fromTile, toTile, moveType));
+        TileComponent.updateAttackInfo(this);
+    }
 
-        // end turn
+    @Override
+    public void endTurn() {
         activePlayerId = (activePlayerId + 1) % numPlayers;
         checkGameOver();
     }
