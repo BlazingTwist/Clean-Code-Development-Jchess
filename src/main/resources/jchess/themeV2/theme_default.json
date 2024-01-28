@@ -50,15 +50,15 @@
                 "markers": [
                     {
                         "markerType": "yesAction",
-                        "icon": "./default/board_hex3/hexMarker_yesAction.png"
+                        "icon": "./default/board_hex2/hexMarker_yesAction.png"
                     },
                     {
                         "markerType": "noAction",
-                        "icon": "./default/board_hex3/hexMarker_noAction.png"
+                        "icon": "./default/board_hex2/hexMarker_noAction.png"
                     },
                     {
                         "markerType": "selected",
-                        "icon": "./default/board_hex3/hexMarker_selected.png"
+                        "icon": "./default/board_hex2/hexMarker_selected.png"
                     }
                 ]
             },
