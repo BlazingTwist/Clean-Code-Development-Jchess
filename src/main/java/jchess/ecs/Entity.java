@@ -25,11 +25,13 @@ public class Entity {
 
     public boolean isAttacked() {
         if (tile == null || piece == null) return false;
+        return isAttacked(piece.identifier.ownerId());
+    }
 
-        final int ownerId = piece.identifier.ownerId();
-        return tile.attackingPieces.stream().anyMatch(attacker -> {
+    public boolean isAttacked(int attackedPlayer) {
+        return tile != null && tile.attackingPieces.stream().anyMatch(attacker -> {
             assert attacker.piece != null; // attacker must be a piece.
-            return attacker.piece.identifier.ownerId() != ownerId;
+            return attacker.piece.identifier.ownerId() != attackedPlayer;
         });
     }
 }

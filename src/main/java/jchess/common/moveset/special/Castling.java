@@ -41,7 +41,7 @@ public class Castling implements ISpecialRule {
             IChessGame game, PieceIdentifier kingId, PieceType rookTypeId, int kingToRookDir, int numStepsKing
     ) {
         this.game = game;
-        this.kingMove = repeat(filter(neighbor(kingToRookDir), Castling::kingStepFilter), numStepsKing, numStepsKing, true).toV1(kingId);
+        this.kingMove = repeat(filter(neighbor(kingToRookDir), this::kingStepFilter), numStepsKing, numStepsKing, true).toV1(kingId);
         this.kingId = kingId;
         this.rookTypeId = rookTypeId;
         this.kingToRookDir = kingToRookDir;
@@ -57,11 +57,11 @@ public class Castling implements ISpecialRule {
         game.getEventManager().getEvent(PieceMoveEvent.class).addListener(this::onPieceMove);
     }
 
-    private static boolean kingStepFilter(Entity moveTo) {
+    private boolean kingStepFilter(Entity moveTo) {
         // Castling requires that:
         // - the tiles the king moves over are empty
         // - the tiles the king moves over are not attacked
-        return moveTo.piece == null && !moveTo.isAttacked();
+        return moveTo.piece == null && !moveTo.isAttacked(kingId.ownerId());
     }
 
     private void lookupRook() {
