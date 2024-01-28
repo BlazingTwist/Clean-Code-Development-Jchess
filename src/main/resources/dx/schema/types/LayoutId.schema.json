@@ -4,6 +4,7 @@
     "javaType": "dx.schema.types.LayoutId",
     "enum": [
         "hex3p",
+        "hex2p",
         "square2p"
     ],
     "additionalProperties": false

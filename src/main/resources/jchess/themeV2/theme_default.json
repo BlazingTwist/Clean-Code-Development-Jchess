@@ -33,6 +33,36 @@
                 ]
             },
             {
+                "layoutId": "hex2p",
+                "tileSize": {
+                    "x": 32,
+                    "y": 30
+                },
+                "tileStride": {
+                    "x": 24,
+                    "y": 15
+                },
+                "tiles": [
+                    "./default/board_hex2/hex-Light.png",
+                    "./default/board_hex2/hex-Medium.png",
+                    "./default/board_hex2/hex-Dark.png"
+                ],
+                "markers": [
+                    {
+                        "markerType": "yesAction",
+                        "icon": "./default/board_hex3/hexMarker_yesAction.png"
+                    },
+                    {
+                        "markerType": "noAction",
+                        "icon": "./default/board_hex3/hexMarker_noAction.png"
+                    },
+                    {
+                        "markerType": "selected",
+                        "icon": "./default/board_hex3/hexMarker_selected.png"
+                    }
+                ]
+            },
+            {
                 "layoutId": "square2p",
                 "tileSize": {
                     "x": 50,

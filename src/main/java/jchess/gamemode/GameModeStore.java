@@ -2,6 +2,9 @@ package jchess.gamemode;
 
 import dx.schema.types.LayoutId;
 import jchess.common.IChessGame;
+import jchess.gamemode.hex2p.Hex2pPieceLayouts;
+import jchess.gamemode.hex2p.Hex2pPieces;
+import jchess.gamemode.hex2p.Hex2PlayerGame;
 import jchess.gamemode.hex3p.Hex3PlayerGame;
 import jchess.gamemode.hex3p.Hex3pPieceLayouts;
 import jchess.gamemode.hex3p.Hex3pPieces;
@@ -22,6 +25,13 @@ public class GameModeStore {
             gameModeProviders.put(LayoutId.HEX_3_P.name() + "." + pieceLayout.name(), new GameModeProvider(
                     Hex3PlayerGame::new, LayoutId.HEX_3_P, "3 Player Hexagonal Chess - " + pieceLayout.name(), 3,
                     new PieceStore(Hex3pPieces.values()), pieceLayout
+            ));
+        }
+
+        for (Hex2pPieceLayouts pieceLayout : Hex2pPieceLayouts.values()) {
+            gameModeProviders.put(LayoutId.HEX_2_P.name() + "." + pieceLayout.name(), new GameModeProvider(
+                    Hex2PlayerGame::new, LayoutId.HEX_2_P, "2 Player Hexagonal Chess - " + pieceLayout.name(), 2,
+                    new PieceStore(Hex2pPieces.values()), pieceLayout
             ));
         }
 
