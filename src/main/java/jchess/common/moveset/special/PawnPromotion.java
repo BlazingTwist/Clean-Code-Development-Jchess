@@ -29,11 +29,16 @@ public class PawnPromotion implements ISpecialRule {
 
         game.getEventManager().getEvent(PieceOfferSelectedEvent.class).addListener(selection -> {
             if (currentAwaitingPromotion != null) {
-                Entity promotedPiece = currentAwaitingPromotion.moveFrom();
-                assert promotedPiece.piece != null;
-                int owner = promotedPiece.piece.identifier.ownerId();
-                game.createPiece(promotedPiece, selection.getPieceTypeId(), owner);
-                game.movePiece(promotedPiece, currentAwaitingPromotion.moveTo(), PawnPromotion.class);
+                Entity moveFrom = currentAwaitingPromotion.moveFrom();
+                assert moveFrom.piece != null;
+                int owner = moveFrom.piece.identifier.ownerId();
+                game.createPiece(moveFrom, selection.getPieceTypeId(), owner);
+
+                Entity moveTo = currentAwaitingPromotion.moveTo();
+                moveTo.piece = moveFrom.piece;
+                moveFrom.piece = null;
+                game.notifyPieceMove(moveFrom, moveTo, PawnPromotion.class);
+                game.endTurn();
 
                 currentAwaitingPromotion = null;
                 game.getEventManager().getEvent(RenderEvent.class).fire(null);

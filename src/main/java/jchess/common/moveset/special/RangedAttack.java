@@ -31,23 +31,18 @@ public class RangedAttack implements ISpecialRule {
     }
 
     private MoveIntention getRangedAttackMove(Entity thisRangedPiece, Entity targetTile) {
-        return new MoveIntention(
-                targetTile,
-                () -> {
-                    targetTile.piece = null;
-                    game.movePieceStationary(thisRangedPiece, RangedAttack.class);
-                },
-                new RangedAttackSimulator(targetTile.piece, targetTile)
-        );
+        RangedAttackSimulator simulator = new RangedAttackSimulator(game, thisRangedPiece, targetTile.piece, targetTile);
+        return MoveIntention.fromMoveSimulator(game, targetTile, simulator);
     }
 
     private record RangedAttackSimulator(
-            PieceComponent attackedPiece, Entity attackedPieceTile
+            IChessGame game, Entity stationaryTile, PieceComponent attackedPiece, Entity attackedPieceTile
     ) implements MoveIntention.IMoveSimulator {
 
         @Override
         public void simulate() {
             attackedPieceTile.piece = null;
+            game.notifyPieceMove(stationaryTile, stationaryTile, RangedAttack.class);
         }
 
         @Override

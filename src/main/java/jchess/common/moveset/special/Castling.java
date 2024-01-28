@@ -7,10 +7,9 @@ import jchess.common.events.BoardInitializedEvent;
 import jchess.common.events.PieceMoveEvent;
 import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
+import jchess.common.state.impl.BooleanState;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
-import jchess.el.v2.ExpressionCompiler;
-import jchess.el.v2.TileExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,44 +17,54 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static jchess.el.v2.TileExpression.filter;
+import static jchess.el.v2.TileExpression.neighbor;
+import static jchess.el.v2.TileExpression.repeat;
+
 public class Castling implements ISpecialRule {
     private static final Logger logger = LoggerFactory.getLogger(Castling.class);
 
     private final IChessGame game;
-    private final CompiledTileExpression kingMoveLeft;
-    private final CompiledTileExpression kingMoveRight;
+    private final CompiledTileExpression kingMove;
     private final PieceIdentifier kingId;
     private final PieceType rookTypeId;
-    private final int rightRookDirection;
-    private final int leftRookDirection;
-    private final CompiledTileExpression stepLeftExpression;
-    private final CompiledTileExpression stepRightExpression;
+    private final int kingToRookDir;
+    private final CompiledTileExpression stepToRookExpression;
+    private final CompiledTileExpression stepToKingExpression;
+    private final BooleanState kingMoved;
+    private final BooleanState rookMoved;
 
-    private PieceIdentifier leftRookId;
-    private PieceIdentifier rightRookId;
-    private boolean kingMoved = false;
-    private boolean leftRookMoved = false;
-    private boolean rightRookMoved = false;
+    private Entity rookTile;
+    private PieceIdentifier rookId;
 
     public Castling(
-            IChessGame game, PieceIdentifier kingId, PieceType rookTypeId, int rightRookDirection, int leftRookDirection,
-            ExpressionCompiler kingMoveLeft, ExpressionCompiler kingMoveRight
+            IChessGame game, PieceIdentifier kingId, PieceType rookTypeId, int kingToRookDir, int numStepsKing
     ) {
         this.game = game;
-        this.kingMoveLeft = kingMoveLeft.toV1(kingId);
-        this.kingMoveRight = kingMoveRight.toV1(kingId);
+        this.kingMove = repeat(filter(neighbor(kingToRookDir), Castling::kingStepFilter), numStepsKing, numStepsKing, true).toV1(kingId);
         this.kingId = kingId;
         this.rookTypeId = rookTypeId;
-        this.rightRookDirection = rightRookDirection;
-        this.leftRookDirection = leftRookDirection;
-        this.stepRightExpression = TileExpression.neighbor(rightRookDirection).toV1(kingId);
-        this.stepLeftExpression = TileExpression.neighbor(leftRookDirection).toV1(kingId);
+        this.kingToRookDir = kingToRookDir;
+        this.stepToRookExpression = neighbor(kingToRookDir).toV1(kingId);
+        this.stepToKingExpression = neighbor(kingToRookDir + 180).toV1(kingId);
 
-        game.getEventManager().getEvent(BoardInitializedEvent.class).addListener(_void -> lookupRooks());
+        kingMoved = new BooleanState(false);
+        rookMoved = new BooleanState(false);
+
+        game.getStateManager().registerState(kingMoved, rookMoved);
+
+        game.getEventManager().getEvent(BoardInitializedEvent.class).addListener(_void -> lookupRook());
         game.getEventManager().getEvent(PieceMoveEvent.class).addListener(this::onPieceMove);
     }
 
-    private void lookupRooks() {
+    private static boolean kingStepFilter(Entity moveTo) {
+        // Castling requires that:
+        // - the tiles the king moves over are empty
+        // - the tiles the king moves over are not attacked
+        return moveTo.piece == null && !moveTo.isAttacked();
+    }
+
+    private void lookupRook() {
         Entity kingEntity = game.getEntityManager().getEntities().stream()
                 .filter(entity -> entity.piece != null && entity.piece.identifier == kingId)
                 .findFirst().orElse(null);
@@ -70,26 +79,20 @@ public class Castling implements ISpecialRule {
             return;
         }
 
-        List<Entity> rightRooks = findRooks(kingEntity, rightRookDirection);
-        List<Entity> leftRooks = findRooks(kingEntity, leftRookDirection);
-        if (rightRooks.size() != 1) {
-            logger.error("Expected exactly 1 rook to the right of king, but found {}", rightRooks.size());
-            return;
-        }
-        if (leftRooks.size() != 1) {
-            logger.error("Expected exactly 1 rook to the left of king, but found {}", leftRooks.size());
+        List<Entity> rooks = findRooks(kingEntity, kingToRookDir);
+        if (rooks.size() != 1) {
+            logger.error("Expected exactly 1 rook in direction {} from king, but found {}", kingToRookDir, rooks.size());
             return;
         }
 
-        //noinspection DataFlowIssue
-        rightRookId = rightRooks.get(0).piece.identifier;
-        //noinspection DataFlowIssue
-        leftRookId = leftRooks.get(0).piece.identifier;
+        rookTile = rooks.get(0);
+        assert rookTile.piece != null;
+        rookId = rookTile.piece.identifier;
     }
 
     private List<Entity> findRooks(Entity fromTile, int direction) {
         assert fromTile.piece != null;
-        return TileExpression.repeat(TileExpression.neighbor(direction), 1, -1, true)
+        return repeat(neighbor(direction), 1, -1, true)
                 .toV1(fromTile.piece.identifier)
                 .findTiles(fromTile)
                 .filter(tile -> tile.piece != null && tile.piece.identifier.pieceType() == rookTypeId)
@@ -97,97 +100,63 @@ public class Castling implements ISpecialRule {
     }
 
     private void onPieceMove(PieceMoveEvent.PieceMove move) {
-        if (leftRookId == null || rightRookId == null) {
-            logger.error("Castling observed PieceMove, but Rooks were not identified yet! LeftRookId: {} | RightRookId: {}", leftRookId, rightRookId);
+        if (rookId == null) {
+            logger.error("Castling observed PieceMove, but Rook was not identified yet! RookId is null.");
         }
 
         assert move.toTile().piece != null; // move always contains to moved piece in 'toTile'
         PieceIdentifier movedPiece = move.toTile().piece.identifier;
         if (movedPiece == this.kingId) {
-            kingMoved = true;
-        } else if (movedPiece == leftRookId) {
-            leftRookMoved = true;
-        } else if (movedPiece == rightRookId) {
-            rightRookMoved = true;
+            kingMoved.setValue(true);
+        } else if (movedPiece == rookId) {
+            rookMoved.setValue(true);
         }
     }
 
-    private MoveIntention getLeftCastle(Entity king) {
-        return getCastleMove(king, kingMoveLeft, leftRookId, leftRookMoved, stepRightExpression, stepLeftExpression);
-    }
-
-    private MoveIntention getRightCastle(Entity king) {
-        return getCastleMove(king, kingMoveRight, rightRookId, rightRookMoved, stepLeftExpression, stepRightExpression);
-    }
-
-    private MoveIntention getCastleMove(
-            Entity king, CompiledTileExpression kingMove,
-            PieceIdentifier rookId, boolean rookHasMoved,
-            CompiledTileExpression stepRookToKing, CompiledTileExpression stepKingToRook
-    ) {
-        assert king.piece != null;
-        if (rookHasMoved) {
-            return null;
-        }
-
-        Entity kingMoveTile = checkKingMoveTile(king, kingMove);
+    private MoveIntention getCastleMove(Entity king) {
+        Entity kingMoveTile = kingMove.findTiles(king).findFirst().orElse(null);
         if (kingMoveTile == null) { // tile not empty, or king would be attacked on the path
             return null;
         }
-
-        Entity rookMoveTile = stepRookToKing.findTiles(kingMoveTile).findFirst().orElse(null);
-        Entity rookTile = kingMoveTile;
-        while (true) {
-            rookTile = stepKingToRook.findTiles(rookTile).findFirst().orElse(null);
-            if (rookTile == null) {
-                logger.error("Exceeded board bounds while searching for rook. Did rook already move?");
-                return null;
-            }
-            if (rookTile.piece != null) {
-                if (rookTile.piece.identifier == rookId) {
-                    return getCastleMove(king, kingMoveTile, rookTile, rookMoveTile);
-                } else {
-                    return null;
-                }
-            }
+        if (!checkTilesToRookEmpty(kingMoveTile, rookTile)) {
+            return null; // all tiles between king and rook must be empty
         }
+
+        Entity rookMoveTile = stepToKingExpression.findTiles(kingMoveTile).findFirst().orElse(null);
+        return getCastleMove(king, kingMoveTile, rookTile, rookMoveTile);
     }
 
-    private Entity checkKingMoveTile(Entity king, CompiledTileExpression kingMove) {
-        assert king.piece != null;
-        // TODO erja - checkDetection is not correct.
-        return kingMove.findTiles(king)
-                .filter(tile -> tile.piece == null && !tile.isAttacked())
-                .findFirst().orElse(null);
+    private boolean checkTilesToRookEmpty(Entity currentTile, Entity rookTile) {
+        if (currentTile == null) {
+            logger.error("Exceeded board bounds while searching for rookTile. Is Castle direction correct?");
+            return false;
+        }
+        if (currentTile == rookTile) return true;
+        if (currentTile.piece != null) return false;
+        return checkTilesToRookEmpty(stepToRookExpression.findTiles(currentTile).findFirst().orElse(null), rookTile);
     }
 
     private MoveIntention getCastleMove(Entity kingStart, Entity kingEnd, Entity rookStart, Entity rookEnd) {
-        return new MoveIntention(kingEnd, () -> {
-            rookEnd.piece = rookStart.piece;
-            rookStart.piece = null;
-            game.movePiece(kingStart, kingEnd, Castling.class);
-        }, new CastlingSimulator(rookStart, rookEnd, kingStart, kingEnd));
+        CastlingSimulator simulator = new CastlingSimulator(game, rookStart, rookEnd, kingStart, kingEnd);
+        return MoveIntention.fromMoveSimulator(game, kingEnd, simulator);
     }
 
     @Override
     public Stream<MoveIntention> getSpecialMoves(Entity king, Stream<MoveIntention> baseMoves) {
-        if (kingMoved || king.isAttacked()) {
+        if (kingMoved.getValue() || king.isAttacked() || rookMoved.getValue()) {
             return baseMoves;
         }
 
         List<MoveIntention> moves = new ArrayList<>();
 
-        MoveIntention leftCastle = getLeftCastle(king);
-        if (leftCastle != null) moves.add(leftCastle);
-
-        MoveIntention rightCastle = getRightCastle(king);
-        if (rightCastle != null) moves.add(rightCastle);
+        MoveIntention castleMove = getCastleMove(king);
+        if (castleMove != null) moves.add(castleMove);
 
         return Stream.concat(baseMoves, moves.stream());
     }
 
     private record CastlingSimulator(
-            Entity rookStartTile, Entity rookEndTile, Entity kingStartTile, Entity kingEndTile
+            IChessGame game, Entity rookStartTile, Entity rookEndTile, Entity kingStartTile, Entity kingEndTile
     ) implements MoveIntention.IMoveSimulator {
 
         @Override
@@ -196,6 +165,7 @@ public class Castling implements ISpecialRule {
             rookStartTile.piece = null;
             kingEndTile.piece = kingStartTile.piece;
             kingStartTile.piece = null;
+            game.notifyPieceMove(kingStartTile, kingEndTile, Castling.class);
         }
 
         @Override
