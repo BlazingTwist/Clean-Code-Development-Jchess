@@ -6,39 +6,29 @@ import jchess.common.components.PieceIdentifier;
 import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
 import jchess.ecs.Entity;
-import jchess.el.v2.TileExpression;
-
-import java.util.List;
+import jchess.el.CompiledTileExpression;
+import jchess.el.v2.ExpressionCompiler;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class ShapeShifting implements ISpecialRule {
 
     private final IChessGame game;
     private final PieceIdentifier shiftingPieceId;
-    private final int minRange;
-    private final int maxRange;
-    private final List<PieceType> shiftablePieceTypes; // pieces that can be used for shape-shifting
+    private final Set<PieceType> shiftablePieceTypes; // pieces that can be used for shape-shifting
+    private final CompiledTileExpression shiftableExpressions;
 
-    public ShapeShifting(IChessGame game, PieceIdentifier shiftingPieceId, int minRange, int maxRange, PieceType... shiftablePieceTypes) {
+    public ShapeShifting(IChessGame game, PieceIdentifier shiftingPieceId, ExpressionCompiler shiftableExpressions, PieceType... shiftablePieceTypes) {
         this.game = game;
         this.shiftingPieceId = shiftingPieceId;
-        this.minRange = minRange;
-        this.maxRange = maxRange;
-        this.shiftablePieceTypes = List.of(shiftablePieceTypes);
+        this.shiftablePieceTypes = Set.of(shiftablePieceTypes);
+        this.shiftableExpressions = shiftableExpressions.toV1(shiftingPieceId);
     }
 
     @Override
     public Stream<MoveIntention> getSpecialMoves(Entity movingPiece, Stream<MoveIntention> currentMoves) {
         assert movingPiece.piece != null;
-        Stream<Entity> targetTiles = TileExpression.or(
-                        TileExpression.repeat(TileExpression.regex("0 30 60", true), minRange, maxRange, true),
-                        TileExpression.repeat(TileExpression.regex("60 90 120", true), minRange, maxRange, true),
-                        TileExpression.repeat(TileExpression.regex("120 150 180", true), minRange, maxRange, true),
-                        TileExpression.repeat(TileExpression.regex("180 210 240", true), minRange, maxRange, true),
-                        TileExpression.repeat(TileExpression.regex("240 270 300", true), minRange, maxRange, true),
-                        TileExpression.repeat(TileExpression.regex("0 300 330", true), minRange, maxRange, true))
-                .toV1(shiftingPieceId).findTiles(movingPiece);
-
+        Stream<Entity> targetTiles = shiftableExpressions.findTiles(movingPiece);
         return Stream.concat(currentMoves, targetTiles
                 .filter(move -> move.tile != null
                         && move.piece != null
