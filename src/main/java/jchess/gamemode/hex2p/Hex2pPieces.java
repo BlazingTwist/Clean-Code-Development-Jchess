@@ -50,29 +50,28 @@ public enum Hex2pPieces implements PieceStore.IPieceDefinitionProvider {
                 );
             }
     )),
-    // TODO Movement of Custom Pieces should be adapted to the 2P hexagonal board
     Archer(PieceType.ARCHER, new PieceStore.PieceDefinition(
             "A",
             TileExpression.filter(
-                    rotations(regex("0{1,2}", false), 12),
+                    rotations(regex("0{1,2}", false), 6),
                     TileExpression.FILTER_EMPTY_TILE
             ),
             (game, archerIdentifier) -> new RangedAttack(
                     game, archerIdentifier,
-                    rotations(regex("(0 30 60){1,2}", true), 6)
+                    rotations(regex("(30 60 90){1,2}", true), 6)
             )
     )),
 
     Pegasus(PieceType.PEGASUS, new PieceStore.PieceDefinition(
             "PE",
-            rotations(regex("(30 90){1,3}", true), 6)
+            rotations(regex("(0 60){1,3}", true), 6)
     )),
     Catapult(PieceType.CATAPULT, new PieceStore.PieceDefinition(
             "C",
-            TileExpression.filter(rotations(neighbor(0), 12), TileExpression.FILTER_EMPTY_TILE),
+            TileExpression.filter(rotations(neighbor(0), 6), TileExpression.FILTER_EMPTY_TILE),
             (game, catapultId) -> new RangedAttack(
                     game, catapultId,
-                    rotations(regex("(30 90){4,6}", true), 6)
+                    rotations(regex("(0 60){3,4}", true), 6)
             )
     )),
     Skrull(PieceType.SKRULL, new PieceStore.PieceDefinition(
