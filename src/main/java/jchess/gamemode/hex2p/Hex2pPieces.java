@@ -2,7 +2,10 @@ package jchess.gamemode.hex2p;
 
 import dx.schema.types.PieceType;
 import jchess.common.components.PieceIdentifier;
-import jchess.common.moveset.special.*;
+import jchess.common.moveset.special.EnPassant;
+import jchess.common.moveset.special.PawnPromotion;
+import jchess.common.moveset.special.RangedAttack;
+import jchess.common.moveset.special.ShapeShifting;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
 import jchess.el.v2.ExpressionCompiler;
@@ -12,7 +15,9 @@ import jchess.gamemode.PieceStore;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static jchess.el.v2.TileExpression.*;
+import static jchess.el.v2.TileExpression.neighbor;
+import static jchess.el.v2.TileExpression.regex;
+import static jchess.el.v2.TileExpression.rotations;
 
 public enum Hex2pPieces implements PieceStore.IPieceDefinitionProvider {
     Rook(PieceType.ROOK, new PieceStore.PieceDefinition(

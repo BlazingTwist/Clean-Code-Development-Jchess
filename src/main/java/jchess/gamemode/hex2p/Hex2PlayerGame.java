@@ -54,20 +54,21 @@ public class Hex2PlayerGame extends BaseChessGame {
     protected void generateBoard() {
         for (int y = 0; y < numTilesVertical; y++) {
             Entity[] tileRow = tiles[y];
-            int x_start, x_end;
+            final int x0;
+            final int x1;
 
             if (y < 5) { // top part
-                x_start = 5 - y;
-                x_end = x_start + 2 * (y + 1);
+                x0 = 5 - y;
+                x1 = x0 + 2 * (y + 1);
             } else if (y < 16) { // middle part
-                x_start = (y % 2 == 0) ? 1 : 0;
-                x_end = numTilesHorizontal;
+                x0 = (y % 2 == 0) ? 1 : 0;
+                x1 = numTilesHorizontal;
             } else { // bottom part
-                x_start = y - 15;
-                x_end = x_start + (6 - x_start) * 2;
+                x0 = y - 15;
+                x1 = x0 + (6 - x0) * 2;
             }
 
-            for (int x = x_start; x < x_end; x += 2) {
+            for (int x = x0; x < x1; x += 2) {
                 tileRow[x] = entityManager.createEntity();
                 tileRow[x].tile = new TileComponent(new Point(x, y), y % 3);
             }
