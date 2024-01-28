@@ -3,6 +3,8 @@ package jchess.common;
 import dx.schema.types.MarkerType;
 import dx.schema.types.PieceType;
 import jchess.common.components.MarkerComponent;
+import jchess.common.components.PieceComponent;
+import jchess.common.components.PieceIdentifier;
 import jchess.common.components.TileComponent;
 import jchess.common.events.BoardClickedEvent;
 import jchess.common.events.BoardInitializedEvent;
@@ -60,6 +62,8 @@ public abstract class BaseChessGame implements IChessGame {
     protected abstract void generateBoard();
 
     protected abstract Entity getEntityAtPosition(int x, int y);
+
+    protected abstract int getDirectionFromOwnerId(int ownerId);
 
     protected void onBoardClicked(int x, int y) {
         Entity clickedEntity = getEntityAtPosition(x, y);
@@ -200,6 +204,20 @@ public abstract class BaseChessGame implements IChessGame {
         }
     }
 
+    protected void placePiece(Entity tile, int ownerId, int direction, PieceStore.IPieceDefinitionProvider pieceProvider) {
+        PieceStore.PieceDefinition pieceDefinition = pieceProvider.getPieceDefinition();
+        PieceIdentifier pieceIdentifier = new PieceIdentifier(
+                pieceProvider.getPieceType(),
+                pieceDefinition.shortName(),
+                ownerId,
+                direction
+        );
+
+        PieceComponent pieceComp = new PieceComponent(this, pieceIdentifier, pieceDefinition.baseMoves());
+        pieceComp.addSpecialMoves(pieceDefinition.specialRules());
+        tile.piece = pieceComp;
+    }
+
     @Override
     public void start() {
         generateBoard();
@@ -222,6 +240,18 @@ public abstract class BaseChessGame implements IChessGame {
     @Override
     public int getActivePlayerId() {
         return activePlayerId;
+    }
+
+    @Override
+    public void createPiece(Entity targetTile, PieceType pieceType, int ownerId) {
+        PieceStore.IPieceDefinitionProvider pieceProvider = pieceStore.getPiece(pieceType);
+        if (pieceProvider == null) {
+            logger.error("unable to place piece with pieceType '" + pieceType + "'. PieceType does not exist.");
+            return;
+        }
+
+        int direction = getDirectionFromOwnerId(ownerId);
+        placePiece(targetTile, ownerId, direction, pieceProvider);
     }
 
     @Override

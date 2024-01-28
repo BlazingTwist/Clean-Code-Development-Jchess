@@ -90,6 +90,7 @@ public enum Hex2pPieceLayouts implements IPieceLayoutProvider {
 
     }
 
+    @SuppressWarnings("SameParameterValue")
     private record BoardController(IChessGame game, BiFunction<Integer, Integer, Entity> tileProvider) {
 
         private Entity getEntityAtPosition(int x, int y) {

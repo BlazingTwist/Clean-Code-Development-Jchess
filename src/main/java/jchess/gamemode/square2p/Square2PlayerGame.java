@@ -2,19 +2,14 @@ package jchess.gamemode.square2p;
 
 import dx.schema.types.Vector2I;
 import jchess.common.BaseChessGame;
-import jchess.common.components.PieceComponent;
-import jchess.common.components.PieceIdentifier;
 import jchess.common.components.TileComponent;
 import jchess.ecs.Entity;
 import jchess.gamemode.IPieceLayoutProvider;
 import jchess.gamemode.PieceStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.Point;
 
 public class Square2PlayerGame extends BaseChessGame {
-    private static final Logger logger = LoggerFactory.getLogger(Square2PlayerGame.class);
     private static final int numTiles = 8;
 
     private final Entity[][] tiles = new Entity[numTiles][numTiles];
@@ -47,18 +42,8 @@ public class Square2PlayerGame extends BaseChessGame {
     }
 
     @Override
-    public void createPiece(Entity targetTile, dx.schema.types.PieceType pieceType, int ownerId) {
-        for (Square2pPieces piece : Square2pPieces.values()) {
-            if (piece.getPieceType() == pieceType) {
-                placePiece(
-                        targetTile, ownerId,
-                        ownerId == 0 ? 0 : 180,
-                        piece
-                );
-                return;
-            }
-        }
-        logger.error("unable to place piece with pieceType '" + pieceType + "'. PieceType does not exist.");
+    protected int getDirectionFromOwnerId(int ownerId) {
+        return ownerId == 0 ? 0 : 180;
     }
 
     @Override
@@ -88,19 +73,6 @@ public class Square2PlayerGame extends BaseChessGame {
                 tileRow[x].tile = tile;
             }
         }
-    }
-
-    private void placePiece(Entity tile, int ownerId, int direction, Square2pPieces pieceType) {
-        PieceIdentifier pieceIdentifier = new PieceIdentifier(
-                pieceType.getPieceType(),
-                pieceType.getPieceDefinition().shortName(),
-                ownerId,
-                direction
-        );
-
-        PieceComponent piece = new PieceComponent(this, pieceIdentifier, pieceType.getPieceDefinition().baseMoves());
-        piece.addSpecialMoves(pieceType.getPieceDefinition().specialRules());
-        tile.piece = piece;
     }
 
 }
