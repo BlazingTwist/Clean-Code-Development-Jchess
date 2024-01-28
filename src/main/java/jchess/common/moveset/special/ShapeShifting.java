@@ -40,30 +40,30 @@ public class ShapeShifting implements ISpecialRule {
                 .toV1(shiftingPieceId).findTiles(movingPiece);
 
         return Stream.concat(currentMoves, targetTiles
-                .filter(move -> move.tile != null
-                        && move.piece != null
-                        && move.piece.identifier.ownerId() != movingPiece.piece.identifier.ownerId()
-                        && shiftablePieceTypes.contains(move.piece.identifier.pieceType()))
-                .map(move -> new MoveIntention(
-                        move,
-                        () -> {
-                            int owner = movingPiece.piece.identifier.ownerId();
-                            game.createPiece(movingPiece, move.piece.identifier.pieceType(), owner);
-                            game.movePieceStationary(movingPiece, ShapeShifting.class);
-                        },
-                        new ShapeShiftingSimulator(movingPiece, move.piece.identifier.pieceType(), shiftingPieceId.pieceType(), game)
-                )));
+                .filter(target -> target.tile != null
+                        && target.piece != null
+                        && target.piece.identifier.ownerId() != movingPiece.piece.identifier.ownerId()
+                        && shiftablePieceTypes.contains(target.piece.identifier.pieceType()))
+                .map(target -> {
+                    ShapeShiftingSimulator simulator = new ShapeShiftingSimulator(
+                            game, movingPiece, target.piece.identifier.pieceType(), shiftingPieceId.pieceType()
+                    );
+                    return MoveIntention.fromMoveSimulator(game, target, simulator);
+                }));
     }
 
-    private record ShapeShiftingSimulator(Entity shiftingPieceTile,
-                                          PieceType attackedPieceType,
-                                          PieceType originalPieceType,
-                                          IChessGame game) implements MoveIntention.IMoveSimulator {
+    private record ShapeShiftingSimulator(
+            IChessGame game,
+            Entity shiftingPieceTile,
+            PieceType attackedPieceType,
+            PieceType originalPieceType
+    ) implements MoveIntention.IMoveSimulator {
         @Override
         public void simulate() {
             assert shiftingPieceTile.piece != null;
             int owner = shiftingPieceTile.piece.identifier.ownerId();
             game.createPiece(shiftingPieceTile, attackedPieceType, owner);
+            game.notifyPieceMove(shiftingPieceTile, shiftingPieceTile, ShapeShifting.class);
         }
 
         @Override

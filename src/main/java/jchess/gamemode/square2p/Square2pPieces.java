@@ -38,10 +38,8 @@ public enum Square2pPieces implements PieceStore.IPieceDefinitionProvider {
     King(PieceType.KING, new PieceStore.PieceDefinition(
             "K",
             rotations(regex("0", false), 8),
-            (game, kingIdentifier) -> new Castling(
-                    game, kingIdentifier, Rook.pieceType, 90, 270,
-                    regex("270.270", true), regex("90.90", true)
-            )
+            (game, kingIdentifier) -> new Castling(game, kingIdentifier, Rook.pieceType, 90, 2),
+            (game, kingIdentifier) -> new Castling(game, kingIdentifier, Rook.pieceType, 270, 2)
     )),
     Pawn(PieceType.PAWN, new PieceStore.PieceDefinition(
             "",
