@@ -1,7 +1,6 @@
 package jchess;
 
 import dx.schema.types.PieceType;
-import jchess.common.IChessGame;
 import jchess.common.events.BoardClickedEvent;
 import jchess.common.moveset.NormalMove;
 import jchess.ecs.Entity;
@@ -15,19 +14,10 @@ import jchess.gamemode.square2p.Square2pPieces;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static helper.TestHelper.getTileAtPosition;
+import static helper.TestHelper.movePiece;
+
 public class RegressionTests {
-    private static Entity getTileAtPosition(IChessGame game, int x, int y) {
-        return game.getEntityManager().getEntities().stream()
-                .filter(entity -> entity.tile != null
-                        && entity.tile.position.x == x
-                        && entity.tile.position.y == y)
-                .findFirst().orElse(null);
-    }
-
-    private static void movePiece(IChessGame game, Entity from, Entity to) {
-        NormalMove.getMove(game, from, to).onClick().run();
-    }
-
     /**
      * Simulates an error-condition caused by incorrect MoveSimulator#revert logic, as described in Issue #27
      */
