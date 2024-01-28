@@ -25,7 +25,7 @@ public enum Hex2pPieces implements PieceStore.IPieceDefinitionProvider {
     )),
     Bishop(PieceType.BISHOP, new PieceStore.PieceDefinition(
             "B",
-            rotations(regex("30+", false),6)
+            rotations(regex("30+", false), 6)
     )),
     Queen(PieceType.QUEEN, new PieceStore.PieceDefinition(
             "Q",
@@ -77,7 +77,7 @@ public enum Hex2pPieces implements PieceStore.IPieceDefinitionProvider {
     Skrull(PieceType.SKRULL, new PieceStore.PieceDefinition(
             "S",
             Pawn.pieceDefinition.baseMoves(),
-            (game, skrullId) -> new ShapeShifting(game, skrullId, 1, 2,
+            (game, skrullId) -> new ShapeShifting(game, skrullId, rotations(regex("(0 30 60){1,2}", true), 6),
                     PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.ARCHER, PieceType.CATAPULT, PieceType.PAWN
             )
     ));

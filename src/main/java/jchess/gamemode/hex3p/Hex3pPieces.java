@@ -91,7 +91,7 @@ public enum Hex3pPieces implements PieceStore.IPieceDefinitionProvider {
             "S",
             Pawn.pieceDefinition.baseMoves(),
             (game, skrullId) -> new ShapeShifting(game, skrullId,
-                    rotations(regex("(0 30 60){1,2}", true),6),
+                    rotations(regex("(0 30 60){1,2}", true), 6),
                     PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.ARCHER, PieceType.CATAPULT, PieceType.PAWN
             )
     ));
