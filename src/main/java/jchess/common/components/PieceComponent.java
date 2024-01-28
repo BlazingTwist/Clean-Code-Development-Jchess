@@ -6,6 +6,7 @@ import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.ISpecialRuleProvider;
 import jchess.common.moveset.MoveIntention;
 import jchess.common.moveset.NormalMove;
+import jchess.common.state.StateManager;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
 import jchess.el.v2.ExpressionCompiler;
@@ -42,14 +43,14 @@ public class PieceComponent {
         );
     }
 
-    public Stream<MoveIntention> findValidMoves(Entity thisTile, boolean verifyKingSafe) {
+    public Stream<MoveIntention> findValidMoves(IChessGame game, Entity thisTile, boolean verifyKingSafe) {
         if (thisTile.tile == null) return Stream.empty();
 
         Stream<MoveIntention> moves = Stream.empty();
         if (baseMoveSet != null) {
             moves = Stream.concat(
                     moves,
-                    baseMoveSet.findTiles(thisTile).map(toTile -> NormalMove.getMove(game, thisTile, toTile))
+                    baseMoveSet.findTiles(thisTile).map(toTile -> NormalMove.getMove(this.game, thisTile, toTile))
             );
         }
         for (ISpecialRule specialRule : specialMoveSet) {
@@ -57,14 +58,17 @@ public class PieceComponent {
         }
 
         if (verifyKingSafe) {
-            moves = verifyKingSafe(moves);
+            moves = verifyKingSafe(game, moves);
         }
 
         return moves;
     }
 
-    private Stream<MoveIntention> verifyKingSafe(Stream<MoveIntention> allMoves) {
+    private Stream<MoveIntention> verifyKingSafe(IChessGame game, Stream<MoveIntention> allMoves) {
         int ownPlayerId = identifier.ownerId();
+
+        StateManager stateManager = game.getStateManager();
+        stateManager.saveState();
 
         return allMoves.filter(move -> {
             MoveIntention.IMoveSimulator simulator = move.moveSimulator();
@@ -79,11 +83,12 @@ public class PieceComponent {
             boolean kingInCheckAfterMove = game.getEntityManager().getEntities().parallelStream()
                     .filter(entity -> entity.piece != null && entity.piece.identifier.ownerId() != ownPlayerId)
                     .anyMatch(entity -> entity
-                            .findValidMoves(false)
+                            .findValidMoves(game, false)
                             .anyMatch(moveTo -> moveTo.displayTile() == ownKing)
                     );
 
             simulator.revert();
+            stateManager.revertState();
 
             return !kingInCheckAfterMove;
         });

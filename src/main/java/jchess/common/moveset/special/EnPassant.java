@@ -5,16 +5,17 @@ import jchess.common.IChessGame;
 import jchess.common.components.PieceComponent;
 import jchess.common.components.PieceIdentifier;
 import jchess.common.events.PieceMoveEvent;
+import jchess.common.events.PieceMoveEvent.PieceMove;
 import jchess.common.moveset.ISpecialRule;
 import jchess.common.moveset.MoveIntention;
+import jchess.common.state.impl.ArrayState;
 import jchess.ecs.Entity;
 import jchess.el.CompiledTileExpression;
 import jchess.el.v2.TileExpression;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 public class EnPassant implements ISpecialRule {
@@ -23,7 +24,7 @@ public class EnPassant implements ISpecialRule {
     private final PieceType pawnTypeId;
     private final int[] pawnDoubleMoveDirections;
     private final CompiledTileExpression captureTiles;
-    private final Map<Integer, PieceMoveEvent.PieceMove> doubleMovesByPlayer = new HashMap<>();
+    private final PieceMove[] doubleMovesByPlayer;
 
     public EnPassant(IChessGame game, PieceIdentifier thisPawnId, PieceType pawnTypeId, int[] pawnDoubleMoveDirections, int[] pawnCaptureDirections) {
         this.game = game;
@@ -32,34 +33,36 @@ public class EnPassant implements ISpecialRule {
         this.pawnDoubleMoveDirections = pawnDoubleMoveDirections;
         this.captureTiles = TileExpression.neighbor(pawnCaptureDirections).toV1(thisPawnId);
 
+        ArrayState<PieceMove> movesState = new ArrayState<>(game.getNumPlayers(), PieceMove[]::new);
+        game.getStateManager().registerState(movesState);
+        doubleMovesByPlayer = movesState.getCurrent();
+
         game.getEventManager().getEvent(PieceMoveEvent.class).addListener(this::onPieceMove);
     }
 
-    private void onPieceMove(PieceMoveEvent.PieceMove move) {
+    private void onPieceMove(PieceMove move) {
         assert move.toTile().piece != null; // move always contains moved piece in toTile
         PieceComponent movedPiece = move.toTile().piece;
         if (movedPiece.identifier.ownerId() == thisPawnId.ownerId()) {
             // player made a move -> the window for an EnPassant move has passed
-            doubleMovesByPlayer.clear();
+            Arrays.fill(doubleMovesByPlayer, null);
             return;
         }
 
         if (movedPiece.identifier.pieceType() == pawnTypeId && move.moveType() == SpecialFirstMove.class) {
             // opponent has made a move that can be attacked with EnPassant
-            doubleMovesByPlayer.put(movedPiece.identifier.ownerId(), move);
+            doubleMovesByPlayer[movedPiece.identifier.ownerId()] = move;
         }
     }
 
     @Override
     public Stream<MoveIntention> getSpecialMoves(Entity thisPawn, Stream<MoveIntention> baseMoves) {
-        if (doubleMovesByPlayer.isEmpty()) {
-            return baseMoves;
-        }
-
         List<MoveIntention> result = new ArrayList<>();
-        for (Map.Entry<Integer, PieceMoveEvent.PieceMove> doubleMove : doubleMovesByPlayer.entrySet()) {
-            int doubleMovePlayer = doubleMove.getKey();
-            PieceMoveEvent.PieceMove moveInfo = doubleMove.getValue();
+        for (int doubleMovePlayer = 0; doubleMovePlayer < doubleMovesByPlayer.length; doubleMovePlayer++) {
+            PieceMove moveInfo = doubleMovesByPlayer[doubleMovePlayer];
+            if (moveInfo == null) {
+                continue;
+            }
 
             if (moveInfo.toTile().piece == null) {
                 // Might happen if another player took the moved pawn by EnPassant
@@ -75,10 +78,10 @@ public class EnPassant implements ISpecialRule {
                 result.add(getEnPassantMove(moveInfo, thisPawn, targetTile));
             }
         }
-        return Stream.concat(baseMoves, result.stream());
+        return result.isEmpty() ? baseMoves : Stream.concat(baseMoves, result.stream());
     }
 
-    private Entity findEnPassantTargetTile(PieceMoveEvent.PieceMove doubleMove, PieceIdentifier doubleMovedPawn, Entity thisPawn) {
+    private Entity findEnPassantTargetTile(PieceMove doubleMove, PieceIdentifier doubleMovedPawn, Entity thisPawn) {
         for (Entity captureTile : captureTiles.findTiles(thisPawn).toList()) {
             if (captureTile == null || captureTile.piece != null) {
                 // tile is out of bounds || tile can already be captured by normal move
@@ -108,14 +111,17 @@ public class EnPassant implements ISpecialRule {
         return null;
     }
 
-    private MoveIntention getEnPassantMove(PieceMoveEvent.PieceMove doubleMove, Entity thisPawnFromTile, Entity thisPawnToTile) {
-        return new MoveIntention(thisPawnToTile, () -> {
-            doubleMove.toTile().piece = null;
-            game.movePiece(thisPawnFromTile, thisPawnToTile, EnPassant.class);
-        }, new EnPassantSimulator(doubleMove.toTile().piece, doubleMove.toTile(), thisPawnFromTile, thisPawnToTile));
+    private MoveIntention getEnPassantMove(PieceMove doubleMove, Entity thisPawnFromTile, Entity thisPawnToTile) {
+        EnPassantSimulator simulator = new EnPassantSimulator(
+                game,
+                doubleMove.toTile().piece, doubleMove.toTile(),
+                thisPawnFromTile, thisPawnToTile
+        );
+        return MoveIntention.fromMoveSimulator(game, thisPawnToTile, simulator);
     }
 
     private record EnPassantSimulator(
+            IChessGame game,
             PieceComponent capturedPiece, Entity capturedPieceTile,
             Entity moveFromTile, Entity moveToTile
     ) implements MoveIntention.IMoveSimulator {
@@ -125,6 +131,7 @@ public class EnPassant implements ISpecialRule {
             capturedPieceTile.piece = null;
             moveToTile.piece = moveFromTile.piece;
             moveFromTile.piece = null;
+            game.notifyPieceMove(moveFromTile, moveToTile, EnPassant.class);
         }
 
         @Override

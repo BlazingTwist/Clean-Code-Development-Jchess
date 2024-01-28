@@ -1,5 +1,6 @@
 package jchess.ecs;
 
+import jchess.common.IChessGame;
 import jchess.common.components.MarkerComponent;
 import jchess.common.components.PieceComponent;
 import jchess.common.components.TileComponent;
@@ -18,17 +19,19 @@ public class Entity {
     @Nullable
     public MarkerComponent marker;
 
-    public Stream<MoveIntention> findValidMoves(boolean verifyKingSafe) {
-        return piece == null ? Stream.empty() : piece.findValidMoves(this, verifyKingSafe);
+    public Stream<MoveIntention> findValidMoves(IChessGame game, boolean verifyKingSafe) {
+        return piece == null ? Stream.empty() : piece.findValidMoves(game, this, verifyKingSafe);
     }
 
     public boolean isAttacked() {
         if (tile == null || piece == null) return false;
+        return isAttacked(piece.identifier.ownerId());
+    }
 
-        final int ownerId = piece.identifier.ownerId();
-        return tile.attackingPieces.stream().anyMatch(attacker -> {
+    public boolean isAttacked(int attackedPlayer) {
+        return tile != null && tile.attackingPieces.stream().anyMatch(attacker -> {
             assert attacker.piece != null; // attacker must be a piece.
-            return attacker.piece.identifier.ownerId() != ownerId;
+            return attacker.piece.identifier.ownerId() != attackedPlayer;
         });
     }
 }
