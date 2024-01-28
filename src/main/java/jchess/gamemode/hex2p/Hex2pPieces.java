@@ -64,7 +64,7 @@ public enum Hex2pPieces implements PieceStore.IPieceDefinitionProvider {
 
     Pegasus(PieceType.PEGASUS, new PieceStore.PieceDefinition(
             "PE",
-            rotations(regex("(0 60){1,3}", true), 6)
+            rotations(regex("(0 60){3}", true), 6)
     )),
     Catapult(PieceType.CATAPULT, new PieceStore.PieceDefinition(
             "C",
