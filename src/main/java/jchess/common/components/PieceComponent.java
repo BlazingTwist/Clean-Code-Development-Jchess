@@ -43,7 +43,7 @@ public class PieceComponent {
         );
     }
 
-    public Stream<MoveIntention> findValidMoves(IChessGame game, Entity thisTile, boolean verifyKingSafe) {
+    public Stream<MoveIntention> findValidMoves(Entity thisTile, boolean verifyKingSafe) {
         if (thisTile.tile == null) return Stream.empty();
 
         Stream<MoveIntention> moves = Stream.empty();
@@ -58,13 +58,13 @@ public class PieceComponent {
         }
 
         if (verifyKingSafe) {
-            moves = verifyKingSafe(game, moves);
+            moves = verifyKingSafe(moves);
         }
 
         return moves;
     }
 
-    private Stream<MoveIntention> verifyKingSafe(IChessGame game, Stream<MoveIntention> allMoves) {
+    private Stream<MoveIntention> verifyKingSafe(Stream<MoveIntention> allMoves) {
         int ownPlayerId = identifier.ownerId();
 
         StateManager stateManager = game.getStateManager();
@@ -83,7 +83,7 @@ public class PieceComponent {
             boolean kingInCheckAfterMove = game.getEntityManager().getEntities().parallelStream()
                     .filter(entity -> entity.piece != null && entity.piece.identifier.ownerId() != ownPlayerId)
                     .anyMatch(entity -> entity
-                            .findValidMoves(game, false)
+                            .findValidMoves(false)
                             .anyMatch(moveTo -> moveTo.displayTile() == ownKing)
                     );
 

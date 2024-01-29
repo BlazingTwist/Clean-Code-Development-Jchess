@@ -18,7 +18,7 @@ public class TileComponent {
         game.getEntityManager().getEntities().parallelStream()
                 .filter(entity -> entity.tile != null && entity.piece != null)
                 .forEach(entity -> entity
-                        .findValidMoves(game, false)
+                        .findValidMoves(false)
                         .forEach(move -> {
                             assert move.displayTile().tile != null;
                             move.displayTile().tile.attackingPieces.add(entity);

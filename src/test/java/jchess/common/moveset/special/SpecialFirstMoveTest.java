@@ -40,7 +40,7 @@ public class SpecialFirstMoveTest {
 
     @Test
     public void test_specialMoveAllowed() {
-        MoveIntention doubleMove = findMoveToTile(game, x0y6, x0y4);
+        MoveIntention doubleMove = findMoveToTile(x0y6, x0y4);
         Assertions.assertNotNull(doubleMove);
         doubleMove.onClick().run();
 
@@ -51,12 +51,12 @@ public class SpecialFirstMoveTest {
 
     @Test
     public void test_specialMoveTooLate() {
-        MoveIntention singleMove = findMoveToTile(game, x0y6, x0y5);
+        MoveIntention singleMove = findMoveToTile(x0y6, x0y5);
         Assertions.assertNotNull(singleMove);
         singleMove.onClick().run();
 
-        MoveIntention doubleMove = findMoveToTile(game, x0y5, x0y3);
-        MoveIntention singleMove2 = findMoveToTile(game, x0y5, x0y4);
+        MoveIntention doubleMove = findMoveToTile(x0y5, x0y3);
+        MoveIntention singleMove2 = findMoveToTile(x0y5, x0y4);
         Assertions.assertNull(doubleMove);
         Assertions.assertNotNull(singleMove2);
     }
@@ -65,7 +65,7 @@ public class SpecialFirstMoveTest {
     public void test_specialMoveBlockedNear() {
         game.createPiece(x0y5, PieceType.PAWN, 1);
 
-        MoveIntention doubleMove = findMoveToTile(game, x0y6, x0y4);
+        MoveIntention doubleMove = findMoveToTile(x0y6, x0y4);
         Assertions.assertNull(doubleMove);
     }
 
@@ -73,7 +73,7 @@ public class SpecialFirstMoveTest {
     public void test_specialMoveBlockedFar() {
         game.createPiece(x0y4, PieceType.PAWN, 1);
 
-        MoveIntention doubleMove = findMoveToTile(game, x0y6, x0y4);
+        MoveIntention doubleMove = findMoveToTile(x0y6, x0y4);
         Assertions.assertNull(doubleMove);
     }
 }

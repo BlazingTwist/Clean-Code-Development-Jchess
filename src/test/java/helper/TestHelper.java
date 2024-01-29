@@ -31,8 +31,8 @@ public class TestHelper {
         return entity.piece == null;
     }
 
-    public static MoveIntention findMoveToTile(IChessGame game, Entity piece, Point displayTile) {
-        return piece.findValidMoves(game, false)
+    public static MoveIntention findMoveToTile(Entity piece, Point displayTile) {
+        return piece.findValidMoves(false)
                 .filter(move -> {
                     Entity displayEntity = move.displayTile();
                     if (displayEntity == null || displayEntity.tile == null) return false;
@@ -42,8 +42,8 @@ public class TestHelper {
                 .findFirst().orElse(null);
     }
 
-    public static MoveIntention findMoveToTile(IChessGame game, Entity piece, Entity displayTile) {
-        return piece.findValidMoves(game, false)
+    public static MoveIntention findMoveToTile(Entity piece, Entity displayTile) {
+        return piece.findValidMoves(false)
                 .filter(move -> {
                     Entity displayEntity = move.displayTile();
                     if (displayEntity == null || displayEntity.tile == null) return false;

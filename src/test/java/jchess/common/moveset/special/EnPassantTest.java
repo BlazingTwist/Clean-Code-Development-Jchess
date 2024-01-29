@@ -55,11 +55,11 @@ public class EnPassantTest {
 
     @Test
     public void test_enPassantAllowed() {
-        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(game, x2y6, x2y4);
+        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(x2y6, x2y4);
         Assertions.assertNotNull(whiteDoubleMove);
         whiteDoubleMove.onClick().run();
 
-        MoveIntention enPassantMove = TestHelper.findMoveToTile(game, x1y4, x2y5);
+        MoveIntention enPassantMove = TestHelper.findMoveToTile(x1y4, x2y5);
         Assertions.assertNull(x2y5.piece);
         Assertions.assertNotNull(enPassantMove);
 
@@ -70,33 +70,33 @@ public class EnPassantTest {
 
     @Test
     public void test_enPassantTooLate() {
-        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(game, x2y6, x2y4);
+        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(x2y6, x2y4);
         Assertions.assertNotNull(whiteDoubleMove);
         whiteDoubleMove.onClick().run();
 
         // black misses the enPassant opportunity by moving an unrelated piece
         TestHelper.movePiece(game, x0y1, x0y2);
 
-        MoveIntention enPassantMove = TestHelper.findMoveToTile(game, x1y4, x2y5);
+        MoveIntention enPassantMove = TestHelper.findMoveToTile(x1y4, x2y5);
         Assertions.assertNull(enPassantMove);
     }
 
     @Test
     public void test_enPassantAlreadyCaptured() {
-        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(game, x2y6, x2y4);
+        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(x2y6, x2y4);
         Assertions.assertNotNull(whiteDoubleMove);
         whiteDoubleMove.onClick().run();
 
         // pretend another player (relevant for 3-Player chess) has already captured the pawn
         x2y4.piece = null;
 
-        MoveIntention enPassantMove = TestHelper.findMoveToTile(game, x1y4, x2y5);
+        MoveIntention enPassantMove = TestHelper.findMoveToTile(x1y4, x2y5);
         Assertions.assertNull(enPassantMove);
     }
 
     @Test
     public void test_enPassantBlocked() {
-        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(game, x2y6, x2y4);
+        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(x2y6, x2y4);
         Assertions.assertNotNull(whiteDoubleMove);
         whiteDoubleMove.onClick().run();
 
@@ -104,13 +104,13 @@ public class EnPassantTest {
         game.createPiece(x2y5, PieceType.BISHOP, 1);
 
         // then enPassant is blocked by a friendly piece
-        MoveIntention enPassantMove = TestHelper.findMoveToTile(game, x1y4, x2y5);
+        MoveIntention enPassantMove = TestHelper.findMoveToTile(x1y4, x2y5);
         Assertions.assertNull(enPassantMove);
     }
 
     @Test
     public void test_enPassantBlockedCapture() {
-        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(game, x2y6, x2y4);
+        MoveIntention whiteDoubleMove = TestHelper.findMoveToTile(x2y6, x2y4);
         Assertions.assertNotNull(whiteDoubleMove);
         whiteDoubleMove.onClick().run();
 
@@ -118,7 +118,7 @@ public class EnPassantTest {
         game.createPiece(x2y5, PieceType.BISHOP, 0); // 0 in this case, because 2 player game
 
         // then the move should be a normal capture move
-        MoveIntention enPassantMove = TestHelper.findMoveToTile(game, x1y4, x2y5);
+        MoveIntention enPassantMove = TestHelper.findMoveToTile(x1y4, x2y5);
         Assertions.assertTrue(hasPiece(x2y5, PieceType.BISHOP, 0));
         Assertions.assertNotNull(enPassantMove);
 

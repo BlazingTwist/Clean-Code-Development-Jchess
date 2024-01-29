@@ -103,7 +103,7 @@ public abstract class BaseChessGame implements IChessGame {
 
             // show the tiles this piece can move to
             boolean isActivePiece = clickedEntity.piece.identifier.ownerId() == activePlayerId;
-            clickedEntity.findValidMoves(this, true).forEach(move -> createMoveToMarker(move, isActivePiece));
+            clickedEntity.findValidMoves(true).forEach(move -> createMoveToMarker(move, isActivePiece));
             createSelectionMarker(clickedEntity);
 
             long endTime = System.currentTimeMillis();
@@ -176,7 +176,7 @@ public abstract class BaseChessGame implements IChessGame {
         // Game is over if the current player is unable to make any moves.
         boolean gameOver = entityManager.getEntities().stream()
                 .filter(entity -> entity.piece != null && entity.piece.identifier.ownerId() == activePlayerId)
-                .allMatch(entity -> entity.findValidMoves(this, true).findAny().isEmpty());
+                .allMatch(entity -> entity.findValidMoves(true).findAny().isEmpty());
 
         if (gameOver) {
             logger.info("Game Over! Losing Player: {}", activePlayerId);

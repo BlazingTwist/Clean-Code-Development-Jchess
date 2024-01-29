@@ -132,7 +132,7 @@ public class PieceMoveRulesTest {
         PieceIdentifier identifier = new PieceIdentifier(pieceType.getPieceType(), pieceDefinition.shortName(), 0, 0);
         PieceComponent piece = new PieceComponent(null, identifier, pieceDefinition.baseMoves());
 
-        List<Entity> moves = piece.findValidMoves(null, testField[tileToTest], false).map(MoveIntention::displayTile).toList();
+        List<Entity> moves = piece.findValidMoves(testField[tileToTest], false).map(MoveIntention::displayTile).toList();
         List<Entity> expectedMoves = Arrays.stream(expectedTiles).mapToObj(expectedTile -> testField[expectedTile]).toList();
         Assertions.assertEquals(new HashSet<>(expectedMoves), new HashSet<>(moves), "Set of possible moves does not match the expected ones. piece: '" + pieceType + "'");
     }

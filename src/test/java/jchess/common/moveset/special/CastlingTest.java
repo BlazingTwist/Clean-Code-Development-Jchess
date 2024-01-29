@@ -62,8 +62,8 @@ public class CastlingTest {
         x5y7.piece = null;
         TileComponent.updateAttackInfo(game);
 
-        MoveIntention blackCastleMove = TestHelper.findMoveToTile(game, x4y0, new Point(2, 0));
-        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(game, x4y7, new Point(6, 7));
+        MoveIntention blackCastleMove = TestHelper.findMoveToTile(x4y0, new Point(2, 0));
+        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(x4y7, new Point(6, 7));
         Assertions.assertNotNull(blackCastleMove);
         Assertions.assertNotNull(whiteCastleMove);
 
@@ -84,8 +84,8 @@ public class CastlingTest {
         // x5y7.piece = null;
         TileComponent.updateAttackInfo(game);
 
-        MoveIntention blackCastleMove = TestHelper.findMoveToTile(game, x4y0, new Point(2, 0));
-        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(game, x4y7, new Point(6, 7));
+        MoveIntention blackCastleMove = TestHelper.findMoveToTile(x4y0, new Point(2, 0));
+        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(x4y7, new Point(6, 7));
         Assertions.assertNull(blackCastleMove);
         Assertions.assertNull(whiteCastleMove);
     }
@@ -107,8 +107,8 @@ public class CastlingTest {
         TestHelper.movePiece(game, x7y7, x6y7);
         TestHelper.movePiece(game, x6y7, x7y7);
 
-        MoveIntention blackCastleMove = TestHelper.findMoveToTile(game, x4y0, new Point(2, 0));
-        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(game, x4y7, new Point(6, 7));
+        MoveIntention blackCastleMove = TestHelper.findMoveToTile(x4y0, new Point(2, 0));
+        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(x4y7, new Point(6, 7));
         Assertions.assertNull(blackCastleMove);
         Assertions.assertNull(whiteCastleMove);
     }
@@ -127,8 +127,8 @@ public class CastlingTest {
         Assertions.assertTrue(x4y0.isAttacked()); // black king is attacked
         Assertions.assertTrue(x4y7.isAttacked()); // white king is attacked
 
-        MoveIntention blackCastleMove = TestHelper.findMoveToTile(game, x4y0, new Point(2, 0));
-        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(game, x4y7, new Point(6, 7));
+        MoveIntention blackCastleMove = TestHelper.findMoveToTile(x4y0, new Point(2, 0));
+        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(x4y7, new Point(6, 7));
         Assertions.assertNull(blackCastleMove);
         Assertions.assertNull(whiteCastleMove);
     }
@@ -147,8 +147,8 @@ public class CastlingTest {
         Assertions.assertTrue(x2y0.isAttacked(1)); // black king destination is attacked
         Assertions.assertTrue(x5y7.isAttacked(0)); // white king path is attacked
 
-        MoveIntention blackCastleMove = TestHelper.findMoveToTile(game, x4y0, new Point(2, 0));
-        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(game, x4y7, new Point(6, 7));
+        MoveIntention blackCastleMove = TestHelper.findMoveToTile(x4y0, new Point(2, 0));
+        MoveIntention whiteCastleMove = TestHelper.findMoveToTile(x4y7, new Point(6, 7));
         Assertions.assertNull(blackCastleMove);
         Assertions.assertNull(whiteCastleMove);
     }

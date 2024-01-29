@@ -80,12 +80,12 @@ public class RegressionTests {
         Assertions.assertSame(blackKingTile.piece.identifier.ownerId(), 1);
 
         Assertions.assertTrue(x3.isAttacked(1), "white bishop should be attacking this tile");
-        Assertions.assertFalse(blackKingTile.findValidMoves(game, true).anyMatch(move -> move.displayTile() == x2),
+        Assertions.assertFalse(blackKingTile.findValidMoves(true).anyMatch(move -> move.displayTile() == x2),
                 "black king should not be able to castle");
 
         movePiece(game, bishop1, bishop0);
         Assertions.assertFalse(x3.isAttacked(1), "white bishop should not be attacking this tile anymore");
-        Assertions.assertTrue(blackKingTile.findValidMoves(game, true).anyMatch(move -> move.displayTile() == x2),
+        Assertions.assertTrue(blackKingTile.findValidMoves(true).anyMatch(move -> move.displayTile() == x2),
                 "black king should be able to castle");
     }
 }
