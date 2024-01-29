@@ -27,6 +27,10 @@ public class TestHelper {
                 && entity.piece.identifier.ownerId() == owner;
     }
 
+    public static boolean hasNoPiece(Entity entity) {
+        return entity.piece == null;
+    }
+
     public static MoveIntention findMoveToTile(IChessGame game, Entity piece, Point displayTile) {
         return piece.findValidMoves(game, false)
                 .filter(move -> {
