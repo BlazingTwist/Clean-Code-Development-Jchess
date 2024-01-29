@@ -46,8 +46,10 @@ jobs:
           redocly build-docs ./src/main/resources/dx/Swagger.schema.yml --output=./docs/api-docs/swagger.html
 
       - name: Retrieve Jacoco Report
-        uses: actions/download-artifact@master
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: maven.yml
+          workflow_conclusion: success
           name: jacoco-site
           path: ./docs/jacoco
 
