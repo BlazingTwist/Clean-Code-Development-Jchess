@@ -37,4 +37,15 @@ public class TestHelper {
                 })
                 .findFirst().orElse(null);
     }
+
+    public static MoveIntention findMoveToTile(IChessGame game, Entity piece, Entity displayTile) {
+        return piece.findValidMoves(game, false)
+                .filter(move -> {
+                    Entity displayEntity = move.displayTile();
+                    if (displayEntity == null || displayEntity.tile == null) return false;
+
+                    return displayEntity == displayTile;
+                })
+                .findFirst().orElse(null);
+    }
 }
