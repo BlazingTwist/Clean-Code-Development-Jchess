@@ -98,6 +98,14 @@ public abstract class BaseChessGame implements IChessGame {
             return;
         }
 
+        if (clickedEntity.tile != null) {
+            // show which pieces can move to the selected tile
+            for (Entity attacker : clickedEntity.tile.attackingPieces) {
+                createMoveFromMarker(attacker);
+            }
+            createSelectionMarker(clickedEntity);
+        }
+
         if (clickedEntity.piece != null) {
             long startTime = System.currentTimeMillis();
 
@@ -108,14 +116,6 @@ public abstract class BaseChessGame implements IChessGame {
 
             long endTime = System.currentTimeMillis();
             logger.info("Computing valid moves with kingCheck took {} ms", endTime - startTime);
-        }
-
-        if (clickedEntity.tile != null) {
-            // show which pieces can move to the selected tile
-            for (Entity attacker : clickedEntity.tile.attackingPieces) {
-                createMoveFromMarker(attacker);
-            }
-            createSelectionMarker(clickedEntity);
         }
 
         eventManager.getEvent(RenderEvent.class).fire(null);
