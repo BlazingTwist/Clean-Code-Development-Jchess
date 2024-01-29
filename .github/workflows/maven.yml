@@ -54,3 +54,9 @@ jobs:
         publish_only_summary: true
     - name: Add Coverage Job Summary
       run: echo "${{ steps.jacoco_reporter.outputs.coverageSummary }}" >> $GITHUB_STEP_SUMMARY
+    - name: Publish Jacoco Report for GitHub Pages
+      uses: actions/upload-artifact@master
+      with:
+        name: jacoco-site
+        path: target/site/jacoco
+        retention-days: 1

@@ -45,6 +45,12 @@ jobs:
           ag --output ./docs/api-docs/asyncapi/ ./src/main/resources/dx/AsyncApi.schema.yml @asyncapi/html-template
           redocly build-docs ./src/main/resources/dx/Swagger.schema.yml --output=./docs/api-docs/swagger.html
 
+      - name: Retrieve Jacoco Report
+        uses: actions/download-artifact@master
+        with:
+          name: jacoco-site
+          path: ./docs/jacoco
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload docs dir
