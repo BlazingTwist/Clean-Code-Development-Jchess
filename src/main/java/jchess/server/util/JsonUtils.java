@@ -10,7 +10,6 @@ public class JsonUtils {
     private static final Logger logger = LoggerFactory.getLogger(JsonUtils.class);
 
     public static ObjectMapper getMapper() {
-        // TODO erja, general serialization configuration here
         return new ObjectMapper();
     }
 

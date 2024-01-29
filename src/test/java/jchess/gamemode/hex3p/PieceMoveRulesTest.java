@@ -143,7 +143,7 @@ public class PieceMoveRulesTest {
         moveTestNoOtherPieces(Hex3pPieces.Pawn, 0, new int[]{});
         moveTestNoOtherPieces(Hex3pPieces.Pawn, 1, new int[]{10});
         moveTestNoOtherPieces(Hex3pPieces.Pawn, 5, new int[]{1, 2});
-        moveTestNoOtherPieces(Hex3pPieces.Pawn, 9, new int[]{7, 8});//TODO wenn 2er move fertig eingebaut, 4 und 6 hinzufügen ins array
+        moveTestNoOtherPieces(Hex3pPieces.Pawn, 9, new int[]{7, 8});
     }
 
     @Test
